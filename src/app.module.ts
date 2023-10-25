@@ -6,8 +6,8 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import config from "./config/config";
 import { AuthorizationModule } from "./modules/authorization/authorization.module";
-import { ProjectsModule } from "./modules/projects/projects.module";
 import { UserModule } from "./modules/user/user.module";
+import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module";
 
 @Module({
 	imports: [
@@ -16,9 +16,9 @@ import { UserModule } from "./modules/user/user.module";
 			isGlobal: true,
 		}),
 		MongooseModule.forRoot(process.env.MONGODB_URI),
-		UserModule,
 		AuthorizationModule,
-		ProjectsModule,
+		UserModule,
+		UserRoadmapsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
