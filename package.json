@@ -23,6 +23,8 @@
     "@nestjs/passport": "^10.0.2",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.13",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "express-jwt": "^8.4.1",
     "helmet": "^7.0.0",
     "jwks-rsa": "^3.1.0",
