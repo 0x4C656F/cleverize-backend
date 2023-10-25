@@ -43,8 +43,7 @@ RUN yarn build
 
 EXPOSE 8000 80
 
-RUN chmod +x ./scripts/start-prod.sh
-CMD ["/bin/sh", "./scripts/start-prod.sh"]
+CMD ["yarn", "start"]
 
 
 ###################
@@ -63,5 +62,4 @@ ENV NODE_ENV development
 
 EXPOSE 8000 80
 
-RUN chmod +x ./scripts/start-dev.sh
-CMD ["/bin/sh", "./scripts/start-dev.sh"]
+CMD ["yarn", "start:dev"]
