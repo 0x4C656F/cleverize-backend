@@ -5,7 +5,7 @@
 	"private": true,
 	"license": "UNLICENSED",
 	"scripts": {
-		"prebuild": "rm -rf dist",
+		"prebuild": "rmdir /s /q dist",
 		"build": "nest build",
 		"start": "nest start",
 		"start:dev": "nest start --watch",
@@ -68,4 +68,3 @@
 		"typescript": "^5.1.3"
 	}
 }
-
