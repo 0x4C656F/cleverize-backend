@@ -4,7 +4,7 @@ module.exports = {
 		"^src/(.*)$": "<rootDir>/src/$1",
 	},
 	rootDir: "./",
-	roots: ["<rootDir>/test"],
+	roots: ["<rootDir>/src"],
 	testRegex: ".*\\.spec\\.ts$",
 	transform: {
 		"^.+\\.(t|j)s$": "ts-jest",
