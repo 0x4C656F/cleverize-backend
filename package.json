@@ -28,6 +28,7 @@
     "express-jwt": "^8.4.1",
     "helmet": "^7.0.0",
     "jwks-rsa": "^3.1.0",
+    "langchain": "^0.0.180",
     "mongoose": "^7.6.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
