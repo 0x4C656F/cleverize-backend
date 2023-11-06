@@ -9,6 +9,12 @@ export class UserRoadmap {
 
 	@Prop({ required: true, type: Types.ObjectId, ref: User.name })
 	public owner_id: User;
+
+	@Prop({ required: true })
+	public title: string;
+
+	@Prop({ required: true })
+	public node_list: [];
 }
 
 export type UserRoadmapDocument = UserRoadmap & Document;
