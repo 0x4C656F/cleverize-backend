@@ -1,12 +1,8 @@
-import { ApiProperty, OmitType, PickType } from "@nestjs/swagger";
-import { IsMongoId } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsString } from "class-validator";
 
 export class CreateUserRoadmapDto {
-	@IsMongoId()
-	@ApiProperty({ example: "507f191e810c19729de860ea" })
-	public ownerId: string;
+	@IsString()
+	@ApiProperty({ example: "Next.js frontend developer" })
+	public title: string;
 }
-
-export class CreateUserRoadmapParametersDto extends PickType(CreateUserRoadmapDto, ["ownerId"]) {}
-
-export class CreateUserRoadmapBodyDto extends OmitType(CreateUserRoadmapDto, ["ownerId"]) {}

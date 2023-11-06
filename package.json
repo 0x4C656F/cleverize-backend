@@ -7,10 +7,12 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "nest build",
+    "build:docker": "sudo docker compose -f docker-compose.dev.yml build",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "start:docker": "sudo docker compose -f docker-compose.dev.yml up",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"
