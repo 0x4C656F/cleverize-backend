@@ -6,17 +6,8 @@ export class User {
 	@Prop({ required: true, unique: true })
 	user_id: string;
 
-	@Prop({ required: true })
-	email: string;
-
 	@Prop()
-	username: string;
-
-	@Prop()
-	avatarUrl?: string;
-
-	@Prop()
-	projects: [];
+	roadmaps: [];
 
 	@Prop()
 	achievements: [];

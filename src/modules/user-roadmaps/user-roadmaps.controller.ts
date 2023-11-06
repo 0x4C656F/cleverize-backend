@@ -1,28 +1,77 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post } from "@nestjs/common";
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Logger,
+	NotFoundException,
+	Param,
+	Post,
+	Put,
+	Req,
+	UseGuards,
+} from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { AuthGuard } from "@nestjs/passport";
 import { ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
+
+import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
+import generateRoadmap from "../ailogic/roadmapGenerator/generate_roadmap";
 
 @ApiTags("User roadmaps")
 @Controller()
 export class UserRoadmapsController {
 	constructor(@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>) {}
 
-	@Post("/users/:userId/roadmaps")
-	public async createUserRoadmap(@Body() dto: CreateUserRoadmapDto) {
-		const roadmap = new this.model(dto);
-
-		return await roadmap.save();
+	private getMockData() {
+		return "1. HTML \n2. CSS\n 3. JS\n1. HTML \n2. CSS\n 3. JS\n1. HTML \n2. CSS\n 3. JS\n";
 	}
 
-	@Get("/users/:userId/roadmaps/:roadmapId")
-	public async getUserRoadmapById(@Param() parameters: OperateUserRoadmapByIdDto) {
+	@UseGuards(AuthGuard("jwt"))
+	@Post("/users/me/roadmaps")
+	public async createUserRoadmap(
+		@Req() req,
+		@UserPayload() payload: JWTPayload,
+		@Body() body: CreateUserRoadmapDto
+	) {
+		try {
+			const data = await generateRoadmap(body.title);
+			const nodeList = data.split(/\W\d\. |\d\. /gm).map((title) => {
+				return { title, sub_roadmap_id: undefined };
+			});
+			const roadmap = new this.model({
+				owner_id: req.user.sub,
+				title: body.title,
+				node_list: nodeList,
+			});
+
+			return await roadmap.save();
+		} catch (error) {
+			Logger.error(error);
+
+			throw error;
+		}
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/users/me/roadmaps")
+	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {
+		return await this.model.find({ owner_id: payload.sub });
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/users/me/roadmaps/:roadmapId")
+	public async getUserRoadmapById(
+		@Param() parameters: OperateUserRoadmapByIdDto,
+		@UserPayload() payload: JWTPayload
+	) {
 		const roadmap = await this.model
-			.findOne({ id: parameters.roadmapId, user_id: parameters.userId })
+			.findOne({ _id: parameters.roadmapId, owner_id: payload.sub })
 			.exec();
 
 		if (!roadmap) throw new NotFoundException();
@@ -30,17 +79,41 @@ export class UserRoadmapsController {
 		return roadmap;
 	}
 
-	@Get("users/:userId/roadmaps")
-	public async getAllUserRoadmap(@Param() parameters: OperateUserRoadmapByIdDto) {
-		//this code has to return all user`s roadmaps
+	@UseGuards(AuthGuard("jwt"))
+	@Put("/users/me/roadmaps/:roadmapId")
+	public async updateUserRoadmapById(
+		@Param() parameters: OperateUserRoadmapByIdDto,
+		@UserPayload() payload: JWTPayload
+	) {
+		try {
+			return await this.model
+				.findOneAndUpdate(
+					{ _id: parameters.roadmapId, owner_id: payload.sub },
+					{ owner_id: "ff425bb266d02a7d43105376" }
+				)
+				.exec();
+		} catch (error) {
+			Logger.error(error);
+
+			throw error;
+		}
 	}
 
-	@Delete("users/:userId/roadmaps/:roadmapId")
-	public async deleteUserRoadmapById(@Param() parameters: OperateUserRoadmapByIdDto) {
-		//this code has to delete user`s roadmap
-		//Actually im not sure whether :userId is needed. The @AuthGuard returns an object with current user data, there is user`s id(user_id).
-		//Since roadmap can be deleted only by it`s owner-
-		//In order to lift the weight from client and move it on backend, i`d suggest we use id provided by authGuard.
-		//It`s negotiatable.
+	@UseGuards(AuthGuard("jwt"))
+	@Delete("/users/me/roadmaps/:roadmapId")
+	public async deleteUserRoadmapById(
+		@Param() parameters: OperateUserRoadmapByIdDto,
+		@UserPayload() payload: JWTPayload
+	) {
+		try {
+			return await this.model.deleteOne({
+				_id: parameters.roadmapId,
+				owner_id: payload.sub,
+			});
+		} catch (error) {
+			Logger.error(error);
+
+			throw error;
+		}
 	}
 }

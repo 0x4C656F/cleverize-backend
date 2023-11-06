@@ -1,10 +1,20 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+
+import { User } from "../user/entity/user.schema";
 
 @Schema()
 export class UserRoadmap {
-	@Prop({ required: true, unique: true })
-	id: string;
+	public _id: Types.ObjectId;
+
+	@Prop({ required: true, type: Types.ObjectId, ref: User.name })
+	public owner_id: User;
+
+	@Prop({ required: true })
+	public title: string;
+
+	@Prop({ required: true })
+	public node_list: [];
 }
 
 export type UserRoadmapDocument = UserRoadmap & Document;

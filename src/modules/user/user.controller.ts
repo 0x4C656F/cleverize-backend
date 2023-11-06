@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards, Get } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 import { UserService } from "./user.service";
+import generateRoadmap from "../ailogic/roadmapGenerator/generate_roadmap";
 
 @Controller("/users")
 export class UserController {
@@ -16,7 +17,9 @@ export class UserController {
 		return this.userService.findAll();
 	}
 	@Post("/call")
-	async call(@Body() data): Promise<void> {
-		return this.userService.call(data.title, data.user_context);
+	public async call(@Body() body): Promise<string> {
+		let res = await generateRoadmap(body.title);
+		console.log(res);
+		return res;
 	}
 }
