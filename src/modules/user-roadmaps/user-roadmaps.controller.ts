@@ -1,4 +1,5 @@
 import {
+	Body,
 	Controller,
 	Delete,
 	Get,
@@ -7,12 +8,16 @@ import {
 	Param,
 	Post,
 	Put,
+	UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { AuthGuard } from "@nestjs/passport";
 import { ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
 
-import { CreateUserRoadmapParametersDto } from "./dtos/create-user-roadmap.dto";
+import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
+
+import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 
@@ -21,10 +26,28 @@ import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 export class UserRoadmapsController {
 	constructor(@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>) {}
 
-	@Post("/users/:ownerId/roadmaps")
-	public async createUserRoadmap(@Param() parameters: CreateUserRoadmapParametersDto) {
+	private getMockData() {
+		return "1. HTML \n2. CSS\n 3. JS";
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Post("/users/me/roadmaps")
+	public async createUserRoadmap(
+		@UserPayload() payload: JWTPayload,
+		@Body() body: CreateUserRoadmapDto
+	) {
 		try {
-			const roadmap = new this.model({ owner_id: parameters.ownerId });
+			const nodeList = this.getMockData()
+				.split(/\W\d\. |\d\. /gm)
+				.map((title) => {
+					return { title, sub_roadmap_id: undefined };
+				});
+
+			const roadmap = new this.model({
+				owner_id: payload.sub,
+				title: body.title,
+				node_list: nodeList,
+			});
 
 			return await roadmap.save();
 		} catch (error) {
@@ -34,10 +57,20 @@ export class UserRoadmapsController {
 		}
 	}
 
-	@Get("/users/:ownerId/roadmaps/:roadmapId")
-	public async getUserRoadmapById(@Param() parameters: OperateUserRoadmapByIdDto) {
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/users/me/roadmaps")
+	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {
+		return await this.model.find({ owner_id: payload.sub });
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/users/me/roadmaps/:roadmapId")
+	public async getUserRoadmapById(
+		@Param() parameters: OperateUserRoadmapByIdDto,
+		@UserPayload() payload: JWTPayload
+	) {
 		const roadmap = await this.model
-			.findOne({ _id: parameters.roadmapId, owner_id: parameters.ownerId })
+			.findOne({ _id: parameters.roadmapId, owner_id: payload.sub })
 			.exec();
 
 		if (!roadmap) throw new NotFoundException();
@@ -45,12 +78,16 @@ export class UserRoadmapsController {
 		return roadmap;
 	}
 
-	@Put("/users/:ownerId/roadmaps/:roadmapId")
-	public async updateUserRoadmapById(@Param() parameters: OperateUserRoadmapByIdDto) {
+	@UseGuards(AuthGuard("jwt"))
+	@Put("/users/me/roadmaps/:roadmapId")
+	public async updateUserRoadmapById(
+		@Param() parameters: OperateUserRoadmapByIdDto,
+		@UserPayload() payload: JWTPayload
+	) {
 		try {
 			return await this.model
 				.findOneAndUpdate(
-					{ _id: parameters.roadmapId, owner_id: parameters.ownerId },
+					{ _id: parameters.roadmapId, owner_id: payload.sub },
 					{ owner_id: "ff425bb266d02a7d43105376" }
 				)
 				.exec();
@@ -61,12 +98,16 @@ export class UserRoadmapsController {
 		}
 	}
 
-	@Delete("/users/:ownerId/roadmaps/:roadmapId")
-	public async deleteUserRoadmapById(@Param() parameters: OperateUserRoadmapByIdDto) {
+	@UseGuards(AuthGuard("jwt"))
+	@Delete("/users/me/roadmaps/:roadmapId")
+	public async deleteUserRoadmapById(
+		@Param() parameters: OperateUserRoadmapByIdDto,
+		@UserPayload() payload: JWTPayload
+	) {
 		try {
 			return await this.model.deleteOne({
 				_id: parameters.roadmapId,
-				owner_id: parameters.ownerId,
+				owner_id: payload.sub,
 			});
 		} catch (error) {
 			Logger.error(error);
