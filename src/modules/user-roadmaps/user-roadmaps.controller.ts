@@ -33,7 +33,15 @@ export class UserRoadmapsController {
 			throw error;
 		}
 	}
-
+	@Get("/users/:ownerId/roadmaps")
+	public async getAllUserRoadmaps(@Param("ownerId") ownerId: string) {
+		try {
+			return await this.model.find({ owner_id: ownerId }).exec();
+		} catch (error) {
+			Logger.error(error);
+			throw error;
+		}
+	}
 	@Get("/users/:ownerId/roadmaps/:roadmapId")
 	public async getUserRoadmapById(@Param() parameters: OperateUserRoadmapByIdDto) {
 		const roadmap = await this.model

@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { generatePath } from "../roadmaps/ailogic";
 import { User, UserDocument } from "./entity/user.schema";
 
 @Injectable()
@@ -19,8 +18,5 @@ export class UserService {
 		}
 		const newUser = new this.userModel(userData);
 		return newUser.save();
-	}
-	async call(title: string, user_context: string) {
-		let res = generatePath(title, user_context);
 	}
 }

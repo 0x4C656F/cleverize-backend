@@ -15,8 +15,4 @@ export class UserController {
 	async findAll(): Promise<any> {
 		return this.userService.findAll();
 	}
-	@Post("/call")
-	async call(@Body() data): Promise<void> {
-		return this.userService.call(data.title, data.user_context);
-	}
 }
