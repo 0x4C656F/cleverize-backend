@@ -15,7 +15,7 @@ export class AppController {
 		console.log(body);
 		let res = await generateRoadmap(body.title);
 	}
-	@UseGuards(AuthGuard())
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/health/protected")
 	protected() {
 		return "AUTH OK";
