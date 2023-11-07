@@ -1,15 +1,28 @@
-import { OpenAI } from "langchain/llms/openai";
-import prompt from "./prompt";
-export default async function generateRoadmap(title: string) {
-	const generatorLLM = new OpenAI({
-		openAIApiKey: "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",
-		temperature: 0.3,
-		modelName: "gpt-4",
+import OpenAI from "openai";
+export async function generateRoadmap(title: string) {
+	const openai = new OpenAI({
+		apiKey: "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",
 	});
-	const formatedPrompt = await prompt.format({
-		title: title,
+	const thread = await openai.beta.threads.create({});
+	await openai.beta.threads.messages.create(thread.id, {
+		role: "user",
+		content: title,
 	});
-	const response = await generatorLLM.call(formatedPrompt);
-	console.log(response);
-	return response;
+	const run = await openai.beta.threads.runs.create(thread.id, {
+		assistant_id: "asst_7AP7dgQppWPcwd8eXSg8TCUI",
+	});
+	let run_status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+	while (run_status.status !== "completed") {
+		await new Promise((resolve) => setTimeout(resolve, 1500));
+
+		run_status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+	}
+	const messages = await openai.beta.threads.messages.list(thread.id);
+	const response = messages.data[0];
+
+	const message = await openai.beta.threads.messages.retrieve(thread.id, response.id);
+	let content = message.content[0] as OpenAI.Beta.Threads.Messages.MessageContentText;
+	let roadmap = content.text.value;
+	await openai.beta.threads.del(thread.id);
+	return roadmap;
 }

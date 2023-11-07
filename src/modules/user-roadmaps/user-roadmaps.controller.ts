@@ -21,7 +21,7 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import generateRoadmap from "../ailogic/roadmapGenerator/generate_roadmap";
+import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
 
 @ApiTags("User roadmaps")
 @Controller()
@@ -33,31 +33,30 @@ export class UserRoadmapsController {
 	}
 
 	@UseGuards(AuthGuard("jwt"))
-	@Post("/users/me/roadmaps")
-	public async createUserRoadmap(
-		@Req() req,
-		@UserPayload() payload: JWTPayload,
-		@Body() body: CreateUserRoadmapDto
-	) {
-		try {
-			const data = await generateRoadmap(body.title);
-			const nodeList = data.split(/\W\d\. |\d\. /gm).map((title) => {
-				return { title, sub_roadmap_id: undefined };
-			});
-			const roadmap = new this.model({
-				owner_id: req.user.sub,
-				title: body.title,
-				node_list: nodeList,
-			});
+	// @Post("/users/me/roadmaps")
+	// public async createUserRoadmap(
+	// 	@Req() req,
+	// 	@UserPayload() payload: JWTPayload,
+	// 	@Body() body: CreateUserRoadmapDto
+	// ) {
+	// 	try {
+	// 		const data = await generateRoadmap(body.title);
+	// 		const nodeList = data.split(/\W\d\. |\d\. /gm).map((title) => {
+	// 			return { title, sub_roadmap_id: undefined };
+	// 		});
+	// 		const roadmap = new this.model({
+	// 			owner_id: req.user.sub,
+	// 			title: body.title,
+	// 			node_list: nodeList,
+	// 		});
 
-			return await roadmap.save();
-		} catch (error) {
-			Logger.error(error);
+	// 		return await roadmap.save();
+	// 	} catch (error) {
+	// 		Logger.error(error);
 
-			throw error;
-		}
-	}
-
+	// 		throw error;
+	// 	}
+	// }
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/users/me/roadmaps")
 	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {

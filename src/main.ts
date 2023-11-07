@@ -25,9 +25,9 @@ async function bootstrap() {
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup("/api/docs", app, document);
 
-	await app.listen(port);
+	await app.listen(process.env.PORT);
 	Logger.log(
-		`Gateway is started on http://localhost:${port} in ${
+		`Gateway is started on http://localhost:${process.env.PORT} in ${
 			process.env.NODE_ENV || "development"
 		} mode`,
 		"NestApplication"

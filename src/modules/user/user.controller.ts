@@ -1,9 +1,7 @@
-import { Controller, Post, Body, UseGuards, Get } from "@nestjs/common";
+import { Controller, Post, Body, UseGuards, Get, Param } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 
 import { UserService } from "./user.service";
-import generateRoadmap from "../ailogic/roadmapGenerator/generate_roadmap";
-
 @Controller("/users")
 export class UserController {
 	constructor(private readonly userService: UserService) {}
@@ -16,10 +14,20 @@ export class UserController {
 	async findAll(): Promise<any> {
 		return this.userService.findAll();
 	}
-	@Post("/call")
-	public async call(@Body() body): Promise<string> {
-		let res = await generateRoadmap(body.title);
-		console.log(res);
-		return res;
+	@Get("/:userId")
+	async getUserById(@Param() params) {
+		var options = {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: '{"client_id":"ICJBY7GumBeBHu2wTgx1Xq16IrWlQnhw","client_secret":"8SpIYMZxasiHZDHld1MnVD-HdyGCSCdYJSRW4OAp6myBokTaH6rzPXp2GgielLh3","audience":"https://veritech.eu.auth0.com/api/v2/","grant_type":"client_credentials"}',
+		};
+		let res = await fetch("https://veritech.eu.auth0.com/oauth/token", options);
+		let parsed = await res.json();
+		let token = await parsed.access_token;
+		let response = await fetch(`https://veritech.eu.auth0.com/api/v2/users/${params.userId}`, {
+			headers: { authorization: `Bearer ${token}` },
+		});
+		let parsedUser = await response.json();
+		return parsedUser;
 	}
 }
