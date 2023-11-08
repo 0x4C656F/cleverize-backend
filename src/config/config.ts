@@ -1,4 +1,16 @@
-const config = {
+export type Config = {
+	port: number;
+	mongodbURI: string;
+	auth0: {
+		audience: string;
+		domain: string;
+		clientId: string;
+		clientSecret: string;
+	};
+};
+export type Auth0Config = Config["auth0"];
+
+export default () => ({
 	port: Number.parseInt(process.env.PORT, 10) || 80,
 	mongodbURI: process.env.MONGODB_URI,
 	auth0: {
@@ -7,9 +19,4 @@ const config = {
 		clientId: process.env.AUTH0_CLIENT_ID,
 		clientSecret: process.env.AUTH0_CLIENT_SECRET,
 	},
-};
-
-export type Config = typeof config;
-export type Auth0Config = typeof config.auth0;
-
-export default () => config;
+});
