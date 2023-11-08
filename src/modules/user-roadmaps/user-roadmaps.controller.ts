@@ -17,6 +17,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
+
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
@@ -34,7 +35,7 @@ export class UserRoadmapsController {
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/users/me/roadmaps")
 	public async createUserRoadmap(
-		@Req() req,
+		@Req() request,
 		@UserPayload() payload: JWTPayload,
 		@Body() body: CreateUserRoadmapDto
 	) {
@@ -46,11 +47,10 @@ export class UserRoadmapsController {
 				title,
 				sub_roadmap_id: undefined,
 			}));
-			console.log(nodeList);
 			// Now, nodeList is an array of objects with the title and sub_roadmap_id properties.
 
 			const roadmap = new this.model({
-				owner_id: req.user.sub,
+				owner_id: payload.sub,
 				title: body.title,
 				node_list: nodeList,
 			});

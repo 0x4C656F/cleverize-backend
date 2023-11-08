@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 
 import { AppService } from "./app.service";
-import { generateRoadmap } from "./modules/ailogic/roadmapGenerator/generate_roadmap";
-import { AuthGuard } from "@nestjs/passport";
 import getConfig from "./config/config";
+import { generateRoadmap } from "./modules/ailogic/roadmapGenerator/generate_roadmap";
 @Controller()
 export class AppController {
 	private readonly envvars: {
@@ -25,8 +25,7 @@ export class AppController {
 	}
 	@Post("/call")
 	async call(@Body() body: { title: string }) {
-		let res = await generateRoadmap(body.title);
-		return res;
+		return await generateRoadmap(body.title);
 	}
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/health/protected")

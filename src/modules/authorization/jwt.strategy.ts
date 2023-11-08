@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
@@ -11,7 +8,7 @@ import getConfig from "src/config/config";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(private readonly configService: ConfigService) {
-		let auth0Config = getConfig().auth0;
+		const auth0Config = getConfig().auth0;
 		super({
 			secretOrKeyProvider: passportJwtSecret({
 				cache: true,
@@ -27,7 +24,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	validate(payload: unknown): unknown {
-		console.log(payload);
 		return payload;
 	}
 }
