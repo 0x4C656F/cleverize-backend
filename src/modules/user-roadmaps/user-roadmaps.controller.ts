@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
@@ -20,40 +20,24 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
+import { UserRoadmapsService } from "./user-roadmaps.service";
 
 @ApiTags("User roadmaps")
 @Controller()
 export class UserRoadmapsController {
-	constructor(@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>) {}
+	constructor(
+		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
+		private readonly service: UserRoadmapsService
+	) {}
 
+	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/users/me/roadmaps")
 	public async createUserRoadmap(
 		@UserPayload() payload: JWTPayload,
 		@Body() body: CreateUserRoadmapDto
 	) {
-		try {
-			const data = await generateRoadmap(body.title);
-			const list = [...data.matchAll(/^\d+.\s*(.+)/gm)].map((match) => match[1]);
-
-			const nodeList = list.map((title) => ({
-				title,
-				sub_roadmap_id: undefined,
-			}));
-
-			const roadmap = new this.model({
-				owner_id: payload.sub,
-				title: body.title,
-				node_list: nodeList,
-			});
-
-			return await roadmap.save();
-		} catch (error) {
-			Logger.error(error);
-
-			throw error;
-		}
+		return await this.service.generateUserRoadmap(payload, body);
 	}
 
 	@UseGuards(AuthGuard("jwt"))
