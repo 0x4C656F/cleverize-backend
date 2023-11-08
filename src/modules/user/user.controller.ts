@@ -1,5 +1,7 @@
 import { Controller, Post, Body, Get, Param } from "@nestjs/common";
-// Remove unused imports like ConfigService, UseGuards if they are not used elsewhere
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import axios from "axios";
 
 import getConfig from "src/config/config";
 
@@ -37,32 +39,27 @@ export class UserController {
 
 	@Get("/:userId")
 	async getUserById(@Param("userId") userId: string): Promise<any> {
+		console.log(this.auth0Config.domain);
 		const options = {
 			method: "POST",
-			headers: { "content-type": "application/json" },
-			body: `{
-				"client_id": "${this.auth0Config.clientId}",
-				"client_secret": "${this.auth0Config.clientSecret}",
-				"audience": "${this.auth0Config.audience}",
-				"grant_type": "client_credentials"
-			}`,
+			url: `${this.auth0Config.domain}oauth/token`,
+			headers: { "content-type": "application/x-www-form-urlencoded" },
+			data: new URLSearchParams({
+				grant_type: "client_credentials",
+				client_id: this.auth0Config.clientId,
+				client_secret: this.auth0Config.clientSecret,
+				audience: this.auth0Config.audience,
+			}),
 		};
-		try {
-			const unparsedToken = await fetch(`${this.auth0Config.domain}/oauth/token`, options);
-			const parsed: Auth0TokenResponse = (await unparsedToken.json()) as Auth0TokenResponse;
-			const token: string = parsed.access_token;
-			try {
-				const response = await fetch(`${this.auth0Config.domain}/api/v2/users/${userId}`, {
-					headers: { authorization: `Bearer ${token}` },
-				});
-				return (await response.json()) as unknown;
-			} catch (error) {
-				// eslint-disable-next-line security-node/detect-crlf
-				console.log("User data fetch error", error);
-			}
-		} catch (error) {
-			// eslint-disable-next-line security-node/detect-crlf
-			console.log("Fetch token error", error);
-		}
+		const axiosResponse = await axios(options);
+		const data: Auth0TokenResponse = axiosResponse.data as Auth0TokenResponse;
+		const token: string = data.access_token;
+		const response = await fetch(`${this.auth0Config.domain}api/v2/users/${userId}`, {
+			headers: { authorization: `Bearer ${token}` },
+		});
+		return (await response.json()) as unknown;
+		// eslint-disable-next-line security-node/detect-crlf
+
+		// eslint-disable-next-line security-node/detect-crlf
 	}
 }
