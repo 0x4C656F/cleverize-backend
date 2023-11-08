@@ -5,7 +5,8 @@ import { Document } from "mongoose";
 export class User {
 	@Prop({ required: true, unique: true })
 	user_id: string;
-
+	@Prop({})
+	bio: string;
 	@Prop()
 	roadmaps: [];
 

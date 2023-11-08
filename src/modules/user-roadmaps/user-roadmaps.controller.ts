@@ -8,7 +8,6 @@ import {
 	Param,
 	Post,
 	Put,
-	Req,
 	UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
@@ -21,21 +20,20 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
+import { UserRoadmapsService } from "./user-roadmaps.service";
 import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
 
 @ApiTags("User roadmaps")
 @Controller()
 export class UserRoadmapsController {
-	constructor(@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>) {}
-
-	private getMockData() {
-		return "1. HTML \n2. CSS\n 3. JS\n1. HTML \n2. CSS\n 3. JS\n1. HTML \n2. CSS\n 3. JS\n";
-	}
+	constructor(
+		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
+		private readonly userRoadmapsService: UserRoadmapsService
+	) {}
 
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/users/me/roadmaps")
 	public async createUserRoadmap(
-		@Req() request,
 		@UserPayload() payload: JWTPayload,
 		@Body() body: CreateUserRoadmapDto
 	) {
@@ -47,7 +45,6 @@ export class UserRoadmapsController {
 				title,
 				sub_roadmap_id: undefined,
 			}));
-			// Now, nodeList is an array of objects with the title and sub_roadmap_id properties.
 
 			const roadmap = new this.model({
 				owner_id: payload.sub,
@@ -68,7 +65,15 @@ export class UserRoadmapsController {
 	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {
 		return await this.model.find({ owner_id: payload.sub });
 	}
-
+	@Get("/test")
+	async test() {
+		await this.userRoadmapsService.createUserRoadmap({
+			title: "yes",
+			owner_id: "yes",
+			node_list: [],
+			created_at: new Date(),
+		});
+	}
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/users/me/roadmaps/:roadmapId")
 	public async getUserRoadmapById(

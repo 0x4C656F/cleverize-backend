@@ -1,14 +1,17 @@
-import { Controller, Post, Body, Get, Param } from "@nestjs/common";
-
+import { Controller, Post, Body, Get, Param, UseGuards } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { AuthGuard } from "@nestjs/passport";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from "axios";
+import { Model } from "mongoose";
 
 import getConfig from "src/config/config";
 
+import { User, UserDocument } from "./entity/user.schema";
 import { UserService } from "./user.service";
 
 // Define the type outside of the class to avoid ESLint errors
-type Auth0TokenResponse = {
+type Auth0Token = {
 	access_token: string;
 	token_type: string;
 	expires_in: number;
@@ -23,7 +26,10 @@ export class UserController {
 		clientSecret: string;
 	};
 
-	constructor(private readonly userService: UserService) {
+	constructor(
+		private readonly userService: UserService,
+		@InjectModel(User.name) private readonly model: Model<UserDocument>
+	) {
 		this.auth0Config = getConfig().auth0;
 	}
 
@@ -36,10 +42,9 @@ export class UserController {
 	async findAll(): Promise<any> {
 		return this.userService.findAll();
 	}
-
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/:userId")
 	async getUserById(@Param("userId") userId: string): Promise<any> {
-		console.log(this.auth0Config.domain);
 		const options = {
 			method: "POST",
 			url: `${this.auth0Config.domain}oauth/token`,
@@ -52,14 +57,16 @@ export class UserController {
 			}),
 		};
 		const axiosResponse = await axios(options);
-		const data: Auth0TokenResponse = axiosResponse.data as Auth0TokenResponse;
+		const data: Auth0Token = axiosResponse.data as Auth0Token;
 		const token: string = data.access_token;
-		const response = await fetch(`${this.auth0Config.domain}api/v2/users/${userId}`, {
-			headers: { authorization: `Bearer ${token}` },
+		const response = await axios({
+			method: "GET",
+			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
 		});
-		return (await response.json()) as unknown;
-		// eslint-disable-next-line security-node/detect-crlf
-
-		// eslint-disable-next-line security-node/detect-crlf
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return response.data;
 	}
 }
