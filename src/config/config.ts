@@ -1,3 +1,15 @@
+export type Config = {
+	port: number;
+	mongodbURI: string;
+	auth0: {
+		audience: string;
+		domain: string;
+		clientId: string;
+		clientSecret: string;
+	};
+};
+export type Auth0Config = Config["auth0"];
+
 export default () => ({
 	port: Number.parseInt(process.env.PORT, 10) || 80,
 	mongodbURI: process.env.MONGODB_URI,

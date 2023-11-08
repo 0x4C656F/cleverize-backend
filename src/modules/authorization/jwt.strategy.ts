@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
+import { Auth0Config } from "src/config/config";
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(private readonly configService: ConfigService) {
-		const auth0Config = configService.get<{ audience: string; domain: string }>("auth0");
+		const auth0Config = configService.get<Auth0Config>("auth0");
 
 		super({
 			secretOrKeyProvider: passportJwtSecret({
