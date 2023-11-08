@@ -1,10 +1,19 @@
 import { Controller, Post, Body, UseGuards, Get, Param } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
+import { ConfigService } from "@nestjs/config";
 
 import { UserService } from "./user.service";
+import getConfig from "../../config/config";
 @Controller("/users")
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	private readonly auth0Config: {
+		audience: string;
+		domain: string;
+		clientId: string;
+		clientSecret: string;
+	};
+	constructor(private readonly userService: UserService) {
+		this.auth0Config = getConfig().auth0;
+	}
 
 	@Post()
 	async upsertUser(@Body() userData: any): Promise<any> {
@@ -15,19 +24,23 @@ export class UserController {
 		return this.userService.findAll();
 	}
 	@Get("/:userId")
-	async getUserById(@Param() params) {
-		var options = {
+	async getUserById(@Param() parametrs) {
+		const options = {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: '{"client_id":"ICJBY7GumBeBHu2wTgx1Xq16IrWlQnhw","client_secret":"8SpIYMZxasiHZDHld1MnVD-HdyGCSCdYJSRW4OAp6myBokTaH6rzPXp2GgielLh3","audience":"https://veritech.eu.auth0.com/api/v2/","grant_type":"client_credentials"}',
+			body: `{
+			"client_id":"${this.auth0Config.clientId}",
+			"client_secret":"${this.auth0Config.clientSecret}",
+			"audience":"${this.auth0Config.domain}/api/v2/",
+			"grant_type":"client_credentials"
+			}`,
 		};
-		let res = await fetch("https://veritech.eu.auth0.com/oauth/token", options);
-		let parsed = await res.json();
-		let token = await parsed.access_token;
-		let response = await fetch(`https://veritech.eu.auth0.com/api/v2/users/${params.userId}`, {
+		const unparsedToken = await fetch(`${this.auth0Config.domain}/oauth/token`, options);
+		const parsed = await unparsedToken.json();
+		const token: string = await parsed.access_token;
+		const response = await fetch(`${this.auth0Config.domain}/api/v2/users/${parametrs.userId}`, {
 			headers: { authorization: `Bearer ${token}` },
 		});
-		let parsedUser = await response.json();
-		return parsedUser;
+		return await response.json();
 	}
 }

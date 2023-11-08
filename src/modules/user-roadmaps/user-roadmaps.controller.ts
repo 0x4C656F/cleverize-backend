@@ -17,7 +17,6 @@ import { ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
-
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
@@ -33,30 +32,37 @@ export class UserRoadmapsController {
 	}
 
 	@UseGuards(AuthGuard("jwt"))
-	// @Post("/users/me/roadmaps")
-	// public async createUserRoadmap(
-	// 	@Req() req,
-	// 	@UserPayload() payload: JWTPayload,
-	// 	@Body() body: CreateUserRoadmapDto
-	// ) {
-	// 	try {
-	// 		const data = await generateRoadmap(body.title);
-	// 		const nodeList = data.split(/\W\d\. |\d\. /gm).map((title) => {
-	// 			return { title, sub_roadmap_id: undefined };
-	// 		});
-	// 		const roadmap = new this.model({
-	// 			owner_id: req.user.sub,
-	// 			title: body.title,
-	// 			node_list: nodeList,
-	// 		});
+	@Post("/users/me/roadmaps")
+	public async createUserRoadmap(
+		@Req() req,
+		@UserPayload() payload: JWTPayload,
+		@Body() body: CreateUserRoadmapDto
+	) {
+		try {
+			const data = await generateRoadmap(body.title);
+			const list = [...data.matchAll(/^\d+.\s*(.+)/gm)].map((match) => match[1]);
 
-	// 		return await roadmap.save();
-	// 	} catch (error) {
-	// 		Logger.error(error);
+			const nodeList = list.map((title) => ({
+				title,
+				sub_roadmap_id: undefined,
+			}));
+			console.log(nodeList);
+			// Now, nodeList is an array of objects with the title and sub_roadmap_id properties.
 
-	// 		throw error;
-	// 	}
-	// }
+			const roadmap = new this.model({
+				owner_id: req.user.sub,
+				title: body.title,
+				node_list: nodeList,
+			});
+
+			return await roadmap.save();
+		} catch (error) {
+			Logger.error(error);
+
+			throw error;
+		}
+	}
+
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/users/me/roadmaps")
 	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {

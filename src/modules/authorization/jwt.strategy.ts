@@ -7,13 +7,11 @@ import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
-import { Auth0Config } from "src/config/config";
-
+import getConfig from "src/config/config";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(private readonly configService: ConfigService) {
-		const auth0Config = configService.get<Auth0Config>("auth0");
-
+		let auth0Config = getConfig().auth0;
 		super({
 			secretOrKeyProvider: passportJwtSecret({
 				cache: true,
