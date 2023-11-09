@@ -6,7 +6,7 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
+import { generateRoadmap } from "../ailogic/roadmapGenerator/generate-roadmap";
 import { User, UserDocument } from "../user/entity/user.schema";
 
 @Injectable()
@@ -51,9 +51,6 @@ export class UserRoadmapsService {
 	}
 
 	private async addRoadmapIdToUser(userId: string, newRoadmapId: Types.ObjectId): Promise<void> {
-		console.log("this is user id that i passed into function", userId);
-		console.log("This is roadmap id that i passsed into function", newRoadmapId);
-
 		const updateResult = await this.userModel.findOneAndUpdate(
 			{ user_id: userId }, // filter by OAuth identifier instead of _id
 			{ $push: { roadmaps: newRoadmapId } }, // push the new roadmap ID to the roadmaps array

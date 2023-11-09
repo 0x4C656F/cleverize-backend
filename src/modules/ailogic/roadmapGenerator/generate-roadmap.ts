@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-export async function generateRoadmap(title: string) {
+export async function generateRoadmap(title: string): Promise<string> {
 	const openai = new OpenAI({
 		apiKey: "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",
 	});

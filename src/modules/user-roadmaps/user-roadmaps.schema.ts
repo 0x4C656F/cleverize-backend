@@ -6,6 +6,7 @@ import { User } from "src/modules/user/entity/user.schema";
 export type UserRoadmapNode = {
 	title: string;
 	sub_roadmap_id: Types.ObjectId;
+	isCompleted: boolean;
 };
 
 @Schema()
@@ -20,6 +21,9 @@ export class UserRoadmap {
 
 	@Prop({ required: true })
 	public node_list: UserRoadmapNode[];
+
+	@Prop({ required: true })
+	public isCompleted: boolean;
 }
 
 export type UserRoadmapDocument = UserRoadmap & Document;

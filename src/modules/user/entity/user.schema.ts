@@ -6,7 +6,7 @@ export class User {
 	public _id: Types.ObjectId;
 
 	@Prop({ type: Types.ObjectId, index: true })
-	public user_id: Types.ObjectId;
+	public user_id: string;
 
 	@Prop({ type: String })
 	public bio: string;
