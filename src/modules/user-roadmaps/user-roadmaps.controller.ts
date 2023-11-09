@@ -37,6 +37,7 @@ export class UserRoadmapsController {
 		@UserPayload() payload: JWTPayload,
 		@Body() body: CreateUserRoadmapDto
 	) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return await this.service.generateUserRoadmap(payload, body);
 	}
 

@@ -21,8 +21,8 @@ export async function generateRoadmap(title: string) {
 	const response = messages.data[0];
 
 	const message = await openai.beta.threads.messages.retrieve(thread.id, response.id);
-	let content = message.content[0] as OpenAI.Beta.Threads.Messages.MessageContentText;
-	let roadmap = content.text.value;
+	const content = message.content[0] as OpenAI.Beta.Threads.Messages.MessageContentText;
+	const roadmap = content.text.value;
 	await openai.beta.threads.del(thread.id);
 	return roadmap;
 }

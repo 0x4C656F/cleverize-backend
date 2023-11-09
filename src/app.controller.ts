@@ -3,7 +3,7 @@ import { AuthGuard } from "@nestjs/passport";
 
 import { AppService } from "./app.service";
 import getConfig from "./config/config";
-import { generateRoadmap } from "./modules/ailogic/roadmapGenerator/generate_roadmap";
+import { generateRoadmap } from "./modules/ailogic/roadmapGenerator/generate-roadmap";
 @Controller()
 export class AppController {
 	private readonly envvars: {

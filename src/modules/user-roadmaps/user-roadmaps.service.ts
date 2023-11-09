@@ -6,7 +6,7 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
+import { generateRoadmap } from "../ailogic/roadmapGenerator/generate-roadmap";
 
 @Injectable()
 export class UserRoadmapsService {
