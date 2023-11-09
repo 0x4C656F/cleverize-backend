@@ -1,19 +1,21 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { UserRoadmap } from "src/modules/user-roadmaps/user-roadmaps.schema";
-
 @Schema()
 export class User {
-	public _id: string;
+	public _id: Types.ObjectId;
 
-	public user_id: string;
+	@Prop({ type: Types.ObjectId, index: true })
+	public user_id: Types.ObjectId;
 
 	@Prop({ type: String })
 	public bio: string;
 
 	@Prop({ type: [{ type: Types.ObjectId, ref: "UserRoadmap" }] })
-	public roadmaps: [UserRoadmap];
+	public roadmaps: Types.ObjectId[];
+
+	@Prop({ type: [{ type: Types.ObjectId }] })
+	public achievements: Types.ObjectId[];
 }
 
 export type UserDocument = User & Document;

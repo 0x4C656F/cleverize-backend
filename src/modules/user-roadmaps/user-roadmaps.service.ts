@@ -1,18 +1,28 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 
 import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
+import { User, UserDocument } from "../user/entity/user.schema";
 
 @Injectable()
 export class UserRoadmapsService {
-	constructor(@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>) {}
+	constructor(
+		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
+	) {}
 
 	public async generateUserRoadmap(payload: JWTPayload, body: CreateUserRoadmapDto) {
+		const user = await this.userModel.findOne({ user_id: payload.sub });
+
+		if (!user) {
+			throw new Error("User not found");
+		}
+
 		try {
 			const data = await generateRoadmap(body.title);
 			const list = data.match(/(?<=\d\. )\w+/gm);
@@ -23,12 +33,17 @@ export class UserRoadmapsService {
 			}));
 
 			const roadmap = new this.model({
-				user_id: payload.sub,
+				owner_id: payload.sub,
 				title: body.title,
 				node_list: nodeList,
 			});
 
-			return await roadmap.save();
+			await roadmap.save();
+
+			user.roadmaps.push(roadmap._id as Types.ObjectId);
+			await user.save();
+
+			return roadmap;
 		} catch (error) {
 			Logger.error(error);
 
