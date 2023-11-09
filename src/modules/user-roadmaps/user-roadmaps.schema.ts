@@ -12,7 +12,7 @@ export type UserRoadmapNode = {
 export class UserRoadmap {
 	public _id: Types.ObjectId;
 
-	@Prop({ required: true, type: Types.ObjectId, ref: "User" })
+	@Prop({ required: true, type: Types.ObjectId, ref: "User", index: true })
 	public owner_id: User;
 
 	@Prop({ required: true })

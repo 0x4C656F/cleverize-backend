@@ -6,17 +6,23 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import { generateRoadmap } from "../ailogic/roadmapGenerator/generate-roadmap";
+import { generateRoadmap } from "../ailogic/roadmapGenerator/generate_roadmap";
 import { User, UserDocument } from "../user/entity/user.schema";
 
 @Injectable()
 export class UserRoadmapsService {
 	constructor(
-		@InjectModel(UserRoadmap.name) private readonly roadmapModel: Model<UserRoadmapDocument>,
+		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
 	) {}
 
 	public async generateUserRoadmap(payload: JWTPayload, body: CreateUserRoadmapDto) {
+		const user = await this.userModel.findOne({ user_id: payload.sub });
+
+		if (!user) {
+			throw new Error("User not found");
+		}
+
 		try {
 			const data = await generateRoadmap(body.title);
 			const list = data.match(/(?<=\d\. )\w+/gm);
@@ -26,19 +32,18 @@ export class UserRoadmapsService {
 				sub_roadmap_id: undefined,
 			}));
 
-			const roadmap = new this.roadmapModel({
+			const roadmap = new this.model({
 				owner_id: payload.sub,
 				title: body.title,
 				node_list: nodeList,
 			});
 
-			const savedRoadmap = await roadmap.save();
-			console.log("This is saved roadmap:", savedRoadmap);
-			// Update user with the new roadmap ID
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-			await this.addRoadmapIdToUser(payload.sub.toString(), savedRoadmap._id);
+			await roadmap.save();
 
-			return savedRoadmap;
+			user.roadmaps.push(roadmap._id as Types.ObjectId);
+			await user.save();
+
+			return roadmap;
 		} catch (error) {
 			Logger.error(error);
 			throw error;
