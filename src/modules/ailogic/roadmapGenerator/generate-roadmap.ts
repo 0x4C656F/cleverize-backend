@@ -9,7 +9,7 @@ export async function generateRoadmap(title: string): Promise<string> {
 		content: title,
 	});
 	const run = await openai.beta.threads.runs.create(thread.id, {
-		assistant_id: "asst_7AP7dgQppWPcwd8eXSg8TCUI",
+		assistant_id: "asst_EkEIVHjiBhCeH5Shbmp6tGWf",
 	});
 	let run_status = await openai.beta.threads.runs.retrieve(thread.id, run.id);
 	while (run_status.status !== "completed") {
