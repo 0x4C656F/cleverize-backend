@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 export async function generateRoadmap(title: string): Promise<string> {
 	const openai = new OpenAI({
-		apiKey: "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",
+		apiKey: "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",
 	});
 	const thread = await openai.beta.threads.create({});
 	await openai.beta.threads.messages.create(thread.id, {
