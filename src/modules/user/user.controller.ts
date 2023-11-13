@@ -7,6 +7,7 @@ import {
 	UseGuards,
 	HttpException,
 	HttpStatus,
+	Patch,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
@@ -45,9 +46,44 @@ export class UserController {
 	async findAll(): Promise<any> {
 		return this.userService.findAll();
 	}
+
+	@Get("/gettoken")
+	async getTokenapi() {
+		return await this.userService.getManagmentApiToken();
+	}
 	@UseGuards(AuthGuard("jwt"))
-	@Get("/:userId")
-	async verifyAge(@Param("userId") userId: string): Promise<string> {
+	@Patch("/edit")
+	public async updateUser(@Body() body: any, @UserPayload() payload: JWTPayload) {
+		const token = await this.userService.getManagmentApiToken();
+		const options = {
+			method: "PATCH",
+			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
+			headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			data: body,
+		};
+		const response = await axios(options);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return response.data;
+	}
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/")
+	async getUser(@UserPayload() payload: JWTPayload): Promise<any> {
+		// eslint-disable-next-line @typescript-eslint/unbound-method
+		const token: string = await this.userService.getManagmentApiToken();
+		const response = await axios({
+			method: "GET",
+			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return response.data;
+	}
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/verify/age/:userId")
+	async blockUser(@Param("userId") userId: string): Promise<string> {
 		const token: string = await this.userService.getManagmentApiToken();
 
 		const response = await axios({
@@ -66,7 +102,7 @@ export class UserController {
 	@Get("/:userId")
 	async getUserById(@Param("userId") userId: string): Promise<any> {
 		// eslint-disable-next-line @typescript-eslint/unbound-method
-		const token = await this.userService.getManagmentApiToken();
+		const token: string = await this.userService.getManagmentApiToken();
 		const response = await axios({
 			method: "GET",
 			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
