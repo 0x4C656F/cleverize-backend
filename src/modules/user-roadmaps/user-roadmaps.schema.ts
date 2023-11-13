@@ -5,7 +5,7 @@ import { User } from "src/modules/user/entity/user.schema";
 
 export type UserRoadmapNode = {
 	title: string;
-	sub_roadmap_id: Types.ObjectId;
+	node_list: [];
 	isCompleted: boolean;
 };
 
@@ -24,6 +24,9 @@ export class UserRoadmap {
 
 	@Prop({ required: true })
 	public isCompleted: boolean;
+
+	@Prop()
+	public created_at: Date;
 }
 
 export type UserRoadmapDocument = UserRoadmap & Document;

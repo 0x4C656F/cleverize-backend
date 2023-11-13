@@ -28,15 +28,25 @@ export class UserRoadmapsService {
 			const data = await generateRoadmap(body.title);
 			const list = data.match(/(?<=\d\. )\w+/gm);
 
-			const nodeList = list.map((title) => ({
-				title,
-				sub_roadmap_id: undefined,
-			}));
+			const subroadmapPromises = list.map(async (title) => {
+				const roadmap = await generateSubroadmap(title, data);
+				const parsedRoadmap = this.parseNodeList(roadmap);
+
+				return {
+					title: title,
+					node_list: parsedRoadmap,
+					isComplted: false,
+				};
+			});
+
+			const subroadmap = await Promise.all(subroadmapPromises);
 
 			const roadmap = new this.model({
 				owner_id: payload.sub,
 				title: body.title,
-				node_list: nodeList,
+				node_list: subroadmap,
+				isCompleted: false,
+				created_at: new Date(),
 			});
 
 			await roadmap.save();
@@ -50,7 +60,11 @@ export class UserRoadmapsService {
 			throw error;
 		}
 	}
-
+	private parseNodeList(nodeList: string): string[] {
+		return nodeList.split("\n").map((item) => {
+			return item.replace(/^\d+\.\s*/, "").trim();
+		});
+	}
 	private async addRoadmapIdToUser(userId: string, newRoadmapId: Types.ObjectId): Promise<void> {
 		const updateResult = await this.userModel.findOneAndUpdate(
 			{ user_id: userId }, // filter by OAuth identifier instead of _id
