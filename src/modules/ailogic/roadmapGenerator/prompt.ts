@@ -1,4 +1,4 @@
-import { PromptTemplate } from "langchain/prompts";
+// import { PromptTemplate } from "langchain/prompts";
 
 const template: string = `
 You are a roadmap-learning path generator bot. You will be provided with some digital tech, you will have to generate roadmap for. If provided tech is not digital, simply answer 'This is not digital'. If provided tech is not a tech, simply answer 'This is not tech'
@@ -23,12 +23,9 @@ DO NOT:
 7.Include code ide's(vscode, webstorm and other)
 8.Write anything but list(no headings, descriptions and other goofy stuff).
 IMPORTANT: overall roadmap length has to be from 9 to 13 
-
-
-This is tech you have to generate roadmap for: {title}
 `;
-const prompt = new PromptTemplate({
-	inputVariables: ["title"],
-	template: template,
-});
-export default prompt;
+// const prompt = new PromptTemplate({
+// 	inputVariables: ["title"],
+// 	template: template,
+// });
+export default template;

@@ -7,9 +7,8 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import generateRoadmap from "../ailogic/roadmapGenerator/generate-roadmap";
-import generateSubroadmap from "../ailogic/subRoadmapGenerator/generate-subroadmap";
+import generateSubRoadmap from "../ailogic/subRoadmapGenerator/generate-subroadmap";
 import { User, UserDocument } from "../user/entity/user.schema";
-
 @Injectable()
 export class UserRoadmapsService {
 	constructor(
@@ -26,10 +25,10 @@ export class UserRoadmapsService {
 
 		try {
 			const data = await generateRoadmap(body.title);
-			const list = data.match(/(?<=\d\. )\w+/gm);
+			const list = this.parseNodeList(data);
 
 			const subroadmapPromises = list.map(async (title) => {
-				const roadmap = await generateSubroadmap(title, data);
+				const roadmap = await generateSubRoadmap(title, data);
 				const parsedRoadmap = this.parseNodeList(roadmap);
 
 				return {
@@ -78,4 +77,7 @@ export class UserRoadmapsService {
 	}
 
 	// Make sure to call this method after the roadmap is successfully created and saved.
+}
+function generateSubroadmap(title: any, data: any) {
+	throw new Error("Function not implemented.");
 }
