@@ -47,21 +47,19 @@ export class UserController {
 	}
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/:userId")
-	async verifyAge(@Param('userId') userId: string): Promise<string> {
+	async verifyAge(@Param("userId") userId: string): Promise<string> {
+		const token: string = await this.userService.getManagmentApiToken();
 
-		
-			const token: string = await this.userService.getManagmentApiToken();
-			
-			const response = await axios({
-				url: `${this.auth0Config.domain}api/v2/users/${userId}`,
-				method: "PATCH",
-				data: { blocked: true },
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-			return await response.data
-		}
+		const response = await axios({
+			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
+			method: "PATCH",
+			data: { blocked: true },
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		return await response.data;
 	}
 
 	@UseGuards(AuthGuard("jwt"))
