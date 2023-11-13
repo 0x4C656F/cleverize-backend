@@ -27,23 +27,23 @@ export class UserRoadmapsService {
 			const data = await generateRoadmap(body.title);
 			const list = this.parseNodeList(data);
 
-			const subroadmapPromises = list.map(async (title) => {
+			const subRoadmapPromises = list.map(async (title) => {
 				const roadmap = await generateSubRoadmap(title, data);
 				const parsedRoadmap = this.parseNodeList(roadmap);
 
 				return {
 					title: title,
 					node_list: parsedRoadmap,
-					isComplted: false,
+					isCompleted: false,
 				};
 			});
 
-			const subroadmap = await Promise.all(subroadmapPromises);
+			const subRoadmap = await Promise.all(subRoadmapPromises);
 
 			const roadmap = new this.model({
 				owner_id: payload.sub,
 				title: body.title,
-				node_list: subroadmap,
+				node_list: subRoadmap,
 				isCompleted: false,
 				created_at: new Date(),
 			});
@@ -66,18 +66,13 @@ export class UserRoadmapsService {
 	}
 	private async addRoadmapIdToUser(userId: string, newRoadmapId: Types.ObjectId): Promise<void> {
 		const updateResult = await this.userModel.findOneAndUpdate(
-			{ user_id: userId }, // filter by OAuth identifier instead of _id
-			{ $push: { roadmaps: newRoadmapId } }, // push the new roadmap ID to the roadmaps array
-			{ new: true } // option to return the modified document
+			{ user_id: userId },
+			{ $push: { roadmaps: newRoadmapId } },
+			{ new: true }
 		);
 
 		if (!updateResult) {
 			throw new Error("User not found or update failed");
 		}
 	}
-
-	// Make sure to call this method after the roadmap is successfully created and saved.
-}
-function generateSubroadmap(title: any, data: any) {
-	throw new Error("Function not implemented.");
 }
