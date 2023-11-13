@@ -10,6 +10,9 @@ export type Message = {
 export class Conversation {
 	public _id: Types.ObjectId;
 
+	@Prop({ type: Types.ObjectId, required: true })
+	public owner_id: Types.ObjectId;
+
 	@Prop({ type: Types.ObjectId })
 	public node_id: Types.ObjectId;
 
