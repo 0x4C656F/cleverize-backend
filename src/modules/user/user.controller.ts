@@ -1,14 +1,4 @@
-import {
-	Controller,
-	Post,
-	Body,
-	Get,
-	Param,
-	UseGuards,
-	HttpException,
-	HttpStatus,
-	Patch,
-} from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, UseGuards, Patch } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -54,6 +44,7 @@ export class UserController {
 	@UseGuards(AuthGuard("jwt"))
 	@Patch("/edit")
 	public async updateUser(@Body() body: any, @UserPayload() payload: JWTPayload) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const token = await this.userService.getManagmentApiToken();
 		const options = {
 			method: "PATCH",

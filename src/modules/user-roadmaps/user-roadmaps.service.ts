@@ -29,7 +29,12 @@ export class UserRoadmapsService {
 
 			const subRoadmapPromises = list.map(async (title) => {
 				const roadmap = await generateSubRoadmap(title, data);
-				const parsedRoadmap = this.parseNodeList(roadmap);
+				const parsedRoadmap = this.parseNodeList(roadmap).map((title: string) => {
+					return {
+						title: title,
+						isCompleted: false,
+					};
+				});
 
 				return {
 					title: title,

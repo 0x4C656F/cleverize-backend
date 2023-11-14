@@ -34,6 +34,6 @@ export default async function generateRoadmap(title: string) {
 		],
 		model: "gpt-4",
 	});
-	console.log("generateRoadmap function output:", completion.choices[0].message.content);
+	// console.log("generateRoadmap function output:", completion.choices[0].message.content);
 	return completion.choices[0].message.content;
 }
