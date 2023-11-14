@@ -5,11 +5,9 @@ const openai = new OpenAI({
 });
 import prompt from "./prompt";
 
-type outputType = {
+export default async function generateRoadmap(title: string): Promise<{
 	roadmap: string[];
-};
-
-export default async function generateRoadmap(title: string): Promise<outputType> {
+}> {
 	const completion = await openai.chat.completions.create({
 		messages: [
 			{
@@ -20,8 +18,8 @@ export default async function generateRoadmap(title: string): Promise<outputType
 		model: "gpt-4-1106-preview",
 		response_format: { type: "json_object" },
 	});
-	console.log("generateRoadmap function output:", completion.choices[0].message.content);
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-	const reponseJSON: outputType = JSON.parse(completion.choices[0].message.content);
-	return reponseJSON;
+
+	return JSON.parse(completion.choices[0].message.content) as {
+		roadmap: string[];
+	};
 }

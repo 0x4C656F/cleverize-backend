@@ -6,8 +6,8 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import generateRoadmap from "../ailogic/roadmapGenerator/generate-roadmap";
-import generateSubRoadmap from "../ailogic/subRoadmapGenerator/generate-subroadmap";
+import generateRoadmap from "../ailogic/roadmaps/roadmapGenerator/generate-roadmap";
+import generateSubRoadmap from "../ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
 export class UserRoadmapsService {
@@ -25,8 +25,6 @@ export class UserRoadmapsService {
 
 		try {
 			const data = await generateRoadmap(body.title);
-			// const list = this.parseNodeList(data);
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const list = data.roadmap;
 			const subRoadmapPromises = list.map(async (title) => {
 				const roadmap = await generateSubRoadmap(title, data);

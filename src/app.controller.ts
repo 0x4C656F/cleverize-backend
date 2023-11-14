@@ -4,9 +4,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { AppService } from "./app.service";
 import getConfig from "./config/config";
 import { startConversation } from "./modules/ailogic/coversations/conversation";
-import generateRoadmap from "./modules/ailogic/roadmapGenerator/generate-roadmap";
-import generateSubroadmap from "./modules/ailogic/subRoadmapGenerator/generate-subroadmap";
-import generateSubRoadmap from "./modules/ailogic/subRoadmapGenerator/generate-subroadmap";
+import generateSubRoadmap from "./modules/ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
 @Controller()
 export class AppController {
 	private readonly envvars: {

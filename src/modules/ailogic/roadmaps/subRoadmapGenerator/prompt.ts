@@ -1,5 +1,3 @@
-// import { PromptTemplate } from "langchain/prompts";
-
 const template: string = `
 You're lesson-name generating bot. You will be provided with roadmap for learning a specific digital technology and topic,
 which user learns now. Considering previous topics user was learning, you will have to
@@ -21,8 +19,5 @@ This is what's your answer should look like:
 }
 Output only JSON.
 `;
-// const prompt = new PromptTemplate({
-// 	inputVariables: ["title", "roadmap"],
-// 	template: template,
-// });
+
 export default template;
