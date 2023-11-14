@@ -8,12 +8,14 @@ import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import generateRoadmap from "../ailogic/roadmaps/roadmapGenerator/generate-roadmap";
 import generateSubRoadmap from "../ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
+import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
 export class UserRoadmapsService {
 	constructor(
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
-		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>
 	) {}
 
 	public async generateUserRoadmap(payload: JWTPayload, body: CreateUserRoadmapDto) {
@@ -30,9 +32,17 @@ export class UserRoadmapsService {
 				const roadmap = await generateSubRoadmap(title, data);
 				const node_list = roadmap.roadmap;
 				const parsedRoadmap = node_list.map((title: string) => {
+					const newChat = new this.chatModel({
+						owner_id: payload.sub,
+						node_title: title,
+						messages: [],
+					});
+					void newChat.save();
+					const id = newChat._id as Types.ObjectId;
 					return {
 						title: title,
 						isCompleted: false,
+						conversation_id: id,
 					};
 				});
 

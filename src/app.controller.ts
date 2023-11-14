@@ -22,11 +22,12 @@ export class AppController {
 	}
 	@Get("/health")
 	healthCheck() {
+		console.log("touched");
 		return "OK";
 	}
 
 	@Post("/callchat")
-	async chat(@Body() body: { title: string; roadmap: string[] }) {
+	async chat(@Body() body: { title: string; roadmap: { title: string }[] }) {
 		return await startConversation(body.title, body.roadmap);
 	}
 	@Post("/call")
@@ -36,6 +37,6 @@ export class AppController {
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/health/protected")
 	protected() {
-		return this.envvars;
+		return "ok";
 	}
 }

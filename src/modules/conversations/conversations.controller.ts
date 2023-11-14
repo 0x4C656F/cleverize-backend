@@ -3,32 +3,36 @@ import {
 	Controller,
 	Delete,
 	Get,
+	HttpCode,
 	Logger,
 	NotFoundException,
 	Param,
 	Post,
 	Put,
+	Sse,
 	UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
+import { Observable, map } from "rxjs";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
 import { AddMessageBodyDto } from "./dtos/add-message.dto";
-import { CreateConversationBodyDto } from "./dtos/create-conversation.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
+import { StreamService } from "./stream.service";
 
 @ApiTags("Conversations")
 @Controller("users/me/conversations")
 export class ConversationsController {
 	constructor(
 		@InjectModel(Conversation.name) private readonly model: Model<ConversationDocument>,
-		private readonly service: ConversationsService
+		private readonly service: ConversationsService,
+		private readonly streamService: StreamService
 	) {}
 
 	@ApiBearerAuth()
@@ -49,14 +53,23 @@ export class ConversationsController {
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
-	@Post("/")
-	public async createConversation(
-		@Body() dto: CreateConversationBodyDto,
-		@UserPayload() payload: JWTPayload
+	@Post("/:conversationId/init")
+	async initConversation(
+		@Body() body: { title: string; roadmap: { title: string }[] },
+		@Param() parametrs: { conversationId: string }
 	) {
-		return await this.service.createConversation(); // TODO
+		await this.service.initConversation(body.title, body.roadmap, parametrs.conversationId);
 	}
 
+	@Post("/:conversationId/message/")
+	async addUserMessage() {
+		return "ok";
+	}
+
+	@Sse("/stream")
+	stream(): Observable<any> {
+		return this.streamService.getDataStream().pipe(map((data) => ({ data })));
+	}
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Put("/:conversationId")
