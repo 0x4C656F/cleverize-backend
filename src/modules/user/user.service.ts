@@ -8,7 +8,7 @@ import getConfig from "../../config/config";
 type Auth0Token = {
 	access_token: string;
 	type: string;
-	exprires_at: string;
+	expires_at: string;
 };
 @Injectable()
 export class UserService {
@@ -26,7 +26,7 @@ export class UserService {
 	async findAll(): Promise<User[]> {
 		return this.userModel.find().exec();
 	}
-	async getManagmentApiToken(): Promise<string> {
+	async getManagementApiToken(): Promise<string> {
 		const options = {
 			method: "POST",
 			url: `${this.auth0Config.domain}oauth/token`,

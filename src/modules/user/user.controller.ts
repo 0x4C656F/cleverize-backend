@@ -39,13 +39,12 @@ export class UserController {
 
 	@Get("/gettoken")
 	async getTokenapi() {
-		return await this.userService.getManagmentApiToken();
+		return await this.userService.getManagementApiToken();
 	}
 	@UseGuards(AuthGuard("jwt"))
 	@Patch("/edit")
 	public async updateUser(@Body() body: any, @UserPayload() payload: JWTPayload) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const token = await this.userService.getManagmentApiToken();
+		const token = await this.userService.getManagementApiToken();
 		const options = {
 			method: "PATCH",
 			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
@@ -61,7 +60,7 @@ export class UserController {
 	@Get("/")
 	async getUser(@UserPayload() payload: JWTPayload): Promise<any> {
 		// eslint-disable-next-line @typescript-eslint/unbound-method
-		const token: string = await this.userService.getManagmentApiToken();
+		const token: string = await this.userService.getManagementApiToken();
 		const response = await axios({
 			method: "GET",
 			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
@@ -75,7 +74,7 @@ export class UserController {
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/verify/age/:userId")
 	async blockUser(@Param("userId") userId: string): Promise<string> {
-		const token: string = await this.userService.getManagmentApiToken();
+		const token: string = await this.userService.getManagementApiToken();
 
 		const response = await axios({
 			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
@@ -93,7 +92,7 @@ export class UserController {
 	@Get("/:userId")
 	async getUserById(@Param("userId") userId: string): Promise<any> {
 		// eslint-disable-next-line @typescript-eslint/unbound-method
-		const token: string = await this.userService.getManagmentApiToken();
+		const token: string = await this.userService.getManagementApiToken();
 		const response = await axios({
 			method: "GET",
 			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
