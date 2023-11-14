@@ -1,28 +1,32 @@
 import OpenAI from "openai";
 
 import prompt from "./prompt";
-
 const openai = new OpenAI({
-	apiKey: "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",
+	apiKey: "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",
 });
+type outputType = {
+	roadmap: string[];
+};
 
-export default async function generateSubRoadmap(title: string, roadmap: string): Promise<string> {
+export default async function generateSubRoadmap(
+	title: string,
+	roadmap: { roadmap: string[] }
+): Promise<outputType> {
 	const completion = await openai.chat.completions.create({
 		messages: [
-			{ role: "system", content: prompt },
 			{
-				role: "user",
-				content: `
-			This is user's roadmap: ${roadmap}.
-This is user's current topic: ${title}
+				role: "system",
+				content: `${prompt}\n
+				This is user's roadmap: ${JSON.stringify(roadmap)}.\n
+				This is user's current topic: ${title}
 			`,
 			},
 		],
-		model: "gpt-4",
+		model: "gpt-4-1106-preview",
+		response_format: { type: "json_object" },
 	});
-	const text: string = completion.choices[0].message.content;
-	console.log("generateRoadmap function output:", completion.choices[0].message.content);
-	return text;
+	const dataJSON: outputType = JSON.parse(completion.choices[0].message.content) as outputType;
+	return dataJSON;
 }
 // export default async function generateSubroadmap(title: string, roadmap: string) {
 // 	const generatorLLM = new OpenAI({

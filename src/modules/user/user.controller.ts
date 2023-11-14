@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { Controller, Post, Body, Get, Param, UseGuards, Patch } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import axios from "axios";
 import { Model } from "mongoose";
 
@@ -39,6 +41,7 @@ export class UserController {
 
 	@Get("/gettoken")
 	async getTokenapi() {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return await this.userService.getManagementApiToken();
 	}
 	@UseGuards(AuthGuard("jwt"))
@@ -49,7 +52,6 @@ export class UserController {
 			method: "PATCH",
 			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
 			headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			data: body,
 		};
 		const response = await axios(options);
@@ -59,7 +61,6 @@ export class UserController {
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/")
 	async getUser(@UserPayload() payload: JWTPayload): Promise<any> {
-		// eslint-disable-next-line @typescript-eslint/unbound-method
 		const token: string = await this.userService.getManagementApiToken();
 		const response = await axios({
 			method: "GET",
