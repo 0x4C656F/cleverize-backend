@@ -3,7 +3,6 @@ import {
 	Controller,
 	Delete,
 	Get,
-	HttpCode,
 	Logger,
 	NotFoundException,
 	Param,
@@ -42,12 +41,12 @@ export class ConversationsController {
 		@Param() parameters: OperateConversationByIdDto,
 		@UserPayload() payload: JWTPayload
 	) {
+		console.log("тронул");
 		const conversation = await this.model
 			.findOne({ _id: parameters.conversationId, owner_id: payload.sub })
 			.exec();
 
 		if (!conversation) throw new NotFoundException();
-
 		return conversation;
 	}
 
