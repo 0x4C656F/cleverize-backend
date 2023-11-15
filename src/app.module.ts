@@ -7,6 +7,7 @@ import { AppService } from "./app.service";
 import config from "./config/config";
 import { AuthorizationModule } from "./modules/authorization/authorization.module";
 import { ConversationsModule } from "./modules/conversations/conversations.module";
+import { PredefinedRoadmapsModule } from "./modules/predefined-roadmaps/predefined-roadmaps.module";
 import { UserModule } from "./modules/user/user.module";
 import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module";
 
@@ -21,6 +22,7 @@ import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module
 		UserModule,
 		UserRoadmapsModule,
 		ConversationsModule,
+		PredefinedRoadmapsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
