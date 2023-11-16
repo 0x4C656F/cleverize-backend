@@ -61,7 +61,7 @@ export class ConversationsController {
 	}
 
 	@Post("/:conversationId/message/")
-	async addUserMessage() {
+	addUserMessage() {
 		return "ok";
 	}
 
