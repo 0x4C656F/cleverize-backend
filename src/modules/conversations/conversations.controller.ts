@@ -14,12 +14,11 @@ import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
-import { Observable, map } from "rxjs";
+import { Observable } from "rxjs";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
-import { InitConversationByIdDto } from "./dtos/init-conversation.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
@@ -50,26 +49,21 @@ export class ConversationsController {
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
-	@Post("/:conversationId/start")
+	@Post("/:conversationId/init")
 	async initConversation(
-		@Body()
-		dto: {
-			node_title: string;
-			user_roadmap_id: string;
-		},
-		@Param() parametrs: { conversationId: string }
+		@Body() dto: { node_title: string; user_roadmap_id: string },
+		@Param("conversationId") conversationId: string
 	) {
-		console.log(parametrs.conversationId);
-		await this.service.initConversation(
-			dto.node_title,
-			dto.user_roadmap_id,
-			parametrs.conversationId
-		);
+		await this.service.initConversation(dto.node_title, dto.user_roadmap_id, conversationId);
+		return { status: "done" };
 	}
-	@Get("stream/:conversationId")
-	@Sse()
-	stream(@Param("conversationId") conversationId: string): Observable<any> {
-		return this.streamService.getDataStream(conversationId).pipe(map((data) => ({ data })));
+
+	@Sse(":conversationId/stream")
+	stream(@Param("conversationId") conversationId: string): Observable<MessageEvent> {
+		return new Observable((subscriber) => {
+			this.streamService.addSubscriber(conversationId, subscriber);
+			return () => this.streamService.closeStream(conversationId);
+		});
 	}
 
 	// @ApiBearerAuth()

@@ -1,30 +1,27 @@
 import { Injectable } from "@nestjs/common";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subscriber } from "rxjs";
 
 @Injectable()
 export class StreamService {
-	//I have no idea what this code does
-	private streams = new Map<string, Subject<string>>();
+	private subscribers = new Map<string, Subscriber<any>>();
 
-	sendData(conversationId: string, data: string) {
-		if (!this.streams.has(conversationId)) {
-			this.streams.set(conversationId, new Subject<string>());
-		}
-		this.streams.get(conversationId)?.next(data);
+	addSubscriber(conversationId: string, subscriber: Subscriber<any>) {
+		this.subscribers.set(conversationId, subscriber);
+		return () => this.subscribers.delete(conversationId);
 	}
 
-	getDataStream(conversationId: string): Observable<string> {
-		if (!this.streams.has(conversationId)) {
-			this.streams.set(conversationId, new Subject<string>());
+	sendData(conversationId: string, data: any): void {
+		const subscriber = this.subscribers.get(conversationId);
+		if (subscriber) {
+			subscriber.next(data);
 		}
-		return this.streams.get(conversationId).asObservable();
 	}
 
-	// Optional: Method to close a stream when the conversation ends
-	closeStream(conversationId: string) {
-		if (this.streams.has(conversationId)) {
-			this.streams.get(conversationId)?.complete();
-			this.streams.delete(conversationId);
+	closeStream(conversationId: string): void {
+		if (this.subscribers.has(conversationId)) {
+			const subscriber = this.subscribers.get(conversationId);
+			subscriber.complete(); // Complete the subscriber's observable
+			this.subscribers.delete(conversationId); // Remove the subscriber
 		}
 	}
 }
