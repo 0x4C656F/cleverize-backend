@@ -3,6 +3,7 @@ import { Observable, Subject } from "rxjs";
 
 @Injectable()
 export class StreamService {
+	//I have no idea what this code does
 	private streams = new Map<string, Subject<string>>();
 
 	sendData(conversationId: string, data: string) {

@@ -19,7 +19,7 @@ import { Observable, map } from "rxjs";
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
-import { ConversationStartDto } from "./dtos/init-conversation-dto";
+import { InitConversationByIdDto } from "./dtos/init-conversation.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
@@ -52,14 +52,22 @@ export class ConversationsController {
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/:conversationId/start")
 	async initConversation(
-		@Body() dto: ConversationStartDto,
-		@Param("convresationId") conversationId: string
+		@Body()
+		dto: {
+			node_title: string;
+			user_roadmap_id: string;
+		},
+		@Param() parametrs: { conversationId: string }
 	) {
-		console.log(dto.node_title);
-		await this.service.initConversation(dto.node_title, dto.user_roadmap_id, conversationId);
+		console.log(parametrs.conversationId);
+		await this.service.initConversation(
+			dto.node_title,
+			dto.user_roadmap_id,
+			parametrs.conversationId
+		);
 	}
-
-	@Sse("stream/:conversationId")
+	@Get("stream/:conversationId")
+	@Sse()
 	stream(@Param("conversationId") conversationId: string): Observable<any> {
 		return this.streamService.getDataStream(conversationId).pipe(map((data) => ({ data })));
 	}

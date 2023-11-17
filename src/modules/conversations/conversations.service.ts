@@ -33,16 +33,21 @@ export class ConversationsService {
 		if (!conversation_id) {
 			throw new Error("conversation_id is not defined");
 		}
+		// PREPARING DATA FOR AI
 		const user_roadmap = await this.model.findById(user_roadmap_id);
-		let roadmap: Subroadmap;
+		let user_subroadmap: Subroadmap;
 		if (user_roadmap) {
-			roadmap = user_roadmap.sub_roadmap_list.find((subroadmap) => {
-				subroadmap.node_list.includes({ title: node_title, isCompleted: false }) && subroadmap;
+			user_roadmap.sub_roadmap_list.map((subroadmap) => {
+				subroadmap.node_list.map((tech) => {
+					if (tech.title === node_title) {
+						user_subroadmap = subroadmap;
+					}
+				});
 			});
 		} else {
 			throw new Error("Couldnt find user roadmap:");
 		}
-
+		//END OF PREPARING DATA FOR AI
 		const openai = new OpenAI({
 			apiKey: "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",
 		});
@@ -50,13 +55,13 @@ export class ConversationsService {
 		try {
 			let full = "";
 			const template: string =
-				"You're chat bot, which teaches user given lesson. you will be provided with list of lessons and the lesson user is now on. Considering previous lessons user was learning, you will have to generate lesson to LEARN EXACT LESSON USER IS NOW ON, trying not to repeat the contents of the previous topic. You should emulate experience transfer and speak, like someone who is well-experienced in the industry.  Lesson has to be very short, concise and bound ONLY to chosen topic. Always give examples. Once you provide user with lesson - highlight key information and make sure, user understands it, by asking few questions. Once user has answered all questions correctly, ask 'Do you have any questions?',  if not - type in 'END OF CONVERSATION'";
+				"You're chat bot, which teaches user given lesson. you will be provided with list of lessons and the lesson user is now on. Considering previous lessons user was learning, you will have to generate lesson to LEARN EXACT LESSON USER IS NOW ON, trying not to repeat the contents of the previous topic. You should emulate experience transfer and speak, like someone who is well-experienced in the industry.  Lesson has to be very short, concise and bound ONLY to chosen topic. Always give examples. Once you provide user with lesson - highlight key information and make sure, user understands it, by asking few questions. Once user has answered all questions correctly, ask 'Do you have any questions?',  if not - type in 'END OF CONVERSATION'. Make sure your output is in text HTMLConent format(you can use html tags in your answer), because your answer will be streamed to client. You can also use /n.";
 
 			const completion = await openai.chat.completions.create({
 				messages: [
 					{
 						role: "system",
-						content: `${template}\nLesson Title: ${node_title}\nRoadmap: ${roadmap.node_list.toString()}`,
+						content: `${template}\nLesson Title: ${node_title}\nRoadmap: ${user_subroadmap.node_list.toString()}`,
 					},
 				],
 				model: "gpt-3.5-turbo",
@@ -64,17 +69,19 @@ export class ConversationsService {
 			});
 
 			for await (const part of completion) {
-				const text = part.choices[0].delta.content ?? "";
-				full += text;
-				this.streamService.sendData(conversation_id, text);
+				const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
+				full += text; //'Full' is the full text which you build piece by piece
+				console.log(full);
+				this.streamService.sendData(conversation_id, full); //Idk what this does), it is supposed to do some magic and stream full text
 			}
 
 			// After streaming ends, save the entire conversation
-			const conversation = await this.chatModel.findById(conversation_id);
+			const conversation = await this.chatModel.findById(conversation_id); //Saving the final text in chat
 			if (conversation) {
 				conversation.messages.push({ role: "assistant", content: full });
 				await conversation.save();
 			}
+			return "Stream started";
 		} catch (error) {
 			console.error("Error in initConversation:", error);
 			throw error;
