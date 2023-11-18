@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Observable, Subscriber } from "rxjs";
+import { Subscriber } from "rxjs";
 
 @Injectable()
 export class StreamService {

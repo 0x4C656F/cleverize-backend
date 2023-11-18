@@ -7,6 +7,7 @@ import {
 	NotFoundException,
 	Param,
 	Post,
+	Put,
 	Sse,
 	UseGuards,
 } from "@nestjs/common";
@@ -19,6 +20,7 @@ import { Observable } from "rxjs";
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
+import { AddUserMessageBodyDto } from "./dtos/add-user-message.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
@@ -50,11 +52,11 @@ export class ConversationsController {
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/:conversationId/init")
-	async initConversation(
+	initConversation(
 		@Body() dto: { node_title: string; user_roadmap_id: string },
 		@Param("conversationId") conversationId: string
 	) {
-		await this.service.initConversation(dto.node_title, dto.user_roadmap_id, conversationId);
+		this.service.initConversation(dto.node_title, dto.user_roadmap_id, conversationId);
 		return { status: "done" };
 	}
 
@@ -66,16 +68,18 @@ export class ConversationsController {
 		});
 	}
 
-	// @ApiBearerAuth()
-	// @UseGuards(AuthGuard("jwt"))
-	// @Put("/:conversationId")
-	// public async addMessage(
-	// 	@Param() parameters: OperateConversationByIdDto,
-	// 	@Body() dto: AddMessageBodyDto,
-	// 	@UserPayload() payload: JWTPayload
-	// ) {
-	// 	return await this.service.addMessage(Object.assign(dto, parameters, { ownerId: payload.sub }));
-	// }
+	@ApiBearerAuth()
+	@UseGuards(AuthGuard("jwt"))
+	@Put("/:conversationId/messages")
+	public async addMessage(
+		@Param() parameters: OperateConversationByIdDto,
+		@Body() dto: AddUserMessageBodyDto,
+		@UserPayload() payload: JWTPayload
+	) {
+		return await this.service.addUserMessage(
+			Object.assign(dto, parameters, { ownerId: payload.sub })
+		);
+	}
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
