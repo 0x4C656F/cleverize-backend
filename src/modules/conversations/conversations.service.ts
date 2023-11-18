@@ -4,6 +4,7 @@ import { Model } from "mongoose";
 
 import { AddUserMessageDto } from "./dtos/add-user-message.dto";
 import roadmapParser from "./helpers/roadmap-parser";
+import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
 import { template } from "./logic/template";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
@@ -25,6 +26,19 @@ export class ConversationsService {
 			role: role,
 			content: content,
 		});
+		let full = "";
+		const completion = await generateResponse(conversation.messages);
+		for await (const part of completion) {
+			const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
+			full += text; //'Full' is the full text which you build piece by piece
+			this.streamService.sendData(conversationId, full); //Idk what this does), it is supposed to do some magic and stream full text
+		}
+		conversation.messages.push({
+			role: "assistant",
+			content: full,
+		});
+		await conversation.save();
+		this.streamService.closeStream(conversationId);
 	}
 
 	initConversation(node_title: string, user_roadmap_id: string, conversation_id: string) {

@@ -14,5 +14,6 @@ export default async function generateAiLesson(title: string, roadmap: string) {
 		],
 		model: "gpt-3.5-turbo",
 		stream: true,
+		max_tokens: 1200,
 	});
 }
