@@ -55,7 +55,7 @@ export class ConversationsService {
 		conversation_id: string
 	) {
 		const user_roadmap = await this.model.findById(user_roadmap_id);
-		const roadmapForAi = roadmapParser(user_roadmap, node_title);
+		const roadmapForAi: string = roadmapParser(user_roadmap, node_title);
 		try {
 			let full = "";
 			const completion = await generateAiLesson(node_title, roadmapForAi);
