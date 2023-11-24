@@ -66,14 +66,12 @@ export class UserRoadmapsController {
 	@Put("/users/me/roadmaps/:roadmapId")
 	public async updateUserRoadmapById(
 		@Param() parameters: OperateUserRoadmapByIdDto,
-		@UserPayload() payload: JWTPayload
+		@UserPayload() payload: JWTPayload,
+		@Body() body: UserRoadmap
 	) {
 		try {
 			return await this.model
-				.findOneAndUpdate(
-					{ _id: parameters.roadmapId, owner_id: payload.sub },
-					{ owner_id: "ff425bb266d02a7d43105376" }
-				)
+				.findOneAndUpdate({ _id: parameters.roadmapId, owner_id: payload.sub }, body)
 				.exec();
 		} catch (error) {
 			Logger.error(error);
