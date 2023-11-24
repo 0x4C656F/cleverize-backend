@@ -18,17 +18,12 @@ export class AppController {
 		return "OK";
 	}
 
-	@Post("/callchat")
-	async chat(@Body() body: { title: string; roadmap: { title: string }[] }) {
-		return await startConversation(body.title, body.roadmap);
-	}
-	@Post("/call")
-	async call(@Body() body: { title: string; roadmap: { roadmap: string[] } }) {
-		return await generateSubRoadmap(body.title, body.roadmap);
-	}
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/health/protected")
 	protected() {
-		return "ok";
+		return {
+			message: "ok",
+			statusCode: 200,
+		};
 	}
 }
