@@ -9,7 +9,11 @@ import generateAiLesson from "./logic/init-conversation";
 import { template } from "./logic/template";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
-import { UserRoadmap, UserRoadmapDocument } from "../user-roadmaps/user-roadmaps.schema";
+import {
+	Subroadmap,
+	UserRoadmap,
+	UserRoadmapDocument,
+} from "../user-roadmaps/user-roadmaps.schema";
 
 @Injectable()
 export class ConversationsService {
@@ -60,10 +64,14 @@ export class ConversationsService {
 		conversation_id: string
 	) {
 		const user_roadmap = await this.model.findById(user_roadmap_id);
-		const roadmapForAi: string = roadmapParser(user_roadmap, node_title);
+		const roadmapForAi: Subroadmap = roadmapParser(user_roadmap, node_title);
 		try {
 			let full = "";
-			const completion = await generateAiLesson(node_title, roadmapForAi);
+			const completion = await generateAiLesson(
+				node_title,
+				roadmapForAi.title,
+				roadmapForAi.node_list.toString()
+			);
 			for await (const part of completion) {
 				const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
 				full += text;
@@ -77,7 +85,9 @@ export class ConversationsService {
 			if (conversation) {
 				const message = {
 					role: "system",
-					content: `${template}\nLesson Title: ${node_title}\nRoadmap: ${roadmapForAi}`,
+					content: `${template}\nUser's tech goal: ${
+						roadmapForAi.title
+					} \nCurrent lesson Title: ${node_title}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
 				};
 				conversation.messages.push(message, { role: "assistant", content: full });
 
