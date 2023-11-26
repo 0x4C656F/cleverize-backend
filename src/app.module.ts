@@ -10,6 +10,7 @@ import { ConversationsModule } from "./modules/conversations/conversations.modul
 import { PredefinedRoadmapsModule } from "./modules/predefined-roadmaps/predefined-roadmaps.module";
 import { UserModule } from "./modules/user/user.module";
 import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module";
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
 	imports: [
@@ -23,6 +24,7 @@ import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module
 		UserRoadmapsModule,
 		ConversationsModule,
 		PredefinedRoadmapsModule,
+		PaymentsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
