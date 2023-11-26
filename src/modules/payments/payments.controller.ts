@@ -7,8 +7,7 @@ import getConfig from "../../config/config";
 @Controller("payments")
 export class PaymentsController {
 	private config = getConfig();
-	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
+
 	@Get("/pay")
 	async pay() {
 		const stripe = new Stripe(this.config.stripe);
