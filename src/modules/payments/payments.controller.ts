@@ -1,13 +1,12 @@
-import { Body, Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import Stripe from "stripe";
 
-import getConfig from "../../config/config";
 @Controller("payments")
 export class PaymentsController {
-	// private config = getConfig();
-
+	@ApiBearerAuth()
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/pay")
 	async pay() {
 		const stripe = new Stripe(
