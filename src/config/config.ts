@@ -7,7 +7,6 @@ export type Config = {
 		clientId: string;
 		clientSecret: string;
 	};
-	stripe: string;
 };
 export type Auth0Config = Config["auth0"];
 
@@ -20,5 +19,4 @@ export default () => ({
 		clientId: process.env.AUTH0_CLIENT_ID,
 		clientSecret: process.env.AUTH0_CLIENT_SECRET,
 	},
-	stripe: process.env.STRIPE_SECRET,
 });
