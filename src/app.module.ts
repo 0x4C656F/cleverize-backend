@@ -24,7 +24,7 @@ import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module
 		UserRoadmapsModule,
 		ConversationsModule,
 		PredefinedRoadmapsModule,
-		PaymentsModule,
+		// PaymentsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
