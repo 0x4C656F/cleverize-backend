@@ -8,12 +8,14 @@ import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import generateRoadmap from "../ailogic/roadmaps/roadmapGenerator/generate-roadmap";
 import generateSubRoadmap from "../ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
+import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
 export class UserRoadmapsService {
 	constructor(
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
-		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>
 	) {}
 
 	public async generateUserRoadmap(payload: JWTPayload, body: CreateUserRoadmapDto) {
@@ -24,18 +26,26 @@ export class UserRoadmapsService {
 		}
 
 		try {
-			const data = await generateRoadmap(body.title);
-			const list = data.roadmap;
+			const root_roadmap = await generateRoadmap(body.title);
+			const list = root_roadmap.roadmap;
 			const subRoadmapPromises = list.map(async (title) => {
-				const roadmap = await generateSubRoadmap(title, data);
+				const roadmap = await generateSubRoadmap(title, root_roadmap);
 				const node_list = roadmap.roadmap;
 				const parsedRoadmap = node_list.map((title: string) => {
+					const newChat = new this.chatModel({
+						owner_id: payload.sub,
+						node_title: title,
+						messages: [],
+					});
+					void newChat.save();
+					const id = newChat._id as Types.ObjectId;
 					return {
 						title: title,
 						isCompleted: false,
+						conversation_id: id,
 					};
 				});
-
+				console.log(roadmap);
 				return {
 					title: title,
 					node_list: parsedRoadmap,
@@ -43,12 +53,12 @@ export class UserRoadmapsService {
 				};
 			});
 
-			const subRoadmap = await Promise.all(subRoadmapPromises);
+			const subroadmaps = await Promise.all(subRoadmapPromises);
 
 			const roadmap = new this.model({
 				owner_id: payload.sub,
 				title: body.title,
-				node_list: subRoadmap,
+				sub_roadmap_list: subroadmaps,
 				isCompleted: false,
 				created_at: new Date(),
 			});
