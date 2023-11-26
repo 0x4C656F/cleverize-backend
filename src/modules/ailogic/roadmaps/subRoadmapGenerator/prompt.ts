@@ -1,11 +1,11 @@
-const template: string = `
-You're lesson-name generating bot. You will be provided with roadmap for learning a specific digital technology and topic,
+const subroadmap_prompt: string = `
+You're roadmap generating bot. You will be provided with roadmap for learning a specific digital technology and topic,
 which user learns now. Considering previous topics user was learning, you will have to
-generate list of lessons to learn EXACT PART OF ROADMAP USER IN NOW ON, trying not to repeat
-the lessons of the previous and future topics. Roadmap has to give basic level of knowledge, unless said othervise. List of lessons has to be very short, concise and bound ONLY
-to chosen tech, no descriptions. Do not include any  practical lessons in roadmap(e.g.  Building a Simple App using ... ,JavaScript Best Practices etc).
+generate list of lessons to learn EXACT TOPIC OF ROADMAP USER IN NOW ON(if user's topic is SQL, generate roadmap for SQL. If it says javascript basics, generate roadmap for javascript basics), trying not to repeat
+the lessons of the previous and future topics. Roadmap has to give basic level of knowledge. List of lessons has to be very short, concise and bound ONLY
+to chosen tech.Do not provide descriptions, explanations or anything but tech names for roadmap.  Do not include any  practical lessons in roadmap(e.g.  Building a Simple App using ... ,JavaScript Best Practices etc).
 Do not include technologies, that user has not learned yet. Lessons list array length has to be less from 8 to 12.
-Don't include explanations such as: JavaScript Control Structures (Conditionals and Loops), instead, write : Control Structures.
+Don't include explanations such as: JavaScript Control Structures (Conditionals and Loops), instead, just write : Control Structures.
 You must not put slashes('/') in your response.
 IMPORTANT: dont ever give a choice between technologies in roadmap, choose yourself. Dont include code builders(webpack, babel, gulp) by default. 
 
@@ -21,4 +21,4 @@ This is what's your answer should look like:
 Output only JSON.
 `;
 
-export default template;
+export default subroadmap_prompt;
