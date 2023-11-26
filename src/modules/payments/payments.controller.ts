@@ -1,7 +1,7 @@
-import { Body, Controller, Get } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import Stripe from "stripe";
 
-@Controller("payments")
+@Controller("/payments")
 export class PaymentsController {
 	@Get("/pay")
 	async pay() {
