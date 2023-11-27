@@ -20,11 +20,11 @@ export class AppController {
 	@Get("/pay")
 	async pay() {
 		const stripe = new Stripe(
-			"sk_test_51OEFinCCMdYQSDIPUbKpBEyjIDRxKGh60ydtfsh5QD0g6XMZ9K1VDUEXhbUbWC9ptLBx7J4MtnBl240xDvR5LbVz00Acgca4Xu"
+			"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"
 		);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
-			line_items: [{ price: "price_1OGjr6CCMdYQSDIPdpIm2LSR", quantity: 1 }],
+			line_items: [{ price: "price_1OGmHjCCMdYQSDIP4kMU1ovr", quantity: 1 }],
 			mode: "subscription",
 		});
 	}
