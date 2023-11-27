@@ -20,5 +20,5 @@ export default () => ({
 		clientId: process.env.AUTH0_CLIENT_ID,
 		clientSecret: process.env.AUTH0_CLIENT_SECRET,
 	},
-	stripe: process.env.STRIPE_SERCRET,
+	stripe: process.env.STRIPE_SECRET,
 });
