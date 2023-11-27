@@ -24,7 +24,7 @@ export class AppController {
 		);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
-			line_items: [{ price: "price_1OH5UdCCMdYQSDIPpvz1yrDe", quantity: 1 }],
+			line_items: [{ price: "price_1OH5mSCCMdYQSDIPbn5m9IwQ", quantity: 1 }],
 			mode: "payment",
 		});
 	}
