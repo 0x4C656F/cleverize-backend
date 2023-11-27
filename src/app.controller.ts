@@ -19,9 +19,7 @@ export class AppController {
 	}
 	@Get("/pay")
 	async pay() {
-		const stripe = new Stripe(
-			"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"
-		);
+		const stripe = new Stripe(this.envvars.stripe);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
 			line_items: [{ price: "price_1OH5mSCCMdYQSDIPbn5m9IwQ", quantity: 1 }],
