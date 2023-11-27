@@ -24,7 +24,7 @@ async function bootstrap() {
 	app.enableCors({
 		origin: ["https://www.cleverize.co", "https://localhost:3000"],
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-		allowedHeaders: "Content-Type, Accept",
+		allowedHeaders: "*",
 	});
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup("/api/docs", app, document);
