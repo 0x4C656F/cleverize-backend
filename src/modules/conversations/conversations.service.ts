@@ -66,6 +66,10 @@ export class ConversationsService {
 		const user_roadmap = await this.model.findById(user_roadmap_id);
 		const roadmapForAi: Subroadmap = roadmapParser(user_roadmap, node_title);
 		try {
+			const conversation = await this.conversationModel.findById(conversation_id);
+			if (conversation.messages.length > 0) {
+				return "Conversation is already inited";
+			}
 			let full = "";
 			const completion = await generateAiLesson(
 				node_title,
@@ -81,21 +85,18 @@ export class ConversationsService {
 				this.streamService.sendData(conversation_id, full); //Idk what this does), it is supposed to do some magic and stream full text
 			}
 
-			const conversation = await this.conversationModel.findById(conversation_id);
-			if (conversation) {
-				const message = {
-					role: "system",
-					content: `${template}\nUser's tech goal: ${
-						roadmapForAi.title
-					} \nCurrent lesson Title: ${node_title}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
-				};
-				conversation.messages.push(message, { role: "assistant", content: full });
+			const message = {
+				role: "system",
+				content: `${template}\nUser's tech goal: ${
+					roadmapForAi.title
+				} \nCurrent lesson Title: ${node_title}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
+			};
+			conversation.messages.push(message, { role: "assistant", content: full });
 
-				await conversation.save();
-			}
+			await conversation.save();
 
 			this.streamService.closeStream(conversation_id);
-			return "ok";
+			return "Stream finished";
 		} catch (error) {
 			console.error("Error in initConversation:", error);
 			throw error;
