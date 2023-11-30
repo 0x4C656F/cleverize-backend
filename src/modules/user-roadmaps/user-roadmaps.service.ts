@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-array-for-each */
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
@@ -5,6 +6,7 @@ import { Model, Types } from "mongoose";
 import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
+import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import generateRoadmap from "../ailogic/roadmaps/roadmapGenerator/generate-roadmap";
 import generateSubRoadmap from "../ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
@@ -17,6 +19,37 @@ export class UserRoadmapsService {
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>
 	) {}
+
+	public async toggleRoadmapNodeIscompleted(
+		payload: JWTPayload,
+		parameters: ToggleNodeIsCompletedDto
+	) {
+		const roadmap = await this.model.findOne({
+			owner_id: payload.sub,
+			_id: parameters.roadmapId,
+		});
+
+		if (!roadmap) {
+			throw new Error("Roadmap not found");
+		}
+
+		// Use forEach to modify the roadmap object directly
+		roadmap.sub_roadmap_list.forEach((subroadmap) => {
+			if (subroadmap.title === parameters.title) {
+				// Toggle isCompleted for the subroadmap
+				subroadmap.isCompleted = !subroadmap.isCompleted;
+			} else {
+				// Iterate over node_list and toggle isCompleted for matching node
+				subroadmap.node_list.forEach((node) => {
+					if (node.title === parameters.title) {
+						node.isCompleted = !node.isCompleted;
+					}
+				});
+			}
+		});
+
+		return await roadmap.save();
+	}
 
 	public async generateUserRoadmap(payload: JWTPayload, body: CreateUserRoadmapDto) {
 		const user = await this.userModel.findOne({ user_id: payload.sub });
