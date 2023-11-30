@@ -14,13 +14,15 @@ import {
 	UserRoadmap,
 	UserRoadmapDocument,
 } from "../user-roadmaps/user-roadmaps.schema";
+import { UserRoadmapsService } from "../user-roadmaps/user-roadmaps.service";
 
 @Injectable()
 export class ConversationsService {
 	constructor(
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
-		private streamService: StreamService
+		private streamService: StreamService,
+		private userRoadmapsService: UserRoadmapsService
 	) {}
 
 	public addUserMessage(dto: AddUserMessageDto) {
@@ -39,13 +41,17 @@ export class ConversationsService {
 		for await (const part of completion) {
 			const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
 			full += text; //'Full' is the full text which you build piece by piece
-			console.log(full);
+
 			this.streamService.sendData(conversationId, full); //Idk what this does), it is supposed to do some magic and stream full text
 		}
 		conversation.messages.push({
 			role: "assistant",
 			content: full,
 		});
+		if (full.includes("END OF CONVERSATION")) {
+			//If full has this phrase, find the node which
+			// is related to this converstion and set it`s isCompleted on true.
+		}
 		await conversation.save();
 		this.streamService.closeStream(conversationId);
 		return "ok";
@@ -79,7 +85,6 @@ export class ConversationsService {
 			for await (const part of completion) {
 				const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
 				full += text;
-				console.log(full);
 
 				//'Full' is the full text which you build piece by piece
 				this.streamService.sendData(conversation_id, full); //Idk what this does), it is supposed to do some magic and stream full text
