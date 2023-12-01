@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
-import { template } from "./rus-template";
-// import { template } from "./template";
+// import { template } from "./rus-template";
+import { template } from "./template";
 const openai = new OpenAI({
 	apiKey: "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",
 });
