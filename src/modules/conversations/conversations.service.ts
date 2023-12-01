@@ -14,15 +14,13 @@ import {
 	UserRoadmap,
 	UserRoadmapDocument,
 } from "../user-roadmaps/user-roadmaps.schema";
-import { UserRoadmapsService } from "../user-roadmaps/user-roadmaps.service";
 
 @Injectable()
 export class ConversationsService {
 	constructor(
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
-		private streamService: StreamService,
-		private userRoadmapsService: UserRoadmapsService
+		private streamService: StreamService
 	) {}
 
 	public addUserMessage(dto: AddUserMessageDto) {
