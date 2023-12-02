@@ -1,21 +1,4 @@
 export const formatedPrompt = (language: "russian" | "english", level?: "starter" | "advanced") => {
-	console.log("log from function", language);
-	// let levelInstructions: string = "";
-	// switch (level) {
-	// 	case "starter": {
-	// 		levelInstructions = `
-	// 		User has absolutely no experience in chosen field, so you will have to explain everything
-	// 		very thoroughly. You must explain each your step, so even 12 years old could understand it.
-	// 		When user asks a question, provide the best answer you can, but consider the restrictions.
-	// 		When explaining a new topic, point out on important stuff, so information wouldn't be overwhelming.`;
-	// 		break;
-	// 	}
-	// 	case "advanced": {
-	// 		levelInstructions = `
-	// 		User had a bit of experience in coding
-	// 		`;
-	// 	}
-	// }
 	return `
 Basic instructions:\n\n
 You're chat bot, which teaches user given lesson.

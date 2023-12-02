@@ -86,6 +86,7 @@ export class ConversationsService {
 				return "Conversation is already inited";
 			}
 			let full = "";
+
 			const completion = await generateAiLesson(
 				node_title,
 				roadmapForAi.title,
@@ -99,7 +100,7 @@ export class ConversationsService {
 				//'Full' is the full text which you build piece by piece
 				this.streamService.sendData(conversation_id, full); //Idk what this does), it is supposed to do some magic and stream full text
 			}
-
+			console.log("Ended generating lesson with:", full);
 			const message = {
 				role: "system",
 				content: `${formatedPrompt(language)}\nUser's tech goal: ${
@@ -111,6 +112,7 @@ export class ConversationsService {
 			await conversation.save();
 
 			this.streamService.closeStream(conversation_id);
+			console.log("stream closed");
 			return "Stream finished";
 		} catch (error) {
 			console.error("Error in initConversation:", error);

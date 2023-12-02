@@ -56,7 +56,7 @@ export class ConversationsController {
 		@Body() dto: { node_title: string; user_roadmap_id: string; language: "english" | "russian" },
 		@Param("conversationId") conversationId: string
 	) {
-		console.log(dto);
+		console.log("Triggered init conversation with this dto:", dto);
 		this.service.initConversation(
 			dto.node_title,
 			dto.user_roadmap_id,
