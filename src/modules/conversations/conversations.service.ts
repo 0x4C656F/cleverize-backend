@@ -54,7 +54,7 @@ export class ConversationsService {
 		this.streamService.closeStream(conversationId);
 		return "ok";
 	}
-	initConversation(
+	async initConversation(
 		node_title: string,
 		user_roadmap_id: string,
 		language: "english" | "russian",
@@ -64,20 +64,6 @@ export class ConversationsService {
 			throw new Error("DTO is missin");
 		}
 
-		void this.processConversationInitInBackground(
-			node_title,
-			user_roadmap_id,
-			conversation_id,
-			language
-		);
-		return "ok";
-	}
-	private async processConversationInitInBackground(
-		node_title: string,
-		user_roadmap_id: string,
-		conversation_id: string,
-		language: "english" | "russian"
-	) {
 		const user_roadmap = await this.model.findById(user_roadmap_id);
 		const roadmapForAi: Subroadmap = roadmapParser(user_roadmap, node_title);
 		try {
@@ -108,15 +94,21 @@ export class ConversationsService {
 				} \nCurrent lesson Title: ${node_title}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
 			};
 			conversation.messages.push(message, { role: "assistant", content: full });
-
-			await conversation.save();
-
 			this.streamService.closeStream(conversation_id);
 			console.log("stream closed");
-			return "Stream finished";
+
+			return await conversation.save();
 		} catch (error) {
 			console.error("Error in initConversation:", error);
 			throw error;
 		}
 	}
+	// private async processConversationInitInBackground(
+	// 	node_title: string,
+	// 	user_roadmap_id: string,
+	// 	conversation_id: string,
+	// 	language: "english" | "russian"
+	// ) {
+
+	// }
 }

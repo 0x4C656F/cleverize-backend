@@ -52,18 +52,17 @@ export class ConversationsController {
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/:conversationId/init")
-	initConversation(
+	async initConversation(
 		@Body() dto: { node_title: string; user_roadmap_id: string; language: "english" | "russian" },
 		@Param("conversationId") conversationId: string
 	) {
 		console.log("Triggered init conversation with this dto:", dto);
-		this.service.initConversation(
+		return await this.service.initConversation(
 			dto.node_title,
 			dto.user_roadmap_id,
 			dto.language,
 			conversationId
 		);
-		return { status: "done" };
 	}
 
 	@Sse(":conversationId/stream")
