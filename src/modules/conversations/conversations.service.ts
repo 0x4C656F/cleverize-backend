@@ -6,7 +6,7 @@ import { AddUserMessageDto } from "./dtos/add-user-message.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
-import { template } from "./logic/starter-en-conversatioh";
+import { formatedPrompt } from "./logic/starter-en-conversatioh";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import {
@@ -102,7 +102,7 @@ export class ConversationsService {
 
 			const message = {
 				role: "system",
-				content: `${template}\nUser's tech goal: ${
+				content: `${formatedPrompt(language)}\nUser's tech goal: ${
 					roadmapForAi.title
 				} \nCurrent lesson Title: ${node_title}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
 			};
