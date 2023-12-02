@@ -91,6 +91,7 @@ export class ConversationsService {
 					this.streamService.sendData(conversationId, fullAiResponseString); //Idk what this does), it is supposed to do some magic and stream full text
 				}
 				if (fullAiResponseString.length < 100) {
+					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
 					return fullAiResponseString;
@@ -112,5 +113,4 @@ export class ConversationsService {
 			throw error;
 		}
 	}
-
 }
