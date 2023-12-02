@@ -11,10 +11,10 @@ export class Conversation {
 	public _id: Types.ObjectId;
 
 	@Prop({ type: Types.ObjectId, required: true })
-	public owner_id: Types.ObjectId;
+	public owner_id: string;
 
 	@Prop({ type: Types.ObjectId })
-	public node_id: Types.ObjectId;
+	public node_title: string;
 
 	@Prop({ type: [{ type: Object }] })
 	public messages: Message[];

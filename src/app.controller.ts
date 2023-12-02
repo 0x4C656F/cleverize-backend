@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import Stripe from "stripe";
 
 import { AppService } from "./app.service";
 import getConfig, { Config } from "./config/config";
-import { startConversation } from "./modules/ailogic/coversations/conversation";
-import generateSubRoadmap from "./modules/ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
+
 @Controller()
 export class AppController {
 	private readonly envvars: Config;
@@ -14,20 +14,24 @@ export class AppController {
 	}
 	@Get("/health")
 	healthCheck() {
+		console.log("touched");
 		return "OK";
 	}
-
-	@Post("/callchat")
-	async chat(@Body() body: { title: string; roadmap: string[] }) {
-		return await startConversation(body.title, body.roadmap);
-	}
-	@Post("/call")
-	async call(@Body() body: { title: string; roadmap: { roadmap: string[] } }) {
-		return await generateSubRoadmap(body.title, body.roadmap);
+	@Get("/pay")
+	async pay() {
+		const stripe = new Stripe(this.envvars.stripe);
+		return await stripe.checkout.sessions.create({
+			success_url: "https://www.cleverize.co/",
+			line_items: [{ price: "price_1OH5mSCCMdYQSDIPbn5m9IwQ", quantity: 1 }],
+			mode: "payment",
+		});
 	}
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/health/protected")
 	protected() {
-		return this.envvars;
+		return {
+			message: "ok",
+			statusCode: 200,
+		};
 	}
 }

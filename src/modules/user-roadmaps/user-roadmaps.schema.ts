@@ -3,9 +3,9 @@ import { Document, Types } from "mongoose";
 
 import { User } from "src/modules/user/entity/user.schema";
 
-export type UserRoadmapNode = {
+export type Subroadmap = {
 	title: string;
-	node_list: [];
+	node_list: { title: string; isCompleted: boolean }[];
 	isCompleted: boolean;
 };
 
@@ -20,7 +20,7 @@ export class UserRoadmap {
 	public title: string;
 
 	@Prop({ required: true })
-	public node_list: UserRoadmapNode[];
+	public sub_roadmap_list: Subroadmap[];
 
 	@Prop({ required: true })
 	public isCompleted: boolean;

@@ -5,7 +5,7 @@ export enum MessageRole {
 	USER = "user", // TODO
 }
 
-export class AddMessageDto {
+export class AddUserMessageDto {
 	@IsMongoId()
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
 	public conversationId: string;
@@ -20,7 +20,10 @@ export class AddMessageDto {
 
 	@IsString()
 	@ApiProperty({ example: "message" })
-	public message: string;
+	public content: string;
 }
 
-export class AddMessageBodyDto extends OmitType(AddMessageDto, ["conversationId", "ownerId"]) {}
+export class AddUserMessageBodyDto extends OmitType(AddUserMessageDto, [
+	"conversationId",
+	"ownerId",
+]) {}

@@ -21,7 +21,11 @@ async function bootstrap() {
 
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-
+	app.enableCors({
+		origin: ["https://www.cleverize.co", "https://localhost:3000", "https://cleverize.co"],
+		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+		allowedHeaders: "*",
+	});
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup("/api/docs", app, document);
 
@@ -32,6 +36,8 @@ async function bootstrap() {
 		} mode`,
 		"NestApplication"
 	);
+	const used = process.memoryUsage().heapUsed / 1024 / 1024;
+	console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 }
 
 void bootstrap();

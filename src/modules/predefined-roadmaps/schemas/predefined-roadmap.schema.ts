@@ -10,7 +10,7 @@ export class SubRoadmap {
 
 	@IsArray()
 	@IsString({ each: true })
-	public node_list: string[];
+	public node_list: { title: string; isComplted: boolean }[];
 
 	@IsBoolean()
 	public isCompleted: boolean;

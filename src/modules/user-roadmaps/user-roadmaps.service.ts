@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-array-for-each */
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
@@ -5,16 +6,50 @@ import { Model, Types } from "mongoose";
 import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
+import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import generateRoadmap from "../ailogic/roadmaps/roadmapGenerator/generate-roadmap";
 import generateSubRoadmap from "../ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
+import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
 export class UserRoadmapsService {
 	constructor(
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
-		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>
 	) {}
+
+	public async toggleRoadmapNodeIscompleted(
+		payload: JWTPayload,
+		parameters: ToggleNodeIsCompletedDto
+	) {
+		const roadmap = await this.model.findOne({
+			owner_id: payload.sub,
+			_id: parameters.roadmapId,
+		});
+
+		if (!roadmap) {
+			throw new Error("Roadmap not found");
+		}
+
+		// Use forEach to modify the roadmap object directly
+		roadmap.sub_roadmap_list.forEach((subroadmap) => {
+			if (subroadmap.title === parameters.title) {
+				// Toggle isCompleted for the subroadmap
+				subroadmap.isCompleted = !subroadmap.isCompleted;
+			} else {
+				// Iterate over node_list and toggle isCompleted for matching node
+				subroadmap.node_list.forEach((node) => {
+					if (node.title === parameters.title) {
+						node.isCompleted = !node.isCompleted;
+					}
+				});
+			}
+		});
+
+		return await roadmap.save();
+	}
 
 	public async generateUserRoadmap(payload: JWTPayload, body: CreateUserRoadmapDto) {
 		const user = await this.userModel.findOne({ user_id: payload.sub });
@@ -24,18 +59,26 @@ export class UserRoadmapsService {
 		}
 
 		try {
-			const data = await generateRoadmap(body.title);
-			const list = data.roadmap;
+			const root_roadmap = await generateRoadmap(body.title);
+			const list = root_roadmap.roadmap;
 			const subRoadmapPromises = list.map(async (title) => {
-				const roadmap = await generateSubRoadmap(title, data);
+				const roadmap = await generateSubRoadmap(title, root_roadmap);
 				const node_list = roadmap.roadmap;
 				const parsedRoadmap = node_list.map((title: string) => {
+					const newChat = new this.chatModel({
+						owner_id: payload.sub,
+						node_title: title,
+						messages: [],
+					});
+					void newChat.save();
+					const id = newChat._id as Types.ObjectId;
 					return {
 						title: title,
 						isCompleted: false,
+						conversation_id: id,
 					};
 				});
-
+				console.log(roadmap);
 				return {
 					title: title,
 					node_list: parsedRoadmap,
@@ -43,12 +86,12 @@ export class UserRoadmapsService {
 				};
 			});
 
-			const subRoadmap = await Promise.all(subRoadmapPromises);
+			const subroadmaps = await Promise.all(subRoadmapPromises);
 
 			const roadmap = new this.model({
 				owner_id: payload.sub,
 				title: body.title,
-				node_list: subRoadmap,
+				sub_roadmap_list: subroadmaps,
 				isCompleted: false,
 				created_at: new Date(),
 			});

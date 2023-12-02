@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-import prompt from "./prompt";
+import subroadmap_prompt from "./prompt";
 
 const openai = new OpenAI({
 	apiKey: "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",
@@ -14,7 +14,7 @@ export default async function generateSubRoadmap(
 		messages: [
 			{
 				role: "system",
-				content: `${prompt}\n
+				content: `${subroadmap_prompt}\n
 				This is user's roadmap: ${JSON.stringify(roadmap)}.\n
 				This is user's current topic: ${title}
 			`,

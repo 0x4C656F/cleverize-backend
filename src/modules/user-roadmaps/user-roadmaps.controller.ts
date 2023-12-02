@@ -6,6 +6,7 @@ import {
 	Logger,
 	NotFoundException,
 	Param,
+	Patch,
 	Post,
 	Put,
 	UseGuards,
@@ -19,6 +20,7 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { OperateUserRoadmapByIdDto } from "./dtos/operate-user-roadmap-by-id.dto";
+import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import { UserRoadmapsService } from "./user-roadmaps.service";
 
@@ -61,7 +63,14 @@ export class UserRoadmapsController {
 
 		return roadmap;
 	}
-
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/users/me/roadmaps/:roadmapId/:title/complete")
+	public async toggleRoadmapNodeIscompleted(
+		@UserPayload() payload: JWTPayload,
+		@Param() parameters: ToggleNodeIsCompletedDto
+	) {
+		return await this.service.toggleRoadmapNodeIscompleted(payload, parameters);
+	}
 	@UseGuards(AuthGuard("jwt"))
 	@Put("/users/me/roadmaps/:roadmapId")
 	public async updateUserRoadmapById(

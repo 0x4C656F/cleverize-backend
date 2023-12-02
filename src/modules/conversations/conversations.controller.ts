@@ -8,27 +8,30 @@ import {
 	Param,
 	Post,
 	Put,
+	Sse,
 	UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
+import { Observable } from "rxjs";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
-import { AddMessageBodyDto } from "./dtos/add-message.dto";
-import { CreateConversationBodyDto } from "./dtos/create-conversation.dto";
+import { AddUserMessageBodyDto } from "./dtos/add-user-message.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
+import { StreamService } from "./stream.service";
 
 @ApiTags("Conversations")
 @Controller("users/me/conversations")
 export class ConversationsController {
 	constructor(
 		@InjectModel(Conversation.name) private readonly model: Model<ConversationDocument>,
-		private readonly service: ConversationsService
+		private readonly service: ConversationsService,
+		private readonly streamService: StreamService
 	) {}
 
 	@ApiBearerAuth()
@@ -43,29 +46,42 @@ export class ConversationsController {
 			.exec();
 
 		if (!conversation) throw new NotFoundException();
-
 		return conversation;
 	}
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
-	@Post("/")
-	public async createConversation(
-		@Body() dto: CreateConversationBodyDto,
-		@UserPayload() payload: JWTPayload
+	@Post("/:conversationId/init")
+	async initConversation(
+		@Body() dto: { node_title: string; user_roadmap_id: string; language: "english" | "russian" },
+		@Param("conversationId") conversationId: string
 	) {
-		return await this.service.createConversation(); // TODO
+		console.log("Triggered init conversation with this dto:", dto);
+		return await this.service.initConversation(
+			dto.node_title,
+			dto.user_roadmap_id,
+			dto.language,
+			conversationId
+		);
+	}
+
+	@Sse(":conversationId/stream")
+	stream(@Param("conversationId") conversationId: string): Observable<MessageEvent> {
+		return new Observable((subscriber) => {
+			this.streamService.addSubscriber(conversationId, subscriber);
+			return () => this.streamService.closeStream(conversationId);
+		});
 	}
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
-	@Put("/:conversationId")
-	public async addMessage(
+	@Put("/:conversationId/messages")
+	public addMessage(
 		@Param() parameters: OperateConversationByIdDto,
-		@Body() dto: AddMessageBodyDto,
+		@Body() dto: AddUserMessageBodyDto,
 		@UserPayload() payload: JWTPayload
 	) {
-		return await this.service.addMessage(Object.assign(dto, parameters, { ownerId: payload.sub }));
+		return this.service.addUserMessage(Object.assign(dto, parameters, { ownerId: payload.sub }));
 	}
 
 	@ApiBearerAuth()

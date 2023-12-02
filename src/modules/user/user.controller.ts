@@ -8,14 +8,19 @@ import axios from "axios";
 import { Model } from "mongoose";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
-import getConfig, { Auth0Config } from "src/config/config";
+import getConfig from "src/config/config";
 
 import { User, UserDocument } from "./entity/user.schema";
 import { UserService } from "./user.service";
 
 @Controller("/users")
 export class UserController {
-	private readonly auth0Config: Auth0Config;
+	private readonly auth0Config: {
+		audience: string;
+		domain: string;
+		clientId: string;
+		clientSecret: string;
+	};
 
 	constructor(
 		private readonly userService: UserService,
