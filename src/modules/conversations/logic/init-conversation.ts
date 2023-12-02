@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 
-// import { template } from "./rus-template";
-import { template } from "./template";
+import { formatedPrompt } from "./starter-en-conversatioh";
 const openai = new OpenAI({
 	apiKey: "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",
 });
@@ -14,11 +13,13 @@ export default async function generateAiLesson(
 		messages: [
 			{
 				role: "system",
-				content: `${template}\nUser's tech goal: ${roadmap_title} \nCurrent lesson Title: ${title}\nRoadmap: ${roadmap}`,
+				content: `${formatedPrompt(
+					"english"
+				)}\nUser's tech goal: ${roadmap_title} \nCurrent lesson Title: ${title}\nRoadmap: ${roadmap}`,
 			},
 		],
 		model: "gpt-3.5-turbo",
 		stream: true,
-		max_tokens: 1200,
+		max_tokens: 1500,
 	});
 }
