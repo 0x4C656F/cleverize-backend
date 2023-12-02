@@ -65,11 +65,11 @@ export class UserRoadmapsController {
 	}
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/users/me/roadmaps/:roadmapId/:title/complete")
-	public async toggleRoadmapNodeIscompleted(
+	public async toggleRoadmapNodeIsCompleted(
 		@UserPayload() payload: JWTPayload,
 		@Param() parameters: ToggleNodeIsCompletedDto
 	) {
-		return await this.service.toggleRoadmapNodeIscompleted(payload, parameters);
+		return await this.service.toggleRoadmapNodeIsCompleted(payload, parameters);
 	}
 	@UseGuards(AuthGuard("jwt"))
 	@Put("/users/me/roadmaps/:roadmapId")
