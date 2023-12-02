@@ -7,7 +7,7 @@ import { InitConversationByIdDto } from "./dtos/init-conversation.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
-import { formatedPrompt } from "./logic/starter-en-conversatioh";
+import { formattedPrompt } from "./logic/starter-en-conversatioh";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import {
@@ -74,34 +74,37 @@ export class ConversationsService {
 			if (conversation.messages.length > 0) {
 				return "Conversation is already initialized";
 			}
-			let full = ""; // TODO: Rename, wth is that
+			const fullAiResponse = async (): Promise<string> => {
+				let fullAiResponseString: string = "";
 
-			const completion = await generateAiLesson(
-				nodeTitle,
-				roadmapForAi.title,
-				roadmapForAi.node_list.toString(),
-				language
-			);
-			for await (const part of completion) {
-				const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
-				full += text;
+				const completion = await generateAiLesson(
+					nodeTitle,
+					roadmapForAi.title,
+					roadmapForAi.node_list.toString(),
+					language
+				);
+				for await (const part of completion) {
+					const chunk = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
+					fullAiResponseString += chunk;
 
-				//'Full' is the full text which you build piece by piece
-				this.streamService.sendData(conversationId, full); //Idk what this does), it is supposed to do some magic and stream full text
-			}
-			if (full.length < 100) {
-				return new Error("Assistant failed, retry recommended");
-			}
-			console.log("Ended generating lesson with:", full);
+					//'Full' is the full text which you build piece by piece
+					this.streamService.sendData(conversationId, fullAiResponseString); //Idk what this does), it is supposed to do some magic and stream full text
+				}
+				if (fullAiResponseString.length < 100) {
+					await fullAiResponse();
+				} else {
+					return fullAiResponseString;
+				}
+			};
+			const responseContent = await fullAiResponse();
 			const message = {
 				role: "system",
-				content: `${formatedPrompt(language)}\nUser's tech goal: ${
+				content: `${formattedPrompt(language)}\nUser's tech goal: ${
 					roadmapForAi.title
 				} \nCurrent lesson Title: ${nodeTitle}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
 			};
-			conversation.messages.push(message, { role: "assistant", content: full });
+			conversation.messages.push(message, { role: "assistant", content: responseContent });
 			this.streamService.closeStream(conversationId);
-			console.log("stream closed");
 
 			return await conversation.save();
 		} catch (error) {
@@ -109,12 +112,5 @@ export class ConversationsService {
 			throw error;
 		}
 	}
-	// private async processConversationInitInBackground(
-	// 	node_title: string,
-	// 	user_roadmap_id: string,
-	// 	conversation_id: string,
-	// 	language: "english" | "russian"
-	// ) {
 
-	// }
 }

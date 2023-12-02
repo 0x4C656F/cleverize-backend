@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 
-import { formatedPrompt } from "./starter-en-conversatioh";
+import { formattedPrompt } from "./starter-en-conversatioh";
+
 const openai = new OpenAI({
 	apiKey: "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",
 });
@@ -15,7 +16,7 @@ export default async function generateAiLesson(
 		messages: [
 			{
 				role: "system",
-				content: `${formatedPrompt(
+				content: `${formattedPrompt(
 					language
 				)}\nUser's tech goal: ${roadmap_title} \nCurrent lesson Title: ${title}\nRoadmap: ${roadmap}`,
 			},
