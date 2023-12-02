@@ -57,10 +57,7 @@ You must not answer unrelated questions, for example: User's lesson is python, a
 You must not answer questions that are unrelated to user's current lesson/topic, so if
 encountered such question - answer 'I can't answer that question, do you have any questions related to 'user's topic'?'.
 `;
-export const formatedPrompt = (
-	language: "russian" | "english" = "english",
-	level?: "starter" | "advanced"
-) => {
+export const formatedPrompt = (language: "russian" | "english", level?: "starter" | "advanced") => {
 	// let levelInstructions: string = "";
 	// switch (level) {
 	// 	case "starter": {
