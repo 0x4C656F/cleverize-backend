@@ -86,6 +86,9 @@ export class ConversationsService {
 				//'Full' is the full text which you build piece by piece
 				this.streamService.sendData(conversation_id, full); //Idk what this does), it is supposed to do some magic and stream full text
 			}
+			if (full.length < 100) {
+				return new Error("Assitant failed, retry recommended");
+			}
 			console.log("Ended generating lesson with:", full);
 			const message = {
 				role: "system",
