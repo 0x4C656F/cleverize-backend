@@ -21,6 +21,7 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
 import { AddUserMessageBodyDto } from "./dtos/add-user-message.dto";
+import { InitConversationByIdBodyDto } from "./dtos/init-conversation.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
@@ -53,16 +54,11 @@ export class ConversationsController {
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/:conversationId/init")
 	async initConversation(
-		@Body() dto: { node_title: string; user_roadmap_id: string; language: "english" | "russian" },
-		@Param("conversationId") conversationId: string
+		@Body() dto: InitConversationByIdBodyDto,
+		@Param() parameters: OperateConversationByIdDto
 	) {
 		console.log("Triggered init conversation with this dto:", dto);
-		return await this.service.initConversation(
-			dto.node_title,
-			dto.user_roadmap_id,
-			dto.language,
-			conversationId
-		);
+		return await this.service.initConversation(Object.assign(dto, parameters));
 	}
 
 	@Sse(":conversationId/stream")

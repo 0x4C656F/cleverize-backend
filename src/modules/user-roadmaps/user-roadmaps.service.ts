@@ -20,7 +20,7 @@ export class UserRoadmapsService {
 		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>
 	) {}
 
-	public async toggleRoadmapNodeIscompleted(
+	public async toggleRoadmapNodeIsCompleted(
 		payload: JWTPayload,
 		parameters: ToggleNodeIsCompletedDto
 	) {

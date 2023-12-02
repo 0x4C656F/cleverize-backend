@@ -5,7 +5,7 @@ import { User } from "src/modules/user/entity/user.schema";
 
 export type Subroadmap = {
 	title: string;
-	node_list: { title: string; isCompleted: boolean }[];
+	node_list: { title: string; isCompleted: boolean; conversation_id: string }[];
 	isCompleted: boolean;
 };
 
