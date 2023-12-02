@@ -7,14 +7,15 @@ const openai = new OpenAI({
 export default async function generateAiLesson(
 	title: string,
 	roadmap_title: string,
-	roadmap: string
+	roadmap: string,
+	language: "english" | "russian"
 ) {
 	return await openai.chat.completions.create({
 		messages: [
 			{
 				role: "system",
 				content: `${formatedPrompt(
-					"english"
+					language
 				)}\nUser's tech goal: ${roadmap_title} \nCurrent lesson Title: ${title}\nRoadmap: ${roadmap}`,
 			},
 		],

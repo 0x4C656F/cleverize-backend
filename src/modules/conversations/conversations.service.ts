@@ -54,18 +54,29 @@ export class ConversationsService {
 		this.streamService.closeStream(conversationId);
 		return "ok";
 	}
-	initConversation(node_title: string, user_roadmap_id: string, conversation_id: string) {
+	initConversation(
+		node_title: string,
+		user_roadmap_id: string,
+		language: "english" | "russian",
+		conversation_id: string
+	) {
 		if (!node_title || !user_roadmap_id || !conversation_id) {
 			throw new Error("DTO is missin");
 		}
 
-		void this.processConversationInitInBackground(node_title, user_roadmap_id, conversation_id);
+		void this.processConversationInitInBackground(
+			node_title,
+			user_roadmap_id,
+			conversation_id,
+			language
+		);
 		return "ok";
 	}
 	private async processConversationInitInBackground(
 		node_title: string,
 		user_roadmap_id: string,
-		conversation_id: string
+		conversation_id: string,
+		language: "english" | "russian"
 	) {
 		const user_roadmap = await this.model.findById(user_roadmap_id);
 		const roadmapForAi: Subroadmap = roadmapParser(user_roadmap, node_title);
@@ -78,7 +89,8 @@ export class ConversationsService {
 			const completion = await generateAiLesson(
 				node_title,
 				roadmapForAi.title,
-				roadmapForAi.node_list.toString()
+				roadmapForAi.node_list.toString(),
+				language
 			);
 			for await (const part of completion) {
 				const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...

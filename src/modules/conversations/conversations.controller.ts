@@ -53,10 +53,10 @@ export class ConversationsController {
 	@UseGuards(AuthGuard("jwt"))
 	@Post("/:conversationId/init")
 	initConversation(
-		@Body() dto: { node_title: string; user_roadmap_id: string },
+		@Body() dto: { node_title: string; user_roadmap_id: string, language: 'en' | 'ru' },
 		@Param("conversationId") conversationId: string
 	) {
-		this.service.initConversation(dto.node_title, dto.user_roadmap_id, conversationId);
+		this.service.initConversation(dto.node_title, dto.user_roadmap_id,dto.language, conversationId);
 		return { status: "done" };
 	}
 
