@@ -1,4 +1,5 @@
 export const formatedPrompt = (language: "russian" | "english", level?: "starter" | "advanced") => {
+	console.log("log from function", language);
 	// let levelInstructions: string = "";
 	// switch (level) {
 	// 	case "starter": {
