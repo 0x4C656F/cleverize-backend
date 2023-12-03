@@ -35,19 +35,20 @@ export class ConversationsService {
 			role: role,
 			content: content,
 		});
-		let full = "";
+		console.log("new conversation", conversation);
+		let fullAiResponseString = "";
 		const completion = await generateResponse(conversation.messages);
 		for await (const part of completion) {
 			const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
-			full += text; //'Full' is the full text which you build piece by piece
+			fullAiResponseString += text; //'Full' is the full text which you build piece by piece
 
-			this.streamService.sendData(conversationId, full); //Idk what this does), it is supposed to do some magic and stream full text
+			this.streamService.sendData(conversationId, fullAiResponseString); //Idk what this does), it is supposed to do some magic and stream full text
 		}
 		conversation.messages.push({
 			role: "assistant",
-			content: full,
+			content: fullAiResponseString,
 		});
-		if (full.includes("END OF CONVERSATION")) {
+		if (fullAiResponseString.includes("END OF CONVERSATION")) {
 			const userRoadmap = await this.model.findOne({ _id: userRoadmapId, owner_id: ownerId });
 
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
