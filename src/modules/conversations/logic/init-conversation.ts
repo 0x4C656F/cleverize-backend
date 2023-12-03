@@ -7,18 +7,15 @@ const openai = new OpenAI({
 });
 export default async function generateAiLesson(
 	title: string,
-	roadmap_title: string,
+	roadmapTitle: string,
 	roadmap: string,
 	language: "english" | "russian"
 ) {
-	console.log("Starting generating ai lesson with", title, roadmap_title, roadmap, language);
 	return await openai.chat.completions.create({
 		messages: [
 			{
 				role: "system",
-				content: `${formattedPrompt(
-					language
-				)}\nUser's tech goal: ${roadmap_title} \nCurrent lesson Title: ${title}\nRoadmap: ${roadmap}`,
+				content: formattedPrompt(language, title, roadmap, roadmapTitle),
 			},
 		],
 		model: "gpt-3.5-turbo",

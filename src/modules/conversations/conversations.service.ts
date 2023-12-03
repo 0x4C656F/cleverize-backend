@@ -95,9 +95,7 @@ export class ConversationsService {
 					console.log("successfully generated");
 					const message = {
 						role: "system",
-						content: `${formattedPrompt(language)}\nUser's tech goal: ${
-							roadmapForAi.title
-						} \nCurrent lesson Title: ${nodeTitle}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
+						content: formattedPrompt(language, nodeTitle, roadmapForAi.node_list.toString(), roadmapForAi.title),
 					};
 					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
 					this.streamService.closeStream(conversationId);

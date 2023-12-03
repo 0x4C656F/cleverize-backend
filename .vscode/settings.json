@@ -12,5 +12,6 @@
 		"watch": false,
 		"onSave": "test-file",
 		"onStartup": ["all-tests"]
-	}
+	},
+	"cSpell.words": ["openai", "Subroadmap"]
 }
