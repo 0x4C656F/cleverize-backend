@@ -54,6 +54,7 @@ export class ConversationsService {
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
 				for (const node of subRoadmap.node_list) {
 					if (node.conversation_id === conversationId) {
+						console.log("Виполнено:", node);
 						node.isCompleted = true;
 					}
 				}
@@ -74,7 +75,7 @@ export class ConversationsService {
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
-			const fullAiResponse = async ()=> {
+			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
 
 				const completion = await generateAiLesson(
@@ -102,12 +103,11 @@ export class ConversationsService {
 					};
 					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
 					this.streamService.closeStream(conversationId);
-		
+
 					return await conversation.save();
 				}
 			};
 			await fullAiResponse();
-
 		} catch (error) {
 			console.error("Error in initConversation:", error);
 			throw error;
