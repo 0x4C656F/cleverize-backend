@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
@@ -35,7 +35,6 @@ export class ConversationsService {
 			role: role,
 			content: content,
 		});
-		console.log("new conversation", conversation);
 		let fullAiResponseString = "";
 		const completion = await generateResponse(conversation.messages);
 		for await (const part of completion) {
@@ -50,9 +49,13 @@ export class ConversationsService {
 		});
 		if (fullAiResponseString.includes("END OF CONVERSATION")) {
 			const userRoadmap = await this.model.findOne({ _id: userRoadmapId, owner_id: ownerId });
+			if (!userRoadmap) {
+				throw new Error("Roadmap not found");
+			}
 			console.log("Виполнено:", fullAiResponseString);
 
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
+				console.log(subRoadmap);
 				for (const node of subRoadmap.node_list) {
 					if (node.conversation_id === conversationId) {
 						console.log("Виполнено:", node);
