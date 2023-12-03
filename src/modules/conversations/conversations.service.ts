@@ -50,6 +50,7 @@ export class ConversationsService {
 		});
 		if (fullAiResponseString.includes("END OF CONVERSATION")) {
 			const userRoadmap = await this.model.findOne({ _id: userRoadmapId, owner_id: ownerId });
+			console.log("Виполнено:", fullAiResponseString);
 
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
 				for (const node of subRoadmap.node_list) {
