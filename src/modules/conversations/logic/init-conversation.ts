@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-import { formattedPrompt } from "./starter-en-conversatioh";
+import { formattedPrompt } from "./conversation-prompt";
 
 const openai = new OpenAI({
 	apiKey: "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",

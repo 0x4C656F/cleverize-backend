@@ -5,9 +5,9 @@ import { Model } from "mongoose";
 import { AddUserMessageDto } from "./dtos/add-user-message.dto";
 import { InitConversationByIdDto } from "./dtos/init-conversation.dto";
 import roadmapParser from "./helpers/roadmap-parser";
+import { formattedPrompt } from "./logic/conversation-prompt";
 import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
-import { formattedPrompt } from "./logic/starter-en-conversatioh";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import {
