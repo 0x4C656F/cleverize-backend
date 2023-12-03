@@ -35,7 +35,8 @@ Question?:\n
 A. Answer 1.\n
 B. Answer 2 \n
 C. Answer 3\n 
-Correct answer may be only one.
+
+Don't provide correct answers until user answers them.
 You must style them properly with html tags.
 Total amount of questions is 3-5.
 If user answered question incorrectly, tell them the correct
