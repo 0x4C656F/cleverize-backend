@@ -74,7 +74,7 @@ export class ConversationsService {
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
-			const fullAiResponse = async (): Promise<string> => {
+			const fullAiResponse = async ()=> {
 				let fullAiResponseString: string = "";
 
 				const completion = await generateAiLesson(
@@ -94,20 +94,20 @@ export class ConversationsService {
 					await fullAiResponse();
 				} else {
 					console.log("successfully generated");
-					return fullAiResponseString;
+					const message = {
+						role: "system",
+						content: `${formattedPrompt(language)}\nUser's tech goal: ${
+							roadmapForAi.title
+						} \nCurrent lesson Title: ${nodeTitle}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
+					};
+					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
+					this.streamService.closeStream(conversationId);
+		
+					return await conversation.save();
 				}
 			};
-			const responseContent = await fullAiResponse();
-			const message = {
-				role: "system",
-				content: `${formattedPrompt(language)}\nUser's tech goal: ${
-					roadmapForAi.title
-				} \nCurrent lesson Title: ${nodeTitle}\nRoadmap: ${roadmapForAi.node_list.toString()}`,
-			};
-			conversation.messages.push(message, { role: "assistant", content: responseContent });
-			this.streamService.closeStream(conversationId);
+			await fullAiResponse();
 
-			return await conversation.save();
 		} catch (error) {
 			console.error("Error in initConversation:", error);
 			throw error;
