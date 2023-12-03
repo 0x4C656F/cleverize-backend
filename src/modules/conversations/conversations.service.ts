@@ -60,11 +60,10 @@ export class ConversationsService {
 						console.log("Виполнено:", node);
 						node.isCompleted = true;
 						console.log("new node:", node);
+						await userRoadmap.save();
 					}
 				}
 			}
-
-			await userRoadmap.save();
 		}
 		await conversation.save();
 		this.streamService.closeStream(conversationId);
