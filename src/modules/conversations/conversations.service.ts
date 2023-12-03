@@ -60,7 +60,8 @@ export class ConversationsService {
 						console.log("Виполнено:", node);
 						node.isCompleted = true;
 						console.log("new node:", node);
-						await userRoadmap.save();
+						const newRoadmap = await userRoadmap.save();
+						console.log(newRoadmap)
 						break
 					}
 				}
