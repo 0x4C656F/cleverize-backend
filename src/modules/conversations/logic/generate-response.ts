@@ -10,7 +10,7 @@ const openai = new OpenAI({
 export default async function generateResponse(messages: Message[]) {
 	return await openai.chat.completions.create({
 		messages: messages as ChatCompletionMessageParam[],
-		model: "gpt-3.5-turbo",
+		model: "gpt-3.5-turbo-16k",
 		stream: true,
 		max_tokens: 1500,
 	});
