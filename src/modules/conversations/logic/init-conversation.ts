@@ -11,7 +11,7 @@ export default async function generateAiLesson(
 	roadmap: string,
 	language: "english" | "russian"
 ) {
-	console.log("Starting generating ai lesson with");
+	console.log("Starting generating ai lesson with", title, roadmap_title, roadmap, language);
 	return await openai.chat.completions.create({
 		messages: [
 			{

@@ -92,7 +92,7 @@ export class ConversationsService {
 					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
-					console.log("successfuly generated");
+					console.log("successfully generated");
 					return fullAiResponseString;
 				}
 			};
