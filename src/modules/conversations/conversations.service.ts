@@ -53,13 +53,8 @@ export class ConversationsService {
 				throw new Error("Roadmap not found");
 			}
 			console.log("Виполнено:", fullAiResponseString);
-
+			console.log("ID которій приходит с фронта:", conversationId);
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
-				if (subRoadmap.title == "NumPy") {
-					console.log(subRoadmap);
-					console.log("ID которій приходит с фронта:", conversationId);
-				}
-
 				for (const node of subRoadmap.node_list) {
 					if (node.conversation_id === conversationId) {
 						console.log("Виполнено:", node);
