@@ -64,15 +64,14 @@ export class ConversationsService {
 		this.streamService.closeStream(conversationId);
 		return "ok";
 	}
-	async initConversation(dto: InitConversationByIdDto) {
+	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
 		const { conversationId, nodeTitle, language, userRoadmapId } = dto;
-
 		const userRoadmap = await this.model.findById(userRoadmapId);
 		const roadmapForAi: Subroadmap = roadmapParser(userRoadmap, nodeTitle);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
-				return "Conversation is already initialized";
+				return conversation;
 			}
 			const fullAiResponse = async (): Promise<string> => {
 				let fullAiResponseString: string = "";
@@ -84,16 +83,16 @@ export class ConversationsService {
 					language
 				);
 				for await (const part of completion) {
-					const chunk = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
+					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
 
-					//'Full' is the full text which you build piece by piece
-					this.streamService.sendData(conversationId, fullAiResponseString); //Idk what this does), it is supposed to do some magic and stream full text
+					this.streamService.sendData(conversationId, fullAiResponseString);
 				}
 				if (fullAiResponseString.length < 100) {
 					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
+					console.log("successfuly generated");
 					return fullAiResponseString;
 				}
 			};
