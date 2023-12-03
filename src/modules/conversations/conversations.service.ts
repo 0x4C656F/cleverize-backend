@@ -24,11 +24,7 @@ export class ConversationsService {
 		private streamService: StreamService
 	) {}
 
-	public addUserMessage(dto: AddUserMessageDto) {
-		void this.processAddUserMessageInBackground(dto);
-		return "ok";
-	}
-	private async processAddUserMessageInBackground(dto: AddUserMessageDto) {
+	public async addUserMessage(dto: AddUserMessageDto) {
 		const { conversationId, content, role, ownerId, userRoadmapId } = dto;
 		const conversation = await this.conversationModel.findById(conversationId);
 		conversation.messages.push({
@@ -67,6 +63,7 @@ export class ConversationsService {
 		this.streamService.closeStream(conversationId);
 		return "ok";
 	}
+
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
 		const { conversationId, nodeTitle, language, userRoadmapId } = dto;
 		const userRoadmap = await this.model.findById(userRoadmapId);

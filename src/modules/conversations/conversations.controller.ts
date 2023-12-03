@@ -71,12 +71,14 @@ export class ConversationsController {
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Put("/:conversationId/messages")
-	public addMessage(
+	public async addMessage(
 		@Param() parameters: OperateConversationByIdDto,
 		@Body() dto: AddUserMessageBodyDto,
 		@UserPayload() payload: JWTPayload
 	) {
-		return this.service.addUserMessage(Object.assign(dto, parameters, { ownerId: payload.sub }));
+		return await this.service.addUserMessage(
+			Object.assign(dto, parameters, { ownerId: payload.sub })
+		);
 	}
 
 	@ApiBearerAuth()

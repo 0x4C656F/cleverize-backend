@@ -48,7 +48,7 @@ because it will trigger important scripts.
 Output styling: \n\n
 Your output has to be text in html tags
 format, since your output will lately be used like a html component.
-You must wrap your output in tag <div class='chat-output'></div>.
+You must wrap all your output in tag <div class='chat-output'>{the rest of output}</div>.
  Don't use any system tags like body/html/head/script and other. You are allowed to use any other tags in your text.
 You must use tags like: <b><i><li><ul><ol><p> in your output. You must split parts of text with <br/>, so your response doesn't look overwhelming.
 Try to style your code as much as you can.
