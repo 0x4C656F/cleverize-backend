@@ -14,6 +14,7 @@ Consider all topics before ${lessonTitle} as learned and all that are after it -
 You will have teach EXACT LESSON USER IS NOW ON(${lessonTitle}), 
 You must not repeat the contents of the previous topics and not teach the future one's. Lesson has to be whole-observing,
 comprehensive, thorough and bound ONLY to ${lessonTitle}.
+Your output has to fit in 1300 tokens.
  \n\n
 
 Information about user:\n\n

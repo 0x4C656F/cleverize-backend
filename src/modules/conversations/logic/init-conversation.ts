@@ -18,8 +18,8 @@ export default async function generateAiLesson(
 				content: formattedPrompt(language, title, roadmap, roadmapTitle),
 			},
 		],
-		model: "gpt-3.5-turbo",
+		model: "gpt-3.5-turbo-1106",
 		stream: true,
-		max_tokens: 1500,
+		max_tokens: 1300,
 	});
 }
