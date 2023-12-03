@@ -61,8 +61,8 @@ export class ConversationsService {
 						node.isCompleted = true;
 						console.log("new node:", node);
 						const newRoadmap = await userRoadmap.save();
-						console.log(newRoadmap)
-						break
+						console.log(newRoadmap.sub_roadmap_list[1].node_list);
+						break;
 					}
 				}
 			}
