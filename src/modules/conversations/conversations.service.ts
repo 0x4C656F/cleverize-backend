@@ -61,6 +61,7 @@ export class ConversationsService {
 						node.isCompleted = true;
 						console.log("new node:", node);
 						await userRoadmap.save();
+						break
 					}
 				}
 			}
