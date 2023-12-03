@@ -56,7 +56,7 @@ export class ConversationsService {
 			console.log("ID которій приходит с фронта:", conversationId);
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
 				for (const node of subRoadmap.node_list) {
-					if (node.conversation_id === conversationId) {
+					if (node.conversation_id.toString() === conversationId) {
 						console.log("Виполнено:", node);
 						node.isCompleted = true;
 					}
