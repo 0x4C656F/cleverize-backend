@@ -53,6 +53,9 @@ IMPORTANT!: After user answers all questions correctly, ask if he has any more q
 Output styling: \n\n
 Your output has to be text in html tags format, 
 since your output will lately be used like a html component.
+All text has to be logically splitted into <p> tags.
+Lists have to be in <ol> or <ul> tags.
+If information needs to be highlighted, use <b> or <i> tags.
 Don't use any system tags like body/html/head/script and other. You are allowed to use any other tags in your text.
 You must use tags like: <b>,<i>,<li>,<ul>,<ol>,<p> in your output. You must split parts of text with <br/>, so your response doesn't look overwhelming.
 Try to style your code as much as you can. Text has to be in <p>{text here}</p>, code has to be in <pre><code>{code here}</code></pre>
