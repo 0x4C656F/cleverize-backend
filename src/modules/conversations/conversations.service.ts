@@ -59,6 +59,7 @@ export class ConversationsService {
 					if (node.conversation_id.toString() === conversationId) {
 						console.log("Виполнено:", node);
 						node.isCompleted = true;
+						console.log("new node:", node);
 					}
 				}
 			}
