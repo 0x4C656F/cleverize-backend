@@ -52,17 +52,12 @@ export class ConversationsService {
 			if (!userRoadmap) {
 				throw new Error("Roadmap not found");
 			}
-			console.log("Виполнено:", fullAiResponseString);
-			console.log("ID которій приходит с фронта:", conversationId);
 			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
 				for (const node of subRoadmap.node_list) {
 					if (node.conversation_id.toString() === conversationId) {
-						console.log("Виполнено:", node);
 						node.isCompleted = true;
-						console.log("new node:", node);
 						userRoadmap.markModified("sub_roadmap_list");
-						const newRoadmap = await userRoadmap.save();
-						console.log(newRoadmap.sub_roadmap_list[1].node_list);
+						await userRoadmap.save();
 						break;
 					}
 				}
