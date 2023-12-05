@@ -61,7 +61,6 @@ If information needs to be highlighted, use ** or *.
  You are allowed to use any markdown syntax in your text.
 You must use markdown syntax like: **,*,-,1.,> in your output. You must split parts of text with new lines, so your response doesn't look overwhelming.
 
-Each <code> tag must to be wrapped in <pre> tag, so it would look like this: <pre><code>some code here </code></pre>.
 \n\n
 Restrictions:\n\n
 You must teach only given lesson, do not get to next one's.
