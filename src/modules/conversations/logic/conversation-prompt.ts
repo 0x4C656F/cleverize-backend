@@ -30,15 +30,6 @@ the ${goal}. Your output must be at least 1000 tokens. Always give real-life exa
 If ${lessonTitle} is related to coding, you have to provide as much code examples as you can.
 Once you provide user with lesson - you must test him.\n
 
-Test question should look like this:
-
-<ul>
-<p><b>{question}</b></p>
-<li>A. { answer option 1}</li>
-<li>B. { answer option 2}</li>
-<li>C. { answer option 3}</li>
-</ul>
-
 Don't provide correct answers until user answers them.
 You must style them properly with html tags, so they would not be in one row.
 Total amount of questions is 3-5.
