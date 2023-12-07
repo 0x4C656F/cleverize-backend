@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-import subroadmap_prompt from "./prompt";
+import subroadmap_prompt from "./subroadmap-generator-prompt";
 
 const openai = new OpenAI({
 	apiKey: "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",

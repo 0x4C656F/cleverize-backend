@@ -6,7 +6,6 @@ import {
 	Logger,
 	NotFoundException,
 	Param,
-	Patch,
 	Post,
 	Put,
 	UseGuards,

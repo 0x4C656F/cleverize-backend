@@ -1,9 +1,9 @@
 import OpenAI from "openai";
 
+import template from "./roadmap-generator-prompt";
 const openai = new OpenAI({
 	apiKey: "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",
 });
-import prompt from "./prompt";
 
 export default async function generateRoadmap(title: string): Promise<{
 	roadmap: string[];
@@ -12,7 +12,7 @@ export default async function generateRoadmap(title: string): Promise<{
 		messages: [
 			{
 				role: "system",
-				content: `${prompt} \n This is tech you have to generate roadmap for: ${title}`,
+				content: `${template} \n This is tech you have to generate roadmap for: ${title}`,
 			},
 		],
 		model: "gpt-4-1106-preview",

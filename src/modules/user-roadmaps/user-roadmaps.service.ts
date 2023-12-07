@@ -7,9 +7,9 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
+import generateRoadmap from "./logic/generate-roadmap";
+import generateSubRoadmap from "./logic/generate-subroadmap";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
-import generateRoadmap from "../ailogic/roadmaps/roadmapGenerator/generate-roadmap";
-import generateSubRoadmap from "../ailogic/roadmaps/subRoadmapGenerator/generate-subroadmap";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
