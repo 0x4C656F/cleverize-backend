@@ -35,7 +35,7 @@ export class UserService {
 				grant_type: "client_credentials",
 				client_id: this.auth0Config.clientId,
 				client_secret: this.auth0Config.clientSecret,
-				audience: this.auth0Config.audience,
+				audience: `${this.auth0Config.domain}api/v2/`,
 			}),
 		};
 		const axiosResponse = await axios(options);
