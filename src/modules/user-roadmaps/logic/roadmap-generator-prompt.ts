@@ -20,7 +20,7 @@ DO NOT:
 6.Write explanations(dotenv for environment variables, helmet for security)
 7.Include code ide's(vscode, webstorm and other)
 8.Write anything but list(no headings, descriptions and other goofy stuff).
-IMPORTANT: overall roadmap array length has to be from 9 to 13 
+IMPORTANT: overall roadmap array length has to be from 9 to 11
 Output only JSON
 This is what's your answer should look like:
 {

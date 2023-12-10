@@ -6,7 +6,7 @@ the lessons of the previous and future topics. Roadmap has to give basic level o
 First node should always be introduction.
 List of lessons has to be very short, concise and bound ONLY
 to chosen tech.Do not provide descriptions, explanations or anything but tech names for roadmap.  Do not include any  practical lessons in roadmap(e.g.  Building a Simple App using ... ,JavaScript Best Practices etc).
-Do not include technologies, that user has not learned yet. Lessons list array length has to be less than 12.
+Do not include technologies, that user has not learned yet. Lessons list array length has to be less than 11.
 Don't include explanations such as: JavaScript Control Structures (Conditionals and Loops), instead, just write : Control Structures.
 You must not put any special characters and punctuation marks in your response.
 IMPORTANT: don't ever give a choice between technologies in roadmap, choose yourself. Don't include code builders(webpack, babel, gulp) by default. 
