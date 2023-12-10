@@ -79,6 +79,7 @@ export class ConversationsService {
 				const completion = await generateAiLesson(
 					nodeTitle,
 					roadmapForAi.title,
+					userRoadmap.title,
 					roadmapForAi.node_list.toString(),
 					language
 				);
@@ -95,7 +96,13 @@ export class ConversationsService {
 					console.log("successfully generated");
 					const message = {
 						role: "system",
-						content: formattedPrompt(language, nodeTitle, roadmapForAi.node_list.toString(), roadmapForAi.title),
+						content: formattedPrompt(
+							language,
+							nodeTitle,
+							roadmapForAi.node_list.toString(),
+							roadmapForAi.title,
+							userRoadmap.title
+						),
 					};
 					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
 					this.streamService.closeStream(conversationId);

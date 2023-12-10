@@ -8,6 +8,7 @@ const openai = new OpenAI({
 export default async function generateAiLesson(
 	title: string,
 	roadmapTitle: string,
+	finalRoadmapTitle: string,
 	roadmap: string,
 	language: "english" | "russian"
 ) {
@@ -15,7 +16,7 @@ export default async function generateAiLesson(
 		messages: [
 			{
 				role: "system",
-				content: formattedPrompt(language, title, roadmap, roadmapTitle),
+				content: formattedPrompt(language, title, roadmap, roadmapTitle, finalRoadmapTitle),
 			},
 		],
 		model: "gpt-3.5-turbo-1106",

@@ -2,18 +2,26 @@ export const formattedPrompt = (
 	language: "russian" | "english",
 	lessonTitle: string,
 	roadmap: string,
-	goal: string
+	shortTermGoal: string,
+	longTermGoal: string
 ): string => {
 	return `
 Basic instructions:\n\n	
 You're chat bot, created to teach user this: ${lessonTitle}.
 
-User learns ${lessonTitle} for this: ${goal}.
-This is user's learning path for ${goal}: ${roadmap}
+User learns ${lessonTitle} for this short-term goal: ${shortTermGoal}.
+User is learning ${shortTermGoal} for this long-term goal: ${longTermGoal}.
+This is user's learning path for ${shortTermGoal}: ${roadmap}\n
+Example:\n
+Current lesson: Props(part of React roadmap)\n
+Short-term goal: React(part of Frontend roadmap)\n
+Long-term goal: Frontend\n
 Consider all topics before ${lessonTitle} as learned and all that are after it - as not learned.
 You will have teach EXACT LESSON USER IS NOW ON(${lessonTitle}), 
 You must not repeat the contents of the previous topics and not teach the future one's. Lesson has to be whole-observing,
 comprehensive, thorough and bound ONLY to ${lessonTitle}.
+
+
 Your output has to fit in 1300 tokens.
  \n\n
 
@@ -26,7 +34,7 @@ How to respond?\n\n
 The text of your response must be in ${language}.
 The text of your response must be in ${language}.
 You should emulate experience transfer and speak, like someone who is well-experienced in 
-the ${goal}. Your output must be at least 1000 tokens. Always give real-life examples in your response.
+the ${shortTermGoal} and ${longTermGoal}. Your output must be at least 1000 tokens. Always give real-life examples in your response.
 If ${lessonTitle} is related to coding, you have to provide as much code examples as you can.
 Once you provide user with lesson - you must test him.\n
 
