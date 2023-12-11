@@ -54,7 +54,7 @@ export default async function getRoadmapSize(title: string) {
 		if (response.error) {
 			throw new HttpException(response, HttpStatus.BAD_REQUEST);
 		} else {
-			return response as acceptedResponseType;
+			return response.size;
 		}
 	} catch (error) {
 		Logger.error(error);

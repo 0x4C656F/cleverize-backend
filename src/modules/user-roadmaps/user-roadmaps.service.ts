@@ -61,9 +61,9 @@ export class UserRoadmapsService {
 
 		try {
 			const roadmapSize = await getRoadmapSize(body.title); //This func gets the complexity of roadmap(sm|md|lg)
-			const rootRoadmap = await generateRoadmap(body.title, roadmapSize.size);
+			const rootRoadmap = await generateRoadmap(body.title, roadmapSize);
 
-			if (roadmapSize.size === "sm") {
+			if (roadmapSize === "sm") {
 				const list = rootRoadmap.roadmap;
 				const smallUserRoadmapNodeList = list.map((title) => {
 					const newChat = new this.chatModel({
@@ -100,7 +100,7 @@ export class UserRoadmapsService {
 			} else {
 				const list = rootRoadmap.roadmap;
 				const subRoadmapPromises = list.map(async (title) => {
-					const roadmap = await generateSubRoadmap(title, rootRoadmap, roadmapSize.size);
+					const roadmap = await generateSubRoadmap(title, rootRoadmap, roadmapSize);
 					const node_list = roadmap.roadmap;
 					const parsedRoadmap = node_list.map((title: string) => {
 						const newChat = new this.chatModel({
