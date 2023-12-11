@@ -1,23 +1,22 @@
 import OpenAI from "openai";
 
-import subroadmap_prompt from "./subroadmap-generator-prompt";
-
+import subRoadmapTemplate from "./subroadmap-generator-prompt";
+import getConfig from "../../../config/config";
+const environment = getConfig();
 const openai = new OpenAI({
-	apiKey: "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",
+	apiKey: environment.openai.dimaApiKey,
 });
 
 export default async function generateSubRoadmap(
 	title: string,
-	roadmap: { roadmap: string[] }
+	roadmap: { roadmap: string[] },
+	size: "md" | "lg" | "sm"
 ): Promise<{ roadmap: string[] }> {
 	const completion = await openai.chat.completions.create({
 		messages: [
 			{
 				role: "system",
-				content: `${subroadmap_prompt}\n
-				This is user's roadmap: ${JSON.stringify(roadmap)}.\n
-				This is user's current topic: ${title}
-			`,
+				content: subRoadmapTemplate(title, roadmap, size),
 			},
 		],
 		model: "gpt-4-1106-preview",

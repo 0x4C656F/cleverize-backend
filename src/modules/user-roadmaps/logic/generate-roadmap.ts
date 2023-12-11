@@ -1,18 +1,40 @@
 import OpenAI from "openai";
 
-import formattedLargeTemplate from "./roadmap-generator-prompt";
+import largeTemplate from "./prompts/generate-large-roadmap";
+import mediumTemplate from "./prompts/generate-medium-roadmap";
+import smallTemplate from "./prompts/generate-small-roadmap";
+import getConfig from "../../../config/config";
+const environment = getConfig();
 const openai = new OpenAI({
-	apiKey: "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",
+	apiKey: environment.openai.dimaApiKey,
 });
 
-export default async function generateRoadmap(title: string): Promise<{
+export default async function generateRoadmap(
+	title: string,
+	size: "sm" | "md" | "lg"
+): Promise<{
 	roadmap: string[];
 }> {
+	let template: string;
+	switch (size) {
+		case "sm": {
+			template = smallTemplate(title);
+			break;
+		}
+		case "md": {
+			template = mediumTemplate(title);
+			break;
+		}
+		case "lg": {
+			template = largeTemplate(title);
+			break;
+		}
+	}
 	const completion = await openai.chat.completions.create({
 		messages: [
 			{
 				role: "system",
-				content: formattedLargeTemplate(title),
+				content: template,
 			},
 		],
 		model: "gpt-4-1106-preview",

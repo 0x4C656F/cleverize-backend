@@ -27,8 +27,10 @@ export class UserRoadmap {
 
 	@Prop()
 	public created_at: Date;
-}
 
+	@Prop({ required: true })
+	public size: "sm" | "md" | "lg";
+}
 export type UserRoadmapDocument = UserRoadmap & Document;
 
 export const UserRoadmapSchema = SchemaFactory.createForClass(UserRoadmap);

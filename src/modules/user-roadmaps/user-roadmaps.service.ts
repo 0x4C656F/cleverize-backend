@@ -9,6 +9,7 @@ import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import generateRoadmap from "./logic/generate-roadmap";
 import generateSubRoadmap from "./logic/generate-subroadmap";
+import getRoadmapSize from "./logic/verify-title";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { User, UserDocument } from "../user/entity/user.schema";
@@ -59,12 +60,12 @@ export class UserRoadmapsService {
 		}
 
 		try {
-			const root_roadmap = await generateRoadmap(body.title);
-			const list = root_roadmap.roadmap;
-			const subRoadmapPromises = list.map(async (title) => {
-				const roadmap = await generateSubRoadmap(title, root_roadmap);
-				const node_list = roadmap.roadmap;
-				const parsedRoadmap = node_list.map((title: string) => {
+			const roadmapSize = await getRoadmapSize(body.title); //This func gets the complexity of roadmap(sm|md|lg)
+			const rootRoadmap = await generateRoadmap(body.title, roadmapSize.size);
+
+			if (roadmapSize.size === "sm") {
+				const list = rootRoadmap.roadmap;
+				const smallUserRoadmapNodeList = list.map((title) => {
 					const newChat = new this.chatModel({
 						owner_id: payload.sub,
 						node_title: title,
@@ -78,30 +79,67 @@ export class UserRoadmapsService {
 						conversation_id: id,
 					};
 				});
-				console.log(roadmap);
-				return {
-					title: title,
-					node_list: parsedRoadmap,
+				const roadmap = new this.model({
+					owner_id: payload.sub,
+					title: body.title,
+					sub_roadmap_list: {
+						title: body.title,
+						isCompleted: false,
+						node_list: smallUserRoadmapNodeList,
+					},
 					isCompleted: false,
-				};
-			});
+					created_at: new Date(),
+				});
 
-			const subroadmaps = await Promise.all(subRoadmapPromises);
+				await roadmap.save();
 
-			const roadmap = new this.model({
-				owner_id: payload.sub,
-				title: body.title,
-				sub_roadmap_list: subroadmaps,
-				isCompleted: false,
-				created_at: new Date(),
-			});
+				user.roadmaps.push(roadmap._id as Types.ObjectId);
+				await user.save();
 
-			await roadmap.save();
+				return roadmap;
+			} else {
+				const list = rootRoadmap.roadmap;
+				const subRoadmapPromises = list.map(async (title) => {
+					const roadmap = await generateSubRoadmap(title, rootRoadmap, roadmapSize.size);
+					const node_list = roadmap.roadmap;
+					const parsedRoadmap = node_list.map((title: string) => {
+						const newChat = new this.chatModel({
+							owner_id: payload.sub,
+							node_title: title,
+							messages: [],
+						});
+						void newChat.save();
+						const id = newChat._id as Types.ObjectId;
+						return {
+							title: title,
+							isCompleted: false,
+							conversation_id: id,
+						};
+					});
+					return {
+						title: title,
+						node_list: parsedRoadmap,
+						isCompleted: false,
+					};
+				});
 
-			user.roadmaps.push(roadmap._id as Types.ObjectId);
-			await user.save();
+				const subroadmaps = await Promise.all(subRoadmapPromises);
 
-			return roadmap;
+				const roadmap = new this.model({
+					owner_id: payload.sub,
+					title: body.title,
+					sub_roadmap_list: subroadmaps,
+					isCompleted: false,
+					created_at: new Date(),
+				});
+
+				await roadmap.save();
+
+				user.roadmaps.push(roadmap._id as Types.ObjectId);
+				await user.save();
+
+				return roadmap;
+			}
 		} catch (error) {
 			Logger.error(error);
 			throw error;
