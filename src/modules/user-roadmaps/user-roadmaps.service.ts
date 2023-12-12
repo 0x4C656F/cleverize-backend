@@ -98,6 +98,7 @@ export class UserRoadmapsService {
 				sub_roadmap_list: subroadmaps,
 				isCompleted: false,
 				created_at: new Date(),
+				size: "lg",
 			});
 
 			await roadmap.save();
