@@ -6,12 +6,6 @@ import { User, UserDocument } from "./entity/user.schema";
 
 @Injectable()
 export class UserService {
-	private readonly auth0Config: {
-		audience: string;
-		domain: string;
-		clientId: string;
-		clientSecret: string;
-	};
 	constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	}

@@ -1,14 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import clerkClient from "@clerk/clerk-sdk-node";
-import { Controller, Post, Body, Get, Param, UseGuards, Patch } from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, UseGuards } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
-import axios from "axios";
 import { Model } from "mongoose";
-
-import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { User, UserDocument } from "./entity/user.schema";
 import { UserService } from "./user.service";

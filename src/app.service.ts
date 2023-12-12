@@ -1,5 +1,4 @@
-import { Get, Injectable } from "@nestjs/common";
-import { Observable, Subject } from "rxjs";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AppService {}
