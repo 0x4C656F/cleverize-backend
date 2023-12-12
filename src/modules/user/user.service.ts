@@ -43,13 +43,14 @@ export class UserService {
 		const token: string = data.access_token;
 		return token;
 	}
-	async findOrCreate(userData: any): Promise<User> {
+	async findOrCreate(userData: any): Promise<void> {
+		console.log(userData);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-		const user = await this.userModel.findOne({ user_id: userData.user_id });
-		if (user) {
-			return user;
-		}
-		const newUser = new this.userModel(userData);
-		return newUser.save();
+		// const user = await this.userModel.findOne({ user_id: userData.user_id });
+		// if (user) {
+		// 	return user;
+		// }
+		// const newUser = new this.userModel(userData);
+		// return newUser.save();
 	}
 }

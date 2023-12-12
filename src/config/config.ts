@@ -9,6 +9,9 @@ export type Config = {
 		clientId: string;
 		clientSecret: string;
 	};
+	clerk: {
+		issuerUrl: string;
+	};
 	stripe: string;
 	openai: {
 		dimaApiKey: string;
@@ -26,6 +29,9 @@ export default () => {
 			domain: process.env.AUTH0_DOMAIN,
 			clientId: process.env.AUTH0_CLIENT_ID,
 			clientSecret: process.env.AUTH0_CLIENT_SECRET,
+		},
+		clerk: {
+			issuerUrl: process.env.CLERK_ISSUER_URL,
 		},
 		stripe: process.env.STRIPE_SECRET,
 		openai: {

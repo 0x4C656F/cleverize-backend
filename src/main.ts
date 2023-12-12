@@ -21,11 +21,7 @@ async function bootstrap() {
 
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-	app.enableCors({
-		origin: ["https://www.cleverize.co", "https://localhost:3000", "https://cleverize.co"],
-		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-		allowedHeaders: "*",
-	});
+	app.enableCors();
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup("/api/docs", app, document);
 
