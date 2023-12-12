@@ -97,10 +97,10 @@ export class UserRoadmapsService {
 				title: body.title,
 				sub_roadmap_list: subroadmaps,
 				isCompleted: false,
-				created_at: new Date(),
 				size: "lg",
+				created_at: new Date(),
 			});
-
+			console.log(roadmap);
 			await roadmap.save();
 
 			user.roadmaps.push(roadmap._id as Types.ObjectId);
