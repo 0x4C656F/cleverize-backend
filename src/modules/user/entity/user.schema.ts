@@ -8,9 +8,6 @@ export class User {
 	@Prop({})
 	public user_id: string;
 
-	@Prop({ type: String })
-	public bio: string;
-
 	@Prop({ type: [{ type: Types.ObjectId, ref: "UserRoadmap" }] })
 	public roadmaps: Types.ObjectId[];
 

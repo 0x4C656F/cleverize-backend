@@ -51,7 +51,6 @@ export class UserService {
 		}
 		const newUser = new this.userModel({
 			user_id: userData.data.user_id,
-			bio: "",
 			roadmaps: [],
 			achievements: [],
 		});
