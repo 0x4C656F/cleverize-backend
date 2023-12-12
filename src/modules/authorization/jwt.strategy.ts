@@ -8,7 +8,6 @@ import getConfig from "src/config/config";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(private readonly configService: ConfigService) {
-		const auth0Config = getConfig().auth0;
 		super({
 			secretOrKeyProvider: passportJwtSecret({
 				cache: true,
