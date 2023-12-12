@@ -43,14 +43,14 @@ export class UserService {
 		const token: string = data.access_token;
 		return token;
 	}
-	async findOrCreate(userData: { data: { id: string } }): Promise<User> {
+	async findOrCreate(userData: { data: { user_id: string } }): Promise<User> {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-		const user = await this.userModel.findOne({ user_id: userData.data.id });
+		const user = await this.userModel.findOne({ user_id: userData.data.user_id });
 		if (user) {
 			return user;
 		}
 		const newUser = new this.userModel({
-			user_id: userData.data.id,
+			user_id: userData.data.user_id,
 			bio: "",
 			roadmaps: [],
 			achievements: [],
