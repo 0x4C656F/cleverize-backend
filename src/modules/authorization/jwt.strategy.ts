@@ -7,17 +7,17 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import getConfig from "src/config/config";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-	constructor(private readonly configService: ConfigService) {
+	constructor(private configService: ConfigService) {
 		super({
 			secretOrKeyProvider: passportJwtSecret({
 				cache: true,
 				rateLimit: true,
 				jwksRequestsPerMinute: 5,
-				jwksUri: `${auth0Config.domain}.well-known/jwks.json`,
+				jwksUri: `${getConfig().clerk.issuerUrl}/.well-known/jwks.json`,
 			}),
+
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-			audience: auth0Config.audience,
-			issuer: auth0Config.domain,
+			issuer: `${getConfig().clerk.issuerUrl}`,
 			algorithms: ["RS256"],
 		});
 	}

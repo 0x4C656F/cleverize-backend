@@ -4,6 +4,7 @@ import Stripe from "stripe";
 
 import { AppService } from "./app.service";
 import getConfig, { Config } from "./config/config";
+import generateRoadmap from "./modules/user-roadmaps/logic/generate-roadmap";
 
 @Controller()
 export class AppController {
@@ -33,5 +34,9 @@ export class AppController {
 			message: "ok",
 			statusCode: 200,
 		};
+	}
+	@Get("/call")
+	async call() {
+		return await generateRoadmap("java", "md");
 	}
 }
