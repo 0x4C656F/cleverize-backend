@@ -15,6 +15,7 @@ export default function largeTemplate(technologyTitle: string) {
 	5.Always include necessary programming languages when needed(f.e. you can't learn node js without knowing js or learn django without knowing python)
 	
 	You must not:
+	-Use fucking symbols like: ., /, %, $, #, @, !, ,, \\, |, (, *, &,
 	-Give a choice between technologies in roadmap, choose yourself.
 	-Include such starts as CSS preprocessors or Front-end framework, instead write SASS and React(for example).
 	-Include any explanations for tech's like: Cargo (Rust's package manager), don't ever write the part "Rust's package manager".
