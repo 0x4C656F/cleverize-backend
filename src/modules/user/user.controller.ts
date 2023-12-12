@@ -31,6 +31,8 @@ export class UserController {
 
 	@Post()
 	async upsertUser(@Body() userData: { data: { id: string } }): Promise<any> {
+		console.log(userData);
+
 		return this.userService.findOrCreate(userData);
 	}
 
