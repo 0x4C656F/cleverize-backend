@@ -6,10 +6,6 @@ export class InitConversationByIdDto {
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
 	public conversationId: string;
 
-	@IsString()
-	@ApiProperty({ example: "Node title" })
-	nodeTitle: string;
-
 	@IsMongoId()
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
 	userRoadmapId: string;
