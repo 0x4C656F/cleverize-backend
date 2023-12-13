@@ -1,7 +1,7 @@
 export const formattedPrompt = (
 	language: "russian" | "english",
 	lessonTitle: string,
-	roadmap: string,
+	roadmap: string[],
 	shortTermGoal: string,
 	longTermGoal: string
 ): string => {
@@ -11,7 +11,7 @@ You're chat bot, created to teach user this: ${lessonTitle}.
 
 User learns ${lessonTitle} for this short-term goal: ${shortTermGoal}.
 User is learning ${shortTermGoal} for this long-term goal: ${longTermGoal}.
-This is user's learning path for ${shortTermGoal}: ${roadmap}\n
+This is user's learning path for ${shortTermGoal}: ${roadmap.toString()}\n
 Example:\n
 Current lesson: Props(part of React roadmap)\n
 Short-term goal: React(part of Frontend roadmap)\n

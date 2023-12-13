@@ -68,20 +68,21 @@ export class ConversationsService {
 		const { conversationId, language, userRoadmapId } = dto;
 		console.log("triggered init with dto:", dto);
 		const userRoadmap = await this.model.findById(userRoadmapId);
-		const roadmapForAi: Subroadmap = roadmapParser(userRoadmap, conversationId);
+		const subroadmap: Subroadmap = roadmapParser(userRoadmap, conversationId);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
+			const roadmapForAi = subroadmap.node_list.map((node) => node.title);
+
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
-
 				const completion = await generateAiLesson(
 					conversation.node_title,
-					roadmapForAi.title,
+					subroadmap.title,
 					userRoadmap.title,
-					roadmapForAi.node_list.toString(),
+					roadmapForAi,
 					language
 				);
 				for await (const part of completion) {
@@ -100,8 +101,8 @@ export class ConversationsService {
 						content: formattedPrompt(
 							language,
 							conversation.node_title,
-							roadmapForAi.node_list.toString(),
-							roadmapForAi.title,
+							roadmapForAi,
+							subroadmap.title,
 							userRoadmap.title
 						),
 					};
