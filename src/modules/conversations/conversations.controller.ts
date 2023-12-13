@@ -57,6 +57,7 @@ export class ConversationsController {
 		@Body() dto: InitConversationByIdBodyDto,
 		@Param() parameters: OperateConversationByIdDto
 	) {
+		console.log("triggered init in controller,", dto);
 		return await this.service.initConversation(Object.assign(dto, parameters));
 	}
 

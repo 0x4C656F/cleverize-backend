@@ -87,6 +87,7 @@ export class ConversationsService {
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
+					console.log(chunk);
 
 					this.streamService.sendData(conversationId, fullAiResponseString);
 				}
@@ -94,7 +95,6 @@ export class ConversationsService {
 					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
-					console.log("successfully generated with,", fullAiResponseString);
 					const message = {
 						role: "system",
 						content: formattedPrompt(
