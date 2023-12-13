@@ -66,6 +66,7 @@ export class ConversationsService {
 
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
 		const { conversationId, nodeTitle, language, userRoadmapId } = dto;
+		console.log("triggered init with dto:", dto);
 		const userRoadmap = await this.model.findById(userRoadmapId);
 		const roadmapForAi: Subroadmap = roadmapParser(userRoadmap, nodeTitle);
 		try {
@@ -93,7 +94,7 @@ export class ConversationsService {
 					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
-					console.log("successfully generated");
+					console.log("successfully generated with,", fullAiResponseString);
 					const message = {
 						role: "system",
 						content: formattedPrompt(
