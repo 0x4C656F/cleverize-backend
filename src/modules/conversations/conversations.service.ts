@@ -68,7 +68,7 @@ export class ConversationsService {
 		const { conversationId, nodeTitle, language, userRoadmapId } = dto;
 		console.log("triggered init with dto:", dto);
 		const userRoadmap = await this.model.findById(userRoadmapId);
-		const roadmapForAi: Subroadmap = roadmapParser(userRoadmap, nodeTitle);
+		const roadmapForAi: Subroadmap = roadmapParser(userRoadmap, conversationId);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
