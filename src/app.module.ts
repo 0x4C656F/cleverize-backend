@@ -9,6 +9,7 @@ import { AuthorizationModule } from "./modules/authorization/authorization.modul
 import { ConversationsModule } from "./modules/conversations/conversations.module";
 import { PredefinedRoadmapsModule } from "./modules/predefined-roadmaps/predefined-roadmaps.module";
 import { UserModule } from "./modules/user/user.module";
+import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadmap-nodes.module";
 import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module";
 
 @Module({
@@ -23,6 +24,7 @@ import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module
 		UserRoadmapsModule,
 		ConversationsModule,
 		PredefinedRoadmapsModule,
+		UserRoadmapNodesModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
