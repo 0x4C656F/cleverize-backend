@@ -51,21 +51,20 @@ Also, questions have to be in form of organized list.
 This is example how test should look like(Asymmetric Key Encryption example):
 ###
 Asymmetric Key Encryption Test:
-1. What are the two keys used in asymmetric key encryption?
-   a) Public key and private key
-   b) Open key and closed key
-   c) Shared key and secret key
-   d) Public key and secret key
+1. What are the two keys used in asymmetric key encryption?\n
+   a) Public key and private key\n
+   b) Open key and closed key\n
+   c) Shared key and secret key\n
+   d) Public key and secret key\n
 
-2. Which of the following are examples of asymmetric key encryption algorithms?
-   a) RSA
-   b) AES
-   c) SHA-256
-   d) ECC
+2. Which of the following are examples of asymmetric key encryption algorithms?\n
+   a) RSA\n
+   b) AES\n
+   c) SHA-256\n
+   d) ECC\n
 
-3. Write an example code snippet in JavaScript that uses the 'crypto' library to perform asymmetric key encryption.
+3. Write an example code snippet in JavaScript that uses the 'crypto' library to perform asymmetric key encryption.\n
 ###
-Provide your answers below:
 If user gets any answer wrong, tell them the correct answer and explain shortly why so.
 Once user has answered all of 3 questions correctly, write END OF CONVERSATION.
 
