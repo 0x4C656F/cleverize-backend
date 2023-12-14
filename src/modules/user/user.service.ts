@@ -23,6 +23,7 @@ export class UserService {
 		const newUser = new this.userModel({
 			user_id: userData.data.user_id,
 			roadmaps: [],
+			credits: 0,
 			achievements: [],
 		});
 		return newUser.save();
