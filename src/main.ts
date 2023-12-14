@@ -26,6 +26,7 @@ async function bootstrap() {
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 		allowedHeaders: "*",
 	});
+
 	const document = SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup("/api/docs", app, document);
 
@@ -36,8 +37,9 @@ async function bootstrap() {
 		} mode`,
 		"NestApplication"
 	);
+
 	const used = process.memoryUsage().heapUsed / 1024 / 1024;
-	console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
+	Logger.log(`RAM usage: ${used.toFixed(2)} MB`, "NestApplication");
 }
 
 void bootstrap();
