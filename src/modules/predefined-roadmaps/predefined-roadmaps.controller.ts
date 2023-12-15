@@ -19,23 +19,23 @@ export class PredefinedRoadmapsController {
 		private readonly service: PredefinedRoadmapsService
 	) {}
 
-	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
-	@Post("/")
-	public async createPredefinedRoadmap(
-		@UserPayload() payload: JWTPayload,
-		@Body() body: CreatePredefinedRoadmapBodyDto
-	) {
-		const roadmap = new this.model(Object.assign(body, { owner_id: payload.sub }));
+	// @ApiBearerAuth()
+	// @UseGuards(AuthGuard("jwt"))
+	// @Post("/")
+	// public async createPredefinedRoadmap(
+	// 	@UserPayload() payload: JWTPayload,
+	// 	@Body() body: CreatePredefinedRoadmapBodyDto
+	// ) {
+	// 	const roadmap = new this.model(Object.assign(body, { owner_id: payload.sub }));
 
-		try {
-			return await roadmap.save();
-		} catch (error) {
-			Logger.error(error);
+	// 	try {
+	// 		return await roadmap.save();
+	// 	} catch (error) {
+	// 		Logger.error(error);
 
-			throw error;
-		}
-	}
+	// 		throw error;
+	// 	}
+	// }
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))

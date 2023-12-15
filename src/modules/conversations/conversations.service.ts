@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
@@ -65,27 +65,30 @@ export class ConversationsService {
 	}
 
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
-		const { conversationId, nodeTitle, language, userRoadmapId } = dto;
+		const { conversationId, language, userRoadmapId } = dto;
+		console.log("triggered init with dto:", dto);
 		const userRoadmap = await this.model.findById(userRoadmapId);
-		const roadmapForAi: Subroadmap = roadmapParser(userRoadmap, nodeTitle);
+		const subroadmap: Subroadmap = roadmapParser(userRoadmap, conversationId);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
+			const roadmapForAi = subroadmap.node_list.map((node) => node.title);
+
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
-
 				const completion = await generateAiLesson(
-					nodeTitle,
-					roadmapForAi.title,
+					conversation.node_title,
+					subroadmap.title,
 					userRoadmap.title,
-					roadmapForAi.node_list.toString(),
+					roadmapForAi,
 					language
 				);
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
+					console.log(chunk);
 
 					this.streamService.sendData(conversationId, fullAiResponseString);
 				}
@@ -93,14 +96,13 @@ export class ConversationsService {
 					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
-					console.log("successfully generated");
 					const message = {
 						role: "system",
 						content: formattedPrompt(
 							language,
-							nodeTitle,
-							roadmapForAi.node_list.toString(),
-							roadmapForAi.title,
+							conversation.node_title,
+							roadmapForAi,
+							subroadmap.title,
 							userRoadmap.title
 						),
 					};

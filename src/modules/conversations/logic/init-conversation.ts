@@ -9,7 +9,7 @@ export default async function generateAiLesson(
 	title: string,
 	roadmapTitle: string,
 	finalRoadmapTitle: string,
-	roadmap: string,
+	roadmap: string[],
 	language: "english" | "russian"
 ) {
 	return await openai.chat.completions.create({

@@ -32,9 +32,6 @@ async function bootstrap() {
 		} mode`,
 		"NestApplication"
 	);
-
-	const used = process.memoryUsage().heapUsed / 1024 / 1024;
-	Logger.log(`RAM usage: ${used.toFixed(2)} MB`, "NestApplication");
 }
 
 void bootstrap();

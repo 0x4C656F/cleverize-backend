@@ -18,7 +18,6 @@ export type Config = {
 		levApiKey: string;
 	};
 };
-export type Auth0Config = Config["auth0"];
 
 export default () => {
 	return {

@@ -10,6 +10,8 @@ export default function smallTemplate(libraryFrameworkTitle: string) {
         3. Treat each item in the roadmap as a critical component or skill within the context of ${libraryFrameworkTitle}.
 
         Restrictions:
+	-Use fucking symbols like: ., /, %, $, #, @, !, ,, \\, |, (, *, &,
+
         - Avoid presenting choices within the roadmap; decisively select the most relevant topics or features for ${libraryFrameworkTitle}.
         - Focus on specific features, extensions, or complementary technologies of ${libraryFrameworkTitle} rather than general programming concepts.
         - Exclude detailed explanations, definitions, or external tools not directly related to ${libraryFrameworkTitle}.

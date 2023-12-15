@@ -10,6 +10,8 @@ export default function mediumTemplate(languageTitle: string) {
 	3. Ensure the roadmap covers a logical progression from basic to advanced topics in ${languageTitle}.
 
 	Restrictions:
+	-Use fucking symbols like: ., /, %, $, #, @, !, ,, \\, |, (, *, &,
+
 	- List only the names of the topics without any parenthetical information or descriptions.
 	- Exclude technologies, tools, or frameworks not directly related to ${languageTitle}.
 	- Avoid any formatting or text outside the straightforward list of topics.

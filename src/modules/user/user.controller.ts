@@ -1,36 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
-import { Controller, Post, Body, Get, Param, UseGuards, Patch } from "@nestjs/common";
+import clerkClient from "@clerk/clerk-sdk-node";
+import { Controller, Post, Body, Get, Param, UseGuards, Inject } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
-import axios from "axios";
+import { ApiBearerAuth } from "@nestjs/swagger";
 import { Model } from "mongoose";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
-import getConfig from "src/config/config";
 
 import { User, UserDocument } from "./entity/user.schema";
 import { UserService } from "./user.service";
 
 @Controller("/users")
 export class UserController {
-	private readonly auth0Config: {
-		audience: string;
-		domain: string;
-		clientId: string;
-		clientSecret: string;
-	};
-
 	constructor(
 		private readonly userService: UserService,
-		@InjectModel(User.name) private readonly model: Model<UserDocument>
-	) {
-		this.auth0Config = getConfig().auth0;
-	}
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
+	) {}
 
 	@Post()
-	async upsertUser(@Body() userData: unknown): Promise<any> {
+	async upsertUser(@Body() userData: { data: { user_id: string } }): Promise<any> {
 		return this.userService.findOrCreate(userData);
 	}
 
@@ -39,69 +27,18 @@ export class UserController {
 		return this.userService.findAll();
 	}
 
-	@Get("/gettoken")
-	async getTokenapi() {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return await this.userService.getManagementApiToken();
-	}
+	@Get("/me/credits")
+	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
-	@Patch("/edit")
-	public async updateUser(@Body() body: any, @UserPayload() payload: JWTPayload) {
-		const token = await this.userService.getManagementApiToken();
-		const options = {
-			method: "PATCH",
-			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
-			headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
-			data: body,
-		};
-		const response = await axios(options);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return response.data;
-	}
-	@UseGuards(AuthGuard("jwt"))
-	@Get("/")
-	async getUser(@UserPayload() payload: JWTPayload): Promise<any> {
-		const token: string = await this.userService.getManagementApiToken();
-		const response = await axios({
-			method: "GET",
-			url: `${this.auth0Config.domain}api/v2/users/${payload.sub}`,
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return response.data;
-	}
-	@UseGuards(AuthGuard("jwt"))
-	@Get("/verify/age/:userId")
-	async blockUser(@Param("userId") userId: string): Promise<string> {
-		const token: string = await this.userService.getManagementApiToken();
-
-		const response = await axios({
-			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
-			method: "PATCH",
-			data: { blocked: true },
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return await response.data;
+	async getCreditsByUserId(@UserPayload() payload: JWTPayload): Promise<number | undefined> {
+		const user = await this.userModel.findById(payload.sub);
+		return user.credits;
 	}
 
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/:userId")
 	async getUserById(@Param("userId") userId: string): Promise<any> {
-		// eslint-disable-next-line @typescript-eslint/unbound-method
-		const token: string = await this.userService.getManagementApiToken();
-		const response = await axios({
-			method: "GET",
-			url: `${this.auth0Config.domain}api/v2/users/${userId}`,
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return response.data;
+		// eslint-disable-next-line import/no-named-as-default-member
+		return await clerkClient.users.getUser(userId);
 	}
 }

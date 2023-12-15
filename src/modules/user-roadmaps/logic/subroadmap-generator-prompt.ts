@@ -21,7 +21,7 @@ export default function subRoadmapTemplate(
 	Considering previous topics user was learning, you will have to
 	generate list of lessons to learn ${title}(if user's topic is SQL, generate roadmap for SQL. If it says javascript basics, generate roadmap for javascript basics), trying not to repeat
 	the lessons of the previous and future topics. Roadmap has to give basic level of knowledge.
-	${size === "lg" && "First roadmap node should always be installation."}
+	${size === "lg" && `First roadmap node should always be ${title} installation.`}
 	List of lessons has to be very short, concise and bound ONLY
 	to ${title}.Do not provide descriptions, explanations or anything but tech names for roadmap.  Do not include any  practical lessons in roadmap(e.g.  Building a Simple App using ... ,JavaScript Best Practices etc).
 	Do not include technologies, that user has not learned yet. Lessons list array length has to be ${length}.

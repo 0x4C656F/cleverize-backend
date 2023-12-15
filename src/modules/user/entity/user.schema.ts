@@ -5,11 +5,11 @@ import { Document, Types } from "mongoose";
 export class User {
 	public _id: Types.ObjectId;
 
-	@Prop({ type: Types.ObjectId, index: true })
+	@Prop({})
 	public user_id: string;
 
-	@Prop({ type: String })
-	public bio: string;
+	@Prop({})
+	public credits: number;
 
 	@Prop({ type: [{ type: Types.ObjectId, ref: "UserRoadmap" }] })
 	public roadmaps: Types.ObjectId[];
