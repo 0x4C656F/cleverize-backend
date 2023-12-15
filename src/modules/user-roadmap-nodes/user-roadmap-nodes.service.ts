@@ -1,8 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 
-import { UserRoadmapNode, UserRoadmapNodeDocument } from "./user-roadmap-nodes.schema";
+import {
+	UserRoadmapNode,
+	UserRoadmapNodeDocument,
+	UserRoadmapNodesCollectionName,
+} from "./user-roadmap-nodes.schema";
 
 @Injectable()
 export class UserRoadmapNodesService {
@@ -35,7 +39,26 @@ export class UserRoadmapNodesService {
 		return await roadmapNode.save();
 	}
 
-	public async deleteRoadmapNodeById(id: string) {
-		return await this.model.deleteOne({ _id: id });
+	public async deleteRoadmapSubtreeById(id: string) {
+		const result = await this.model.aggregate<UserRoadmapNode & { hierarchy: UserRoadmapNode[] }>([
+			{ $match: { _id: new Types.ObjectId(id) } },
+			{
+				$graphLookup: {
+					from: UserRoadmapNodesCollectionName,
+					startWith: "$children",
+					connectFromField: "children",
+					connectToField: "_id",
+					as: "hierarchy",
+				},
+			},
+		]);
+
+		if (result.length === 0) return;
+
+		for (const child of result[0].hierarchy) {
+			await this.model.deleteOne({ _id: child._id });
+		}
+
+		await this.model.deleteOne(result[0]._id);
 	}
 }
