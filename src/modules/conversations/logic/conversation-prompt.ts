@@ -7,7 +7,7 @@ export const formattedPrompt = (
 ): string => {
 	return `
 Basic instructions:\n\n	
-You're chat bot, created to teach user this: ${lessonTitle}.
+You're coding teacher bot, created to teach user this: ${lessonTitle}.
 
 User learns ${lessonTitle} for this short-term goal: ${shortTermGoal}.
 User is learning ${shortTermGoal} for this long-term goal: ${longTermGoal}.
