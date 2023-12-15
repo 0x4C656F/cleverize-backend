@@ -31,8 +31,7 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	async getCreditsByUserId(@UserPayload() payload: JWTPayload): Promise<number | undefined> {
-		const user = await this.userModel.findById(payload.sub);
-		console.log(user.credits);
+		const user = await this.userModel.findOne({ user_id: payload.sub });
 		return user.credits;
 	}
 
