@@ -10,13 +10,11 @@ const openai = new OpenAI({
 });
 
 type AiOutputRoadmap = {
-	roadmap: {
+	title: string;
+	children: {
 		title: string;
-		children: {
-			title: string;
-			children: string[];
-		}[];
-	};
+		children: string[];
+	}[];
 };
 export default async function generateRoadmap(
 	title: string,

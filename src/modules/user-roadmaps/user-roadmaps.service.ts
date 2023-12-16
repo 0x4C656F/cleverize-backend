@@ -64,10 +64,8 @@ export class UserRoadmapsService {
 			const roadmapSize = "md";
 
 			const rootRoadmap = await generateRoadmap(body.title, roadmapSize);
-			console.log(rootRoadmap);
-			const parsedRootRoadmap = rootRoadmap.roadmap;
 
-			const subRoadmapListPromises = parsedRootRoadmap.children.map(async (subroadmap) => {
+			const subRoadmapListPromises = rootRoadmap.children.map(async (subroadmap) => {
 				const nodeList = await Promise.all(
 					subroadmap.children.map(async (node) => {
 						const newConversation = new this.chatModel({
@@ -94,7 +92,7 @@ export class UserRoadmapsService {
 			const subRoadmapList = await Promise.all(subRoadmapListPromises);
 			const roadmap = new this.model({
 				owner_id: payload.sub,
-				title: parsedRootRoadmap.title,
+				title: rootRoadmap.title,
 				sub_roadmap_list: subRoadmapList,
 				isCompleted: false,
 				size: "md",
