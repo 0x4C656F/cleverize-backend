@@ -42,7 +42,8 @@ If they have, answer them shortly. Mind that user's questions have to be related
 otherwise, you can't answer them. When answered, ask user again, whether he has questions. If not, provide a test for the user to assess their understanding of ${lessonTitle}.
 
 Test has to be in form of 2 practical mini-tasks that will cover the material of this lesson. Do not use the material of next lessons, because user doesn't know them yet. They have to be practical(e.g. create a function that does 'this'), but small.
-!IMPORTANT After you present the tasks, respond with 'END OF CONVERSATION'
+Do not provide answers for these tasks, let user solve them themselves.
+!IMPORTANT After you present the tasks, write 'END OF CONVERSATION'.
 
 
 Output styling: \n\n

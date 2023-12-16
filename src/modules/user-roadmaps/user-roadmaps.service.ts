@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/no-array-for-each */
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
+import { Model, ObjectId, Types } from "mongoose";
 
 import { JWTPayload } from "src/common/user-payload.decorator";
 
@@ -65,45 +65,45 @@ export class UserRoadmapsService {
 
 			const rootRoadmap = await generateRoadmap(body.title, roadmapSize);
 
-			const list = rootRoadmap.roadmap;
-			const subRoadmapPromises = list.map(async (title) => {
-				const roadmap = await generateSubRoadmap(title, rootRoadmap, roadmapSize);
-				const node_list = roadmap.roadmap;
-				const parsedRoadmap = node_list.map((title: string) => {
-					const newChat = new this.chatModel({
-						owner_id: payload.sub,
-						node_title: title,
-						messages: [],
-					});
-					void newChat.save();
-					const id = newChat._id as Types.ObjectId;
-					return {
-						title: title,
-						isCompleted: false,
-						conversation_id: id,
-					};
-				});
+			const parsedRootRoadmap = rootRoadmap.roadmap;
+
+			const subRoadmapListPromises = parsedRootRoadmap.children.map(async (subroadmap) => {
+				const nodeList = await Promise.all(
+					subroadmap.children.map(async (node) => {
+						const newConversation = new this.chatModel({
+							owner_id: payload.sub,
+							node_title: node,
+							messages: [],
+						});
+						await newConversation.save();
+						return {
+							title: node,
+							isCompleted: false,
+							conversation_id: newConversation._id as ObjectId,
+						};
+					})
+				);
+
 				return {
-					title: title,
-					node_list: parsedRoadmap,
+					title: subroadmap.title,
 					isCompleted: false,
+					node_list: nodeList,
 				};
 			});
 
-			const subroadmaps = await Promise.all(subRoadmapPromises);
-
+			const subRoadmapList = await Promise.all(subRoadmapListPromises);
 			const roadmap = new this.model({
 				owner_id: payload.sub,
-				title: body.title,
-				sub_roadmap_list: subroadmaps,
+				title: parsedRootRoadmap.title,
+				sub_roadmap_list: subRoadmapList,
 				isCompleted: false,
 				size: "md",
 				created_at: new Date(),
 			});
-			console.log(roadmap);
 			await roadmap.save();
 
 			user.roadmaps.push(roadmap._id as Types.ObjectId);
+
 			await user.save();
 
 			return roadmap;

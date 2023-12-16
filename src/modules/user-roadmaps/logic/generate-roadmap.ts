@@ -9,12 +9,19 @@ const openai = new OpenAI({
 	apiKey: environment.openai.dimaApiKey,
 });
 
+type AiOutputRoadmap = {
+	roadmap: {
+		title: string;
+		children: {
+			title: string;
+			children: string[];
+		}[];
+	};
+};
 export default async function generateRoadmap(
 	title: string,
 	size: "sm" | "md" | "lg"
-): Promise<{
-	roadmap: string[];
-}> {
+): Promise<AiOutputRoadmap> {
 	let template: string;
 	switch (size) {
 		case "sm": {
@@ -41,7 +48,5 @@ export default async function generateRoadmap(
 		response_format: { type: "json_object" },
 	});
 
-	return JSON.parse(completion.choices[0].message.content) as {
-		roadmap: string[];
-	};
+	return JSON.parse(completion.choices[0].message.content) as AiOutputRoadmap;
 }
