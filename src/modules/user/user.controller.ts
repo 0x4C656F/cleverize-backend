@@ -32,7 +32,6 @@ export class UserController {
 	@UseGuards(AuthGuard("jwt"))
 	async getCreditsByUserId(@UserPayload() payload: JWTPayload): Promise<number | undefined> {
 		const user = await this.userModel.findOne({ user_id: payload.sub });
-		console.log(user);
 		return user.credits;
 	}
 
