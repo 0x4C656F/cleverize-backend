@@ -64,7 +64,7 @@ export class UserRoadmapsService {
 			const roadmapSize = "md";
 
 			const rootRoadmap = await generateRoadmap(body.title, roadmapSize);
-
+			console.log(rootRoadmap);
 			const parsedRootRoadmap = rootRoadmap.roadmap;
 
 			const subRoadmapListPromises = parsedRootRoadmap.children.map(async (subroadmap) => {
