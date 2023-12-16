@@ -61,7 +61,7 @@ export class UserRoadmapsService {
 
 		try {
 			// const roadmapSize = await getRoadmapSize(body.title); //This func gets the complexity of roadmap(sm|md|lg)
-			const roadmapSize = "lg";
+			const roadmapSize = "md";
 
 			const rootRoadmap = await generateRoadmap(body.title, roadmapSize);
 
@@ -97,7 +97,7 @@ export class UserRoadmapsService {
 				title: body.title,
 				sub_roadmap_list: subroadmaps,
 				isCompleted: false,
-				size: "lg",
+				size: "md",
 				created_at: new Date(),
 			});
 			console.log(roadmap);
