@@ -17,7 +17,7 @@ export default function mediumTemplate(languageTitle: string) {
 	- Don't fucking include descriptions and explanations in curly braces, for example: Asynchronous JavaScript (Callbacks, Promises, Async/Await), don't ever fucking write the part in braces.
 	Aim for a roadmap with 9 to 12 items.
 	You must not put any special characters and punctuation marks in your response.
-
+		Output only JSON.
 	Your output should be formatted as follows(example for javascript roadmap):
 	{
 		title: "JavaScript",
