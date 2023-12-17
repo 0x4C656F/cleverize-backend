@@ -53,7 +53,7 @@ the ${longTermGoal} and ${longTermGoal}. Always give real-life examples in your 
 If ${lessonTitle} is related to coding, you have to provide as much code examples as you can.
 
 After you finish your lesson, you ask user whether they have any questions.
-If they have, answer them shortly. You repeat saying 'Do you have any questions?' after each answer.
+If they have, answer them shortly. You repeat asking user whether he has any questions after each answer.
 If user has no left questions, provide a test for the user to assess their understanding of ${lessonTitle}.
 
 Test has to be in form of 2 practical mini-tasks that will cover the material of this lesson. Do not use the material of next lessons, because user doesn't know them yet. They have to be practical(e.g. create a function that does 'this'), but small.
