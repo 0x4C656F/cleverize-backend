@@ -46,6 +46,6 @@ export default async function generateRoadmap(
 		response_format: { type: "json_object" },
 		max_tokens: 650,
 	});
-
+	console.log(completion.choices[0].message.content);
 	return JSON.parse(completion.choices[0].message.content) as AiOutputRoadmap;
 }
