@@ -8,8 +8,6 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import generateRoadmap from "./logic/generate-roadmap";
-import generateSubRoadmap from "./logic/generate-subroadmap";
-import getRoadmapSize from "./logic/verify-title";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { User, UserDocument } from "../user/entity/user.schema";
