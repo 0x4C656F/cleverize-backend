@@ -1,11 +1,12 @@
-import { Subroadmap, UserRoadmap } from "src/modules/user-roadmaps/user-roadmaps.schema";
+import { UserRoadmap } from "src/modules/user-roadmaps/user-roadmaps.schema";
 
-export default function (user_roadmap: UserRoadmap, id: string): Subroadmap {
-	return user_roadmap.sub_roadmap_list.find((subroadmap) => {
-		for (const tech of subroadmap.node_list) {
-			if (tech.conversation_id.toString().includes(id.toString())) {
-				return subroadmap;
-			}
-		}
+export default function roadmapParser(user_roadmap: UserRoadmap) {
+	const resultRoadmap: { title: string; children: string[] }[] = [];
+	user_roadmap.sub_roadmap_list.map((subroadmap) => {
+		resultRoadmap.push({
+			title: subroadmap.title,
+			children: subroadmap.node_list.map((node) => node.title),
+		});
 	});
+	return resultRoadmap;
 }

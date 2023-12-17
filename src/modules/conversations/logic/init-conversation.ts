@@ -7,16 +7,18 @@ const openai = new OpenAI({
 });
 export default async function generateAiLesson(
 	title: string,
-	roadmapTitle: string,
 	finalRoadmapTitle: string,
-	roadmap: string[],
+	roadmap: {
+		title: string;
+		children: string[];
+	}[],
 	language: "english" | "russian"
 ) {
 	return await openai.chat.completions.create({
 		messages: [
 			{
 				role: "system",
-				content: formattedPrompt(language, title, roadmap, roadmapTitle, finalRoadmapTitle),
+				content: formattedPrompt(language, title, roadmap, finalRoadmapTitle),
 			},
 		],
 		model: "gpt-3.5-turbo-1106",

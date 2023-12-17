@@ -10,11 +10,7 @@ import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
-import {
-	Subroadmap,
-	UserRoadmap,
-	UserRoadmapDocument,
-} from "../user-roadmaps/user-roadmaps.schema";
+import { UserRoadmap, UserRoadmapDocument } from "../user-roadmaps/user-roadmaps.schema";
 
 @Injectable()
 export class ConversationsService {
@@ -66,29 +62,27 @@ export class ConversationsService {
 
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
 		const { conversationId, language, userRoadmapId } = dto;
-		console.log("triggered init with dto:", dto);
 		const userRoadmap = await this.model.findById(userRoadmapId);
-		const subroadmap: Subroadmap = roadmapParser(userRoadmap, conversationId);
+		const roadmapForAi = roadmapParser(userRoadmap);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
-			const roadmapForAi = subroadmap.node_list.map((node) => node.title);
 
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
 				const completion = await generateAiLesson(
 					conversation.node_title,
-					subroadmap.title,
 					userRoadmap.title,
 					roadmapForAi,
 					language
 				);
+
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
-					console.log(chunk);
+					console.log(fullAiResponseString);
 
 					this.streamService.sendData(conversationId, fullAiResponseString);
 				}
@@ -102,7 +96,6 @@ export class ConversationsService {
 							language,
 							conversation.node_title,
 							roadmapForAi,
-							subroadmap.title,
 							userRoadmap.title
 						),
 					};
