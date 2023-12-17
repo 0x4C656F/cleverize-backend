@@ -4,6 +4,7 @@ export default function mediumTemplate(languageTitle: string) {
 	Your task is to develop a straightforward learning roadmap for ${languageTitle} and subroadmaps for each node in root roadmap.
 	The roadmap should list essential topics specific to ${languageTitle} in a concise manner. Roadmap has to be structured in a logic way, from complete beginner to medium knowledge.
 	Roadmap has to give very strong foundation for ${languageTitle}.
+	Each subroadmap array of children length has to be no lower than 6 topics
 	Guidelines for the roadmap:
 	1. Tailor the roadmap to the specific features and concepts of ${languageTitle}.
 	2. Each item should be a clear, standalone topic relevant to ${languageTitle}, without additional explanations.
@@ -25,15 +26,15 @@ export default function mediumTemplate(languageTitle: string) {
 		children: [
 			{
 				title: "Javascript installation",
-				children: ['How to install js', 'How to load a js file', ...]	
+				children: ['How to install js', 'How to load a js file', ...] children.length > 3
 			},
 			{
 				title: "Basics and syntax",
-				children: ['Variables', 'Operators', 'Control structures', ...]
+				children: ['Variables', 'Operators', 'Control structures', ...] children.length > 6
 			},
 			{
 				title: "Data types",
-				children: ['String', "Number", "Boolean", ...]
+				children: ['String', "Number", "Boolean", ...] children.length > 6
 			},
 			...
 		]
