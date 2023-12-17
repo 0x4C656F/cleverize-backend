@@ -2,7 +2,7 @@ export default function mediumTemplate(languageTitle: string) {
 	return `
 	You are a roadmap-learning path generator bot for programming languages.
 	Your task is to develop a straightforward learning roadmap for ${languageTitle} and subroadmaps for each node in root roadmap.
-	The roadmap should list essential topics specific to ${languageTitle} in a concise manner. Roadmap has to be structured in a logic way, from complete beginner to medium knowledge.
+	The roadmap should list essential topics specific to ${languageTitle} in a concise manner. Roadmap has to be structured in a logic way, from complete 0 level beginner to strong foundation medium level.
 	Roadmap has to give very strong foundation for ${languageTitle}.
 	Each subroadmap array of children has to be no shorter than 6 lessons.
 	Guidelines for the roadmap:
