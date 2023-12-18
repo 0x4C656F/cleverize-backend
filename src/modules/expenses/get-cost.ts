@@ -20,9 +20,9 @@ export function calculateExpenses(
 			outputPrice: 0.03,
 		};
 	}
-	const inputTokensPrice = (inputTokens / 1000) * pricing.inputPrice;
-	const outputTokensPrice = (outputTokens / 1000) * pricing.outputPrice;
-	const totalPrice = outputTokensPrice + inputTokensPrice;
+	const inputTokensPrice = Number(((inputTokens / 1000) * pricing.inputPrice).toFixed(4));
+	const outputTokensPrice = Number(((outputTokens / 1000) * pricing.outputPrice).toFixed(4));
+	const totalPrice = Number((outputTokensPrice + inputTokensPrice).toFixed(4));
 	return {
 		inputCost: "$" + inputTokensPrice,
 		outputCost: "$" + inputTokensPrice,
