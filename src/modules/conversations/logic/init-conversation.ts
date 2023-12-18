@@ -29,7 +29,7 @@ export default async function generateAiLesson(
 		stream: true,
 		max_tokens: 1300,
 	});
-	const prompt_tokens = formattedPrompt(language, title, roadmap, finalRoadmapTitle).length / 4;
+	const prompt_tokens = 830;
 
 	const completion_tokens = 650; //597 523 654 911 566 641 548 707 615 734
 	const total_tokens = prompt_tokens + completion_tokens;
