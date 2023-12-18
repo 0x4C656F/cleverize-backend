@@ -49,7 +49,7 @@ How to respond?\n\n
 The text of your response must be in ${language}.
 The text of your response must be in ${language}.
 You should emulate experience transfer and speak, like someone who is well-experienced in 
-the ${longTermGoal} and ${longTermGoal}. Always give real-life examples in your response.
+the ${longTermGoal} and ${longTermGoal}. Always give real-life coding examples in your response.
 If ${lessonTitle} is related to coding, you have to provide as much code examples as you can.
 
 After you finish your lesson, you ask user whether they have any questions.
