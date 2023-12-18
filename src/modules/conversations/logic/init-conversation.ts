@@ -41,7 +41,7 @@ export default async function generateAiLesson(
 		},
 		title: undefined,
 		type: "conversation",
-		action: "add message",
+		action: "init conversation",
 		cost: calculateExpenses(prompt_tokens, completion_tokens, "3"),
 	};
 	await expenseCallback(expense);
