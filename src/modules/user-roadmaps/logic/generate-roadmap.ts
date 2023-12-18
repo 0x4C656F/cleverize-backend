@@ -1,8 +1,7 @@
-import { appendFile } from "node:fs";
-
 import OpenAI from "openai";
 
-import { calculateExpenses } from "src/common/calculate-expenses";
+import { calculateExpenses } from "src/modules/expenses/expenses.service";
+import { Expense } from "src/modules/expenses/expenses.shema";
 
 import largeTemplate from "./prompts/generate-large-roadmap";
 import mediumTemplate from "./prompts/generate-medium-roadmap";
@@ -23,7 +22,8 @@ type AiOutputRoadmap = {
 };
 export default async function generateRoadmap(
 	title: string,
-	size: "sm" | "md" | "lg"
+	size: "sm" | "md" | "lg",
+	expenseCallback?: (expense: Expense) => Promise<void>
 ): Promise<AiOutputRoadmap> {
 	let template: string;
 	switch (size) {
@@ -52,24 +52,18 @@ export default async function generateRoadmap(
 		max_tokens: 1200,
 	});
 	const response = JSON.parse(completion.choices[0].message.content) as AiOutputRoadmap;
-
-	appendFile(
-		"usage.txt",
-		JSON.stringify({
-			usage: completion.usage,
-			title: response.title,
-			type: "roadmap",
-			action: "create",
-			cost: calculateExpenses(
-				completion.usage.prompt_tokens,
-				completion.usage.completion_tokens,
-				"4"
-			),
-		}),
-		(error) => {
-			if (error) throw error;
-			console.log("The file has been updated!");
-		}
-	);
+	const { completion_tokens, prompt_tokens, total_tokens } = completion.usage;
+	const expense: Expense = {
+		usage: {
+			completion_tokens,
+			prompt_tokens,
+			total_tokens,
+		},
+		title: response.title,
+		type: "roadmap",
+		action: "generate roadmap",
+		cost: calculateExpenses(completion_tokens, prompt_tokens, "4"),
+	};
+	await expenseCallback(expense);
 	return response;
 }

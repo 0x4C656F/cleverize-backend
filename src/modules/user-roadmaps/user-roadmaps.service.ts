@@ -4,19 +4,22 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, ObjectId, Types } from "mongoose";
 
 import { JWTPayload } from "src/common/user-payload.decorator";
+import { Expense } from "src/modules/expenses/expenses.shema";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import generateRoadmap from "./logic/generate-roadmap";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
+import { ExpensesService } from "../expenses/expenses.service";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
 export class UserRoadmapsService {
 	constructor(
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>
+		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>,
+		private readonly expensesService: ExpensesService
 	) {}
 
 	public async toggleRoadmapNodeIsCompleted(
@@ -61,7 +64,13 @@ export class UserRoadmapsService {
 			// const roadmapSize = await getRoadmapSize(body.title); //This func gets the complexity of roadmap(sm|md|lg)
 			const roadmapSize = "md";
 
-			const rootRoadmap = await generateRoadmap(body.title, roadmapSize);
+			const rootRoadmap = await generateRoadmap(
+				body.title,
+				roadmapSize,
+				async (expense: Expense) => {
+					await this.expensesService.addExpense(expense);
+				}
+			);
 
 			const subRoadmapListPromises = rootRoadmap.children.map(async (subroadmap) => {
 				const nodeList = await Promise.all(

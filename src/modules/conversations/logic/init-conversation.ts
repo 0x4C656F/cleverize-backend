@@ -1,8 +1,7 @@
-import { appendFile } from "node:fs";
-
 import OpenAI from "openai";
 
-import { calculateExpenses } from "src/common/calculate-expenses";
+import { calculateExpenses } from "src/modules/expenses/expenses.service";
+import { Expense } from "src/modules/expenses/expenses.shema";
 
 import { formattedPrompt } from "./conversation-prompt";
 
@@ -16,7 +15,8 @@ export default async function generateAiLesson(
 		title: string;
 		children: string[];
 	}[],
-	language: "english" | "russian"
+	language: "english" | "russian",
+	expenseCallback?: (expense: Expense) => Promise<void>
 ) {
 	const response = await openai.chat.completions.create({
 		messages: [
@@ -32,23 +32,18 @@ export default async function generateAiLesson(
 	const prompt_tokens = formattedPrompt(language, title, roadmap, finalRoadmapTitle).length / 4;
 
 	const completion_tokens = 650; //597 523 654 911 566 641 548 707 615 734
-	appendFile(
-		"usage.txt",
-		JSON.stringify({
-			usage: {
-				completion_tokens,
-				prompt_tokens,
-				total_tokens: completion_tokens + prompt_tokens,
-			},
-			title: undefined,
-			type: "conversation",
-			action: "add message",
-			cost: calculateExpenses(prompt_tokens, completion_tokens, "3"),
-		}),
-		(error) => {
-			if (error) throw error;
-			console.log("The file has been updated!");
-		}
-	);
+	const total_tokens = prompt_tokens + completion_tokens;
+	const expense: Expense = {
+		usage: {
+			completion_tokens: completion_tokens,
+			prompt_tokens: prompt_tokens,
+			total_tokens: total_tokens,
+		},
+		title: undefined,
+		type: "conversation",
+		action: "add message",
+		cost: calculateExpenses(prompt_tokens, completion_tokens, "3"),
+	};
+	await expenseCallback(expense);
 	return response;
 }

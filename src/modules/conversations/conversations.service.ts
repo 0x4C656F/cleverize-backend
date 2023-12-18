@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
+import { Expense } from "src/modules/expenses/expenses.shema";
+
 import { AddUserMessageDto } from "./dtos/add-user-message.dto";
 import { InitConversationByIdDto } from "./dtos/init-conversation.dto";
 import roadmapParser from "./helpers/roadmap-parser";
@@ -10,6 +12,7 @@ import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
+import { ExpensesService } from "../expenses/expenses.service";
 import { UserRoadmap, UserRoadmapDocument } from "../user-roadmaps/user-roadmaps.schema";
 
 @Injectable()
@@ -17,7 +20,8 @@ export class ConversationsService {
 	constructor(
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
-		private streamService: StreamService
+		private streamService: StreamService,
+		private expensesService: ExpensesService
 	) {}
 
 	public async addUserMessage(dto: AddUserMessageDto) {
@@ -28,7 +32,9 @@ export class ConversationsService {
 			content: content,
 		});
 		let fullAiResponseString = "";
-		const completion = await generateResponse(conversation.messages);
+		const completion = await generateResponse(conversation.messages, async (expense: Expense) => {
+			await this.expensesService.addExpense(expense);
+		});
 		for await (const part of completion) {
 			const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
 			fullAiResponseString += text; //'Full' is the full text which you build piece by piece
@@ -76,13 +82,14 @@ export class ConversationsService {
 					conversation.node_title,
 					userRoadmap.title,
 					roadmapForAi,
-					language
+					language,
+					async (expense: Expense) => {
+						await this.expensesService.addExpense(expense);
+					}
 				);
-
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
-					console.log(fullAiResponseString);
 
 					this.streamService.sendData(conversationId, fullAiResponseString);
 				}

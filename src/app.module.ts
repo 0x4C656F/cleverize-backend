@@ -11,6 +11,7 @@ import { PredefinedRoadmapsModule } from "./modules/predefined-roadmaps/predefin
 import { UserModule } from "./modules/user/user.module";
 import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadmap-nodes.module";
 import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module";
+import { ExpensesModule } from './modules/expenses/expenses.module';
 
 @Module({
 	imports: [
@@ -25,6 +26,7 @@ import { UserRoadmapsModule } from "./modules/user-roadmaps/user-roadmaps.module
 		ConversationsModule,
 		PredefinedRoadmapsModule,
 		UserRoadmapNodesModule,
+		ExpensesModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
