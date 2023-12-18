@@ -1,0 +1,1 @@
+{"usage":{"prompt_tokens":432,"completion_tokens":727,"total_tokens":1159},"title":"Java Learning Roadmap","type":"roadmap","cost":{"inputTokensPrice":0.00432,"outputTokensPrice":0.02181,"totalPrice":0.02613,"model":"4"}}
