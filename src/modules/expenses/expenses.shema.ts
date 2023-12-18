@@ -16,7 +16,7 @@ type Usage = {
 
 @Schema()
 export class Expense {
-	@Prop({ type: { type: Object } })
+	@Prop({ type: [{ type: Object }] })
 	usage: Usage;
 
 	@Prop()
@@ -28,7 +28,7 @@ export class Expense {
 	@Prop()
 	action: "add message" | "generate roadmap" | "init conversation";
 
-	@Prop({ type: { type: Object } })
+	@Prop({ type: [{ type: Object }] })
 	cost: Cost;
 }
 export type ExpenseDocument = Expense & Document;
