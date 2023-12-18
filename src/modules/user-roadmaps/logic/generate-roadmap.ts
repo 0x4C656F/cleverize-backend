@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
-import { calculateExpenses } from "src/modules/expenses/expenses.service";
 import { Expense } from "src/modules/expenses/expenses.shema";
+import { calculateExpenses } from "src/modules/expenses/get-cost";
 
 import largeTemplate from "./prompts/generate-large-roadmap";
 import mediumTemplate from "./prompts/generate-medium-roadmap";

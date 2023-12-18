@@ -1,3 +1,5 @@
+import { Cost } from "./expenses.shema";
+
 export function calculateExpenses(
 	inputTokens: number,
 	outputTokens: number,
@@ -27,24 +29,4 @@ export function calculateExpenses(
 		totalCost: "$" + totalPrice,
 		model,
 	};
-}
-
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-
-import { Cost, Expense, ExpenseDocument } from "./expenses.shema";
-
-@Injectable()
-export class ExpensesService {
-	constructor(@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>) {}
-
-	async addExpense(expense: Expense): Promise<void> {
-		try {
-			const createdExpense = new this.expenseModel(expense);
-			await createdExpense.save();
-		} catch (error) {
-			console.log(error);
-		}
-	}
 }

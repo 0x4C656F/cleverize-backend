@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-import { calculateExpenses } from "src/modules/expenses/expenses.service";
 import { Expense } from "src/modules/expenses/expenses.shema";
+import { calculateExpenses } from "src/modules/expenses/get-cost";
 
 import { Message } from "../schemas/conversation.schema";
 

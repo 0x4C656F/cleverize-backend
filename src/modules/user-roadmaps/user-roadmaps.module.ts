@@ -5,7 +5,6 @@ import { UserRoadmapsController } from "./user-roadmaps.controller";
 import { UserRoadmap, UserRoadmapSchema } from "./user-roadmaps.schema";
 import { UserRoadmapsService } from "./user-roadmaps.service";
 import { Conversation, ConversationSchema } from "../conversations/schemas/conversation.schema";
-import { ExpensesService } from "../expenses/expenses.service";
 import { Expense, ExpenseSchema } from "../expenses/expenses.shema";
 import { User, UserSchema } from "../user/entity/user.schema";
 
@@ -19,7 +18,7 @@ import { User, UserSchema } from "../user/entity/user.schema";
 		]),
 	],
 	controllers: [UserRoadmapsController],
-	providers: [UserRoadmapsService, ExpensesService],
+	providers: [UserRoadmapsService],
 	exports: [],
 })
 export class UserRoadmapsModule {}

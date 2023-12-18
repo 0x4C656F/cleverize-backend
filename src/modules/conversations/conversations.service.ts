@@ -2,8 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
-import { Expense } from "src/modules/expenses/expenses.shema";
-
 import { AddUserMessageDto } from "./dtos/add-user-message.dto";
 import { InitConversationByIdDto } from "./dtos/init-conversation.dto";
 import roadmapParser from "./helpers/roadmap-parser";
@@ -12,7 +10,7 @@ import generateResponse from "./logic/generate-response";
 import generateAiLesson from "./logic/init-conversation";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
-import { ExpensesService } from "../expenses/expenses.service";
+import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
 import { UserRoadmap, UserRoadmapDocument } from "../user-roadmaps/user-roadmaps.schema";
 
 @Injectable()
@@ -21,7 +19,7 @@ export class ConversationsService {
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
 		private streamService: StreamService,
-		private expensesService: ExpensesService
+		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>
 	) {}
 
 	public async addUserMessage(dto: AddUserMessageDto) {
@@ -33,7 +31,7 @@ export class ConversationsService {
 		});
 		let fullAiResponseString = "";
 		const completion = await generateResponse(conversation.messages, async (expense: Expense) => {
-			await this.expensesService.addExpense(expense);
+			await new this.expenseModel(expense).save();
 		});
 		for await (const part of completion) {
 			const text = part.choices[0].delta.content ?? ""; // 'Text' is one small piece of answer, like: 'Hello', 'I', '`', 'am' ...
@@ -84,7 +82,7 @@ export class ConversationsService {
 					roadmapForAi,
 					language,
 					async (expense: Expense) => {
-						await this.expensesService.addExpense(expense);
+						await new this.expenseModel(expense).save();
 					}
 				);
 				for await (const part of completion) {

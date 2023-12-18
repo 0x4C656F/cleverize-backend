@@ -4,14 +4,13 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, ObjectId, Types } from "mongoose";
 
 import { JWTPayload } from "src/common/user-payload.decorator";
-import { Expense } from "src/modules/expenses/expenses.shema";
 
 import { CreateUserRoadmapDto } from "./dtos/create-user-roadmap.dto";
 import { ToggleNodeIsCompletedDto } from "./dtos/toggle-roadmap-iscompleted.dto";
 import generateRoadmap from "./logic/generate-roadmap";
 import { UserRoadmap, UserRoadmapDocument } from "./user-roadmaps.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
-import { ExpensesService } from "../expenses/expenses.service";
+import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
 import { User, UserDocument } from "../user/entity/user.schema";
 @Injectable()
 export class UserRoadmapsService {
@@ -19,7 +18,7 @@ export class UserRoadmapsService {
 		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(Conversation.name) private readonly chatModel: Model<ConversationDocument>,
-		private readonly expensesService: ExpensesService
+		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>
 	) {}
 
 	public async toggleRoadmapNodeIsCompleted(
@@ -68,7 +67,7 @@ export class UserRoadmapsService {
 				body.title,
 				roadmapSize,
 				async (expense: Expense) => {
-					await this.expensesService.addExpense(expense);
+					await new this.expenseModel(expense).save();
 				}
 			);
 
