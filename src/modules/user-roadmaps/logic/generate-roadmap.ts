@@ -59,6 +59,7 @@ export default async function generateRoadmap(
 			prompt_tokens,
 			total_tokens,
 		},
+		date: new Date(),
 		title: response.title,
 		type: "roadmap",
 		action: "generate roadmap",

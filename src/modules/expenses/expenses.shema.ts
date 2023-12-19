@@ -23,6 +23,9 @@ export class Expense {
 	title: undefined | string;
 
 	@Prop()
+	date: Date;
+
+	@Prop()
 	type: "conversation" | "roadmap";
 
 	@Prop()

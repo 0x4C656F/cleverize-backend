@@ -36,6 +36,8 @@ export default async function generateResponse(
 			total_tokens: prompt_tokens + completion_tokens,
 		},
 		title: undefined,
+		date: new Date(),
+
 		type: "conversation",
 		action: "add message",
 		cost: calculateExpenses(prompt_tokens, completion_tokens, "3"),

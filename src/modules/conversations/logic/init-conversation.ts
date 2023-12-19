@@ -39,6 +39,8 @@ export default async function generateAiLesson(
 			prompt_tokens: prompt_tokens,
 			total_tokens: total_tokens,
 		},
+		date: new Date(),
+
 		title: undefined,
 		type: "conversation",
 		action: "init conversation",
