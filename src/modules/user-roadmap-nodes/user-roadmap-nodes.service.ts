@@ -150,4 +150,8 @@ export class UserRoadmapNodesService {
 
 		await this.model.deleteOne(result[0]._id);
 	}
+
+	public async getAllUserRoadmaps(owner_id: string) {
+		return await this.model.find({ owner_id });
+	}
 }

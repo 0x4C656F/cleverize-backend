@@ -35,6 +35,11 @@ export class UserRoadmapNodesController {
 	}
 
 	@UseGuards(AuthGuard("jwt"))
+	@Get("/")
+	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {
+		return await this.service.getAllUserRoadmaps(payload.sub);
+	}
+	@UseGuards(AuthGuard("jwt"))
 	@Delete("/:id")
 	public async deleteNode(@Param("id") id: string) {
 		return await this.service.deleteRoadmapSubtreeById(id);
