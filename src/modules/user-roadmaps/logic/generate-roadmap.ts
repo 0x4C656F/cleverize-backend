@@ -13,12 +13,9 @@ const openai = new OpenAI({
 	apiKey: environment.openai.dimaApiKey,
 });
 
-type AiOutputRoadmap = {
+export type AiOutputRoadmap = {
 	title: string;
-	children: {
-		title: string;
-		children: string[];
-	}[];
+	children: AiOutputRoadmap[];
 };
 export default async function generateRoadmap(
 	title: string,

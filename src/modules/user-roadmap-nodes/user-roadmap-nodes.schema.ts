@@ -21,6 +21,9 @@ export class UserRoadmapNode {
 	@Prop({ type: String, enum: RoadmapSize })
 	public size: RoadmapSize;
 
+	@Prop()
+	public conversation_id: string;
+
 	@Prop({ required: true })
 	public title: string;
 

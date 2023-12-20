@@ -24,7 +24,7 @@ export default function mediumTemplate(languageTitle: string) {
 	{
 		title: "JavaScript",
 		children: [
-			{title: "Javascript installation",children: ['How to install js', 'How to load a js file', ...]},{title: "Basics and syntax",children: ['Variables', 'Operators', 'Control structures', ...] },{title: "Data types",children: ['String', "Number", "Boolean", ...] },...
+			{title: "Javascript installation",children: [{title: 'How to install js'}, {title: 'How to load a js file'}, ...]},{title: "Basics and syntax",children: [{title: 'Variables'}, {title: 'Operators'}, {title: 'Control structures', ...] },{title: "Data types",children: [{title: 'String'}, {title: "Number"}, {title: "Boolean"}, ...] },...
 		]
 	}
     `;

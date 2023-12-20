@@ -1,18 +1,107 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 
+import { GenerateRootRoadmapDto } from "./dto/generate-root-roadmap.dto";
 import {
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
 	UserRoadmapNodesCollectionName,
 } from "./user-roadmap-nodes.schema";
+import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
+import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
+import { User, UserDocument } from "../user/entity/user.schema";
+import generateRoadmap, { AiOutputRoadmap } from "../user-roadmaps/logic/generate-roadmap";
 
 @Injectable()
 export class UserRoadmapNodesService {
 	constructor(
-		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>
+		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
+		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>,
+		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>
 	) {}
+
+	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
+		const { title, user_id } = dto;
+
+		const user = await this.userModel.findOne({ user_id });
+
+		try {
+			if (!user) throw new NotFoundException("User not found");
+
+			// const roadmapSize = await getRoadmapSize(body.title); //This func gets the complexity of roadmap(sm|md|lg)
+			const roadmapSize = "md";
+
+			const rootRoadmap = await generateRoadmap(title, roadmapSize, async (expense: Expense) => {
+				await new this.expenseModel(expense).save();
+			});
+			// const mock = roadmap;
+			console.log(rootRoadmap);
+			const id = await this.roadmapNodeSaver(rootRoadmap, true, user_id);
+
+			user.roadmaps.push(id);
+
+			await user.save();
+		} catch (error) {
+			Logger.error(error);
+			throw error;
+		}
+	}
+
+	private async roadmapNodeSaver(
+		node: AiOutputRoadmap,
+		isRoot: boolean,
+		user_id: string
+	): Promise<Types.ObjectId> {
+		try {
+			if (node.children && node.children.length > 0) {
+				const childrenPromises = node.children.map(async (childNode) => {
+					return await this.roadmapNodeSaver(childNode, false, user_id);
+				});
+
+				const children = await Promise.all(childrenPromises);
+
+				const newNode = isRoot
+					? new this.model({
+							title: node.title,
+							children: children,
+							is_completed: false,
+							owner_id: user_id,
+					  })
+					: new this.model({
+							title: node.title,
+							children: children,
+							is_completed: false,
+					  });
+				await newNode.save();
+
+				return newNode._id as Types.ObjectId;
+			} else {
+				const conversation = new this.conversationModel({
+					node_title: node.title,
+					messages: [],
+					owner_id: user_id,
+				});
+
+				const newNode = new this.model({
+					conversation_id: conversation._id as string,
+					title: node.title,
+					is_completed: false,
+					children: [],
+				});
+
+				await conversation.save();
+
+				await newNode.save();
+
+				return newNode._id as Types.ObjectId;
+			}
+		} catch (error) {
+			Logger.error(error);
+			throw error;
+		}
+	}
 
 	public async getRoadmapNodeById(id: string) {
 		const roadmapNode = await this.model.findById(id);
