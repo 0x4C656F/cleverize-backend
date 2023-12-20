@@ -9,7 +9,9 @@ export enum RoadmapSize {
 	LARGE = "lg",
 }
 
-@Schema({ collection: "user_roadmap_nodes", timestamps: { createdAt: "created_at" } })
+export const UserRoadmapNodesCollectionName = "user_roadmap_nodes";
+
+@Schema({ collection: UserRoadmapNodesCollectionName, timestamps: { createdAt: "created_at" } })
 export class UserRoadmapNode {
 	public _id: Types.ObjectId;
 
