@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Body, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 
@@ -114,7 +114,6 @@ export class UserRoadmapNodesService {
 	public async getRoadmapSubtreeById(id: string) {
 		// recursive population is enabled only on find method
 		const result = await this.model.find({ _id: id });
-
 		if (result.length === 0) throw new NotFoundException("Roadmap root not found");
 
 		return result[0];
@@ -128,7 +127,7 @@ export class UserRoadmapNodesService {
 		return await roadmapNode.save();
 	}
 
-	public async deleteRoadmapSubtreeById(id: string) {
+	public async deleteRoadmapSubtreeById(id: string, user_id: string) {
 		const result = await this.model.aggregate<UserRoadmapNode & { hierarchy: UserRoadmapNode[] }>([
 			{ $match: { _id: new Types.ObjectId(id) } },
 			{
@@ -147,7 +146,11 @@ export class UserRoadmapNodesService {
 		for (const child of result[0].hierarchy) {
 			await this.model.deleteOne({ _id: child._id });
 		}
-
+		const user = await this.userModel.findOne({ user_id });
+		user.roadmaps = user.roadmaps.filter((roadmap) => {
+			if (!roadmap._id.toString().includes(id)) return roadmap;
+		});
+		await user.save();
 		await this.model.deleteOne(result[0]._id);
 	}
 

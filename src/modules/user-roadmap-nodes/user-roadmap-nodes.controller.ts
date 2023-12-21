@@ -6,11 +6,11 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 import { GenerateRootRoadmapBodyDto } from "./dto/generate-root-roadmap-body.dto";
 import { UserRoadmapNodesService } from "./user-roadmap-nodes.service";
 
-@Controller("roadmaps")
+@Controller("/roadmaps")
 export class UserRoadmapNodesController {
 	constructor(private readonly service: UserRoadmapNodesService) {}
 
-	@UseGuards(AuthGuard("jwt"))
+	// @UseGuards(AuthGuard("jwt"))
 	@Get("subtree/:id")
 	public async getSubtree(@Param("id") id: string) {
 		return await this.service.getRoadmapSubtreeById(id);
@@ -35,13 +35,14 @@ export class UserRoadmapNodesController {
 	}
 
 	@UseGuards(AuthGuard("jwt"))
-	@Get("/")
+	@Get("/all")
 	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {
 		return await this.service.getAllUserRoadmaps(payload.sub);
 	}
+
 	@UseGuards(AuthGuard("jwt"))
-	@Delete("/:id")
-	public async deleteNode(@Param("id") id: string) {
-		return await this.service.deleteRoadmapSubtreeById(id);
+	@Delete("/delete/:id")
+	public async deleteNode(@Param("id") id: string, @UserPayload() payload: JWTPayload) {
+		return await this.service.deleteRoadmapSubtreeById(id, payload.sub);
 	}
 }
