@@ -11,6 +11,7 @@ export class StreamService {
 	}
 
 	sendData(conversationId: string, data: any): void {
+		console.log(data, "sent");
 		const subscriber = this.subscribers.get(conversationId);
 		if (subscriber) {
 			subscriber.next(data);

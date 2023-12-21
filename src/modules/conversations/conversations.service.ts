@@ -11,13 +11,16 @@ import generateAiLesson from "./logic/init-conversation";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
-import { UserRoadmap, UserRoadmapDocument } from "../user-roadmaps/user-roadmaps.schema";
+import {
+	UserRoadmapNode,
+	UserRoadmapNodeDocument,
+} from "../user-roadmap-nodes/user-roadmap-nodes.schema";
 
 @Injectable()
 export class ConversationsService {
 	constructor(
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
-		@InjectModel(UserRoadmap.name) private readonly model: Model<UserRoadmapDocument>,
+		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
 		private streamService: StreamService,
 		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>
 	) {}
@@ -43,22 +46,7 @@ export class ConversationsService {
 			role: "assistant",
 			content: fullAiResponseString,
 		});
-		if (fullAiResponseString.includes("END OF CONVERSATION")) {
-			const userRoadmap = await this.model.findOne({ _id: userRoadmapId, owner_id: ownerId });
-			if (!userRoadmap) {
-				throw new Error("Roadmap not found");
-			}
-			for (const subRoadmap of userRoadmap.sub_roadmap_list) {
-				for (const node of subRoadmap.node_list) {
-					if (node.conversation_id.toString() === conversationId) {
-						node.isCompleted = true;
-						userRoadmap.markModified("sub_roadmap_list");
-						await userRoadmap.save();
-						break;
-					}
-				}
-			}
-		}
+
 		await conversation.save();
 		this.streamService.closeStream(conversationId);
 		return "ok";
@@ -66,7 +54,7 @@ export class ConversationsService {
 
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
 		const { conversationId, language, userRoadmapId } = dto;
-		const userRoadmap = await this.model.findById(userRoadmapId);
+		const [userRoadmap] = await this.model.find({ _id: userRoadmapId });
 		const roadmapForAi = roadmapParser(userRoadmap);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
@@ -88,11 +76,9 @@ export class ConversationsService {
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
-
 					this.streamService.sendData(conversationId, fullAiResponseString);
 				}
 				if (fullAiResponseString.length < 100) {
-					console.log("GPT failed, response to short, retrying");
 					await fullAiResponse();
 				} else {
 					const message = {

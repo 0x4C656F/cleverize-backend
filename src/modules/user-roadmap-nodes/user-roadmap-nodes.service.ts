@@ -1,4 +1,4 @@
-import { Body, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 
@@ -37,7 +37,6 @@ export class UserRoadmapNodesService {
 				await new this.expenseModel(expense).save();
 			});
 			// const mock = roadmap;
-			console.log(rootRoadmap);
 			const id = await this.roadmapNodeSaver(rootRoadmap, true, user_id);
 
 			user.roadmaps.push(id);
