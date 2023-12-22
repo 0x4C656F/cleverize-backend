@@ -1,5 +1,14 @@
 import clerkClient from "@clerk/clerk-sdk-node";
-import { Controller, Post, Body, Get, Param, UseGuards, Inject } from "@nestjs/common";
+import {
+	Controller,
+	Post,
+	Body,
+	Get,
+	Param,
+	UseGuards,
+	Inject,
+	NotFoundException,
+} from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth } from "@nestjs/swagger";
@@ -32,6 +41,11 @@ export class UserController {
 	@UseGuards(AuthGuard("jwt"))
 	async getCreditsByUserId(@UserPayload() payload: JWTPayload): Promise<number | undefined> {
 		const user = await this.userModel.findOne({ user_id: payload.sub });
+
+		if (!user) throw new NotFoundException("User was not found");
+
+		if (!user.credits) return 0;
+
 		return user.credits;
 	}
 
