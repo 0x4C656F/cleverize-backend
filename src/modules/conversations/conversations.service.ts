@@ -26,7 +26,7 @@ export class ConversationsService {
 	) {}
 
 	public async addUserMessage(dto: AddUserMessageDto) {
-		const { conversationId, content, role, ownerId, userRoadmapId } = dto;
+		const { conversationId, content, role } = dto;
 		const conversation = await this.conversationModel.findById(conversationId);
 		conversation.messages.push({
 			role: role,

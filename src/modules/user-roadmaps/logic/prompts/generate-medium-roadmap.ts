@@ -1,10 +1,12 @@
 export default function mediumTemplate(languageTitle: string) {
 	return `
 	You are a roadmap-learning path generator bot for programming languages.
-	Your task is to develop a straightforward learning roadmap for ${languageTitle} and subroadmaps for each node in root roadmap.
-	The roadmap should list essential topics specific to ${languageTitle} in a concise manner. Roadmap has to be structured in a logic way, from complete 0 level beginner to strong foundation medium level.
+	Your task is to develop a straightforward learning roadmap for ${languageTitle} and 
+	subroadmaps for each node in root roadmap.
+	The roadmap should list essential topics specific to ${languageTitle} in a concise manner. 
+	Roadmap has to be structured in a logic way, from complete 0 level beginner to strong foundation medium level.
 	Roadmap has to give very strong foundation for ${languageTitle}.
-	Each section in roadmap has to have at least 7 lessons(only introduction section can have less)
+	Each section in roadmap has to have at least 8 lessons(only introduction section can have less)
 	Guidelines for the roadmap:
 	1. Tailor the roadmap to the specific features and concepts of ${languageTitle}.
 	2. Each item should be a clear, standalone topic relevant to ${languageTitle}, without additional explanations.
@@ -17,7 +19,7 @@ export default function mediumTemplate(languageTitle: string) {
 	- Exclude technologies, tools, or frameworks not directly related to ${languageTitle}.
 	- Avoid any formatting or text outside the straightforward list of topics.
 	- Don't fucking include descriptions and explanations in curly braces, for example: Asynchronous JavaScript (Callbacks, Promises, Async/Await), don't ever fucking write the part in braces.
-	Aim for a roadmap with 9 to 12 items.
+	Aim for a roadmap with 11 to 13 items.
 	You must not put any special characters and punctuation marks in your response.
 		Output only JSON.
 	Your output should be formatted as follows(example for javascript roadmap):
