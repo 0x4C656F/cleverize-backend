@@ -46,9 +46,8 @@ export default async function generateRoadmap(
 		],
 		model: "gpt-4-1106-preview",
 		response_format: { type: "json_object" },
-		max_tokens: 1200,
+		max_tokens: 1500,
 	});
-	console.log(completion.choices[0].message.content);
 	const response = JSON.parse(completion.choices[0].message.content) as AiOutputRoadmap;
 	const { completion_tokens, prompt_tokens, total_tokens } = completion.usage;
 	const expense: Expense = {
