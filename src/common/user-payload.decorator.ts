@@ -4,8 +4,12 @@ export type JWTPayload = {
 	sub: string;
 };
 
-export const UserPayload = createParamDecorator((data: unknown, context: ExecutionContext) => {
+export const getUserPayload = (context: ExecutionContext) => {
 	const request = context.switchToHttp().getRequest<Request & { user: JWTPayload }>();
 
 	return request.user;
-});
+};
+
+export const UserPayload = createParamDecorator((data: unknown, context: ExecutionContext) =>
+	getUserPayload(context)
+);
