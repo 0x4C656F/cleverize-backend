@@ -13,6 +13,7 @@ export type Config = {
 		issuerUrl: string;
 	};
 	stripe: string;
+	stripeWebhook: string;
 	openai: {
 		dimaApiKey: string;
 		levApiKey: string;
@@ -33,6 +34,7 @@ export default () => {
 			issuerUrl: process.env.CLERK_ISSUER_URL,
 		},
 		stripe: process.env.STRIPE_SECRET,
+		stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET,
 		openai: {
 			dimaApiKey: process.env.DIMA_API_KEY,
 			levApiKey: process.env.LEV_API_KEY,
