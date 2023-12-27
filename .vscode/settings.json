@@ -6,12 +6,12 @@
 	"editor.bracketPairColorization.enabled": true,
 	"editor.guides.bracketPairs": "active",
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true
+		"source.fixAll.eslint": "explicit"
 	},
 	"jest.autoRun": {
 		"watch": false,
 		"onSave": "test-file",
 		"onStartup": ["all-tests"]
 	},
-	"cSpell.words": ["openai", "Subroadmap"]
+	"cSpell.words": ["openai", "roadmaps", "Subroadmap"]
 }

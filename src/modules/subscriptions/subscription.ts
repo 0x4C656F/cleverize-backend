@@ -9,6 +9,7 @@ export class Subscription {
 	public credits: number;
 	public subscription_type: SubscriptionTypeEnum | undefined;
 	public last_credits_update: Date;
+	public stripe_customer_id: string;
 }
 
 export const subscriptionDefaultObject: Subscription = {
@@ -16,4 +17,5 @@ export const subscriptionDefaultObject: Subscription = {
 	credits: 0,
 	subscription_type: undefined,
 	last_credits_update: new Date(),
+	stripe_customer_id: undefined,
 };

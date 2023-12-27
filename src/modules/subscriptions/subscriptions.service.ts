@@ -26,7 +26,7 @@ export class SubscriptionsService {
 	}
 
 	public async topUpCredits(id: string, credits: number) {
-		const user = await this.userModel.findOne({ user_id: id });
+		const user = await this.userModel.findOne({ "subscription.stripe_customer_id": id });
 		if (!user) throw new NotFoundException();
 
 		user.subscription.credits += Number(credits);

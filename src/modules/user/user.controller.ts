@@ -1,18 +1,10 @@
-import clerkClient from "@clerk/clerk-sdk-node";
-import {
-	Controller,
-	Post,
-	Body,
-	Get,
-	Param,
-	UseGuards,
-	Inject,
-	NotFoundException,
-} from "@nestjs/common";
+import { users } from "@clerk/clerk-sdk-node";
+import { Controller, Post, Body, Get, Param, UseGuards, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { Model } from "mongoose";
+import Stripe from "stripe";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
@@ -52,7 +44,6 @@ export class UserController {
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/:userId")
 	async getUserById(@Param("userId") userId: string): Promise<any> {
-		// eslint-disable-next-line import/no-named-as-default-member
-		return await clerkClient.users.getUser(userId);
+		return await users.getUser(userId);
 	}
 }

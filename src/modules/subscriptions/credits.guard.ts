@@ -1,11 +1,10 @@
-import { User } from "@clerk/clerk-sdk-node";
 import { CanActivate, ExecutionContext, mixin } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
 import { getUserPayload } from "src/common/user-payload.decorator";
 
-import { UserDocument } from "../user/entity/user.schema";
+import { User, UserDocument } from "../user/entity/user.schema";
 
 export const CreditsGuard = (expectedCredits: number) => {
 	class CreditsGuardMixin implements CanActivate {

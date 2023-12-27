@@ -23,7 +23,7 @@ export class AppController {
 		const stripe = new Stripe(this.envvars.stripe);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
-			line_items: [{ price: "price_1OH5mSCCMdYQSDIPbn5m9IwQ", quantity: 1 }],
+			line_items: [{ price: "price_1OGjr6CCMdYQSDIPdpIm2LSR", quantity: 1 }],
 			mode: "payment",
 		});
 	}
