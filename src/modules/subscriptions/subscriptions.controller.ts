@@ -46,7 +46,7 @@ export class SubscriptionsController {
 	@Post("/stripe-webhook")
 	public async handleStripeWebhook(@Req() request: RawBodyRequest<Request>): Promise<any> {
 		try {
-			console.log(request.rawBody, request.headers["stripe-signature"]);
+			console.log(request.headers["stripe-signature"]);
 			const hook = stripe.webhooks.constructEvent(
 				request.rawBody,
 				request.headers["stripe-signature"],
