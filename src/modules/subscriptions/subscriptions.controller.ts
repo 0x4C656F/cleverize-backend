@@ -11,7 +11,8 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { Stripe } from "stripe";
-const stripe = new Stripe(getConfig().stripe);
+const stripeKey = getConfig().stripe;
+const stripe = new Stripe(stripeKey);
 
 import getConfig from "src/config/config";
 
