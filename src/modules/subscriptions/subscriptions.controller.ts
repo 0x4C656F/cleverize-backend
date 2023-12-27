@@ -10,9 +10,10 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import * as dotenv from "dotenv";
 import { Stripe } from "stripe";
-const stripeKey = getConfig().stripe;
-const stripe = new Stripe(stripeKey);
+dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET);
 
 import getConfig from "src/config/config";
 
