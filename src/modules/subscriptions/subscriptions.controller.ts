@@ -2,21 +2,19 @@ import {
 	Controller,
 	Post,
 	BadRequestException,
-	Body,
-	Headers,
 	Get,
 	Param,
 	UseGuards,
 	Req,
+	RawBodyRequest,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import * as dotenv from "dotenv";
+import { Request } from "express";
 import { Stripe } from "stripe";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET);
-
-import getConfig from "src/config/config";
 
 import { SubscriptionsService } from "./subscriptions.service";
 
@@ -46,18 +44,14 @@ export class SubscriptionsController {
 	}
 
 	@Post("/stripe-webhook")
-	public async handleStripeWebhook(@Req() request): Promise<any> {
+	public async handleStripeWebhook(@Req() request: RawBodyRequest<Request>): Promise<any> {
 		try {
-			// Ensure the raw body is being used for verification
 			const hook = stripe.webhooks.constructEvent(
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
 				request.rawBody,
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
 				request.headers["stripe-signature"],
 				process.env.STRIPE_WEBHOOK_SECRET
 			);
 
-			// Extract the user ID and perform the business logic
 			const userId = (hook.data.object as { userId?: string })?.userId;
 			if (userId) {
 				await this.topUpCredits(userId, 50);
