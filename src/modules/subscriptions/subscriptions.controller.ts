@@ -14,7 +14,9 @@ import * as dotenv from "dotenv";
 import { Request } from "express";
 import { Stripe } from "stripe";
 dotenv.config();
-const stripe = new Stripe(process.env.STRIPE_SECRET);
+const stripe = new Stripe(process.env.STRIPE_SECRET, {
+	apiVersion: "2023-10-16",
+});
 
 import { SubscriptionsService } from "./subscriptions.service";
 
@@ -46,7 +48,6 @@ export class SubscriptionsController {
 	@Post("/stripe-webhook")
 	public async handleStripeWebhook(@Req() request: RawBodyRequest<Request>): Promise<any> {
 		try {
-			console.log(request.headers["stripe-signature"]);
 			const hook = stripe.webhooks.constructEvent(
 				request.rawBody,
 				request.headers["stripe-signature"],
@@ -55,7 +56,7 @@ export class SubscriptionsController {
 
 			const userId = (hook.data.object as { userId?: string })?.userId;
 			if (userId) {
-				await this.topUpCredits(userId, 50);
+				await this.service.topUpCredits(userId, 50);
 			}
 
 			return { received: true };
