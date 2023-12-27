@@ -1,4 +1,3 @@
-const stripe = new Stripe(getConfig().stripe);
 import {
 	Controller,
 	Post,
@@ -12,6 +11,7 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { Stripe } from "stripe";
+const stripe = new Stripe(getConfig().stripe);
 
 import getConfig from "src/config/config";
 
