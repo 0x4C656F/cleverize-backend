@@ -18,6 +18,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET, {
 	apiVersion: "2023-10-16",
 });
 
+import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
+
 import { SubscriptionsService } from "./subscriptions.service";
 
 @ApiTags("Subscriptions")
@@ -30,6 +32,17 @@ export class SubscriptionsController {
 	@Get("activate-trial")
 	public async activateTrial(@Param("id") id: string) {
 		return await this.service.activateTrial(id);
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/subscription-data")
+	public async getSubscriptionData(@UserPayload() payload: JWTPayload): Promise<any> {
+		try {
+			return await this.service.getSubscriptionData(payload.sub);
+		} catch (error) {
+			console.error(error);
+			throw new Error("An error occurred while fetching subscription data.");
+		}
 	}
 
 	@Get("/top-up/:id/:credits") // Prototype

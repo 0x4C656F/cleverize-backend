@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
-import { TRIAL_CREDITS } from "./subscription";
+import { Subscription, TRIAL_CREDITS } from "./subscription";
 import { User, UserDocument } from "../user/entity/user.schema";
 
 @Injectable()
@@ -23,6 +23,11 @@ export class SubscriptionsService {
 		user.markModified("subscription");
 
 		return await user.save();
+	}
+
+	public async getSubscriptionData(id: string): Promise<Subscription> {
+		const user = await this.userModel.findOne({ user_id: id });
+		return user.subscription;
 	}
 
 	public async topUpCredits(id: string, credits: number) {
