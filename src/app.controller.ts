@@ -24,7 +24,7 @@ export class AppController {
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
 			line_items: [{ price: "price_1OGjr6CCMdYQSDIPdpIm2LSR", quantity: 1 }],
-			mode: "payment",
+			mode: "subscription",
 		});
 	}
 	@UseGuards(AuthGuard("jwt"))
