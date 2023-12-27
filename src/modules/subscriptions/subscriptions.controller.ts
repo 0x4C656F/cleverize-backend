@@ -7,6 +7,7 @@ import {
 	Get,
 	Param,
 	UseGuards,
+	Req,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
@@ -45,23 +46,26 @@ export class SubscriptionsController {
 	}
 
 	@Post("/stripe-webhook")
-	public async handleStripeWebhook(
-		@Body() payload: any,
-		@Headers("stripe-signature") sig: string
-	): Promise<any> {
+	public async handleStripeWebhook(@Req() request): Promise<any> {
 		try {
+			// Ensure the raw body is being used for verification
 			const hook = stripe.webhooks.constructEvent(
-				payload as string,
-				sig as string | Buffer,
-				getConfig().stripe
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+				request.rawBody,
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+				request.headers["stripe-signature"],
+				process.env.STRIPE_WEBHOOK_SECRET
 			);
 
+			// Extract the user ID and perform the business logic
 			const userId = (hook.data.object as { userId?: string })?.userId;
-			await this.topUpCredits(userId, 50);
-		} catch {
-			console.error(
-				`⚠️  Webhook signature verification failed. Check the logs to see the error from Stripe.`
-			);
+			if (userId) {
+				await this.topUpCredits(userId, 50);
+			}
+
+			return { received: true };
+		} catch (error) {
+			console.error(`⚠️ Webhook signature verification failed: ${error}`);
 			throw new BadRequestException("Invalid webhook signature");
 		}
 	}
