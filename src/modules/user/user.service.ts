@@ -28,6 +28,7 @@ export class UserService {
 				const newCustomer = await stripe.customers.create({});
 				user.subscription.stripe_customer_id = newCustomer.id;
 				console.log(user.subscription);
+				user.markModified("subscription");
 				await user.save();
 				return user;
 			}
