@@ -10,6 +10,8 @@ import {
 } from "./user-roadmap-nodes.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
+import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserDocument } from "../user/entity/user.schema";
 import generateRoadmap, { AiOutputRoadmap } from "../user-roadmaps/logic/generate-roadmap";
 
@@ -19,7 +21,8 @@ export class UserRoadmapNodesService {
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
 		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>,
-		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>
+		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
+	private readonly subscriptionsService: SubscriptionsService,
 	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
@@ -42,6 +45,8 @@ export class UserRoadmapNodesService {
 			user.roadmaps.push(id);
 
 			await user.save();
+			await this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST)
+			return user;
 		} catch (error) {
 			Logger.error(error);
 			throw error;

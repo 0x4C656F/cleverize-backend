@@ -20,12 +20,16 @@ import { Observable } from "rxjs";
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
-import { AddUserMessageBodyDto } from "./dtos/add-user-message.dto";
-import { InitConversationByIdBodyDto } from "./dtos/init-conversation.dto";
-import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
+import { AddUserMessageBodyDto } from "./dto/add-user-message.dto";
+import { InitConversationByIdBodyDto } from "./dto/init-conversation.dto";
+import { OperateConversationByIdDto } from "./dto/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import { CreditsGuard } from "../subscriptions/credits.guard";
+import {
+	ADD_MESSAGE_CREDIT_COST,
+	INIT_CONVERSATION_CREDIT_COST,
+} from "../subscriptions/subscription";
 
 @ApiTags("Conversations")
 @Controller("users/me/conversations")
@@ -52,13 +56,16 @@ export class ConversationsController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(3))
+	@UseGuards(AuthGuard("jwt"), CreditsGuard(INIT_CONVERSATION_CREDIT_COST))
 	@Post("/:conversationId/init")
 	async initConversation(
 		@Body() dto: InitConversationByIdBodyDto,
-		@Param() parameters: OperateConversationByIdDto
+		@Param() parameters: OperateConversationByIdDto,
+		@UserPayload() payload: JWTPayload
 	) {
-		return await this.service.initConversation(Object.assign(dto, parameters));
+		return await this.service.initConversation(
+			Object.assign(dto, parameters, { user_id: payload.sub })
+		);
 	}
 
 	@Sse(":conversationId/stream")
@@ -70,7 +77,7 @@ export class ConversationsController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(4))
+	@UseGuards(AuthGuard("jwt"), CreditsGuard(ADD_MESSAGE_CREDIT_COST))
 	@Put("/:conversationId/messages")
 	public async addMessage(
 		@Param() parameters: OperateConversationByIdDto,

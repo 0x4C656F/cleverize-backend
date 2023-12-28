@@ -6,6 +6,7 @@ import { UserRoadmapNode, UserRoadmapNodeSchema } from "./user-roadmap-nodes.sch
 import { UserRoadmapNodesService } from "./user-roadmap-nodes.service";
 import { Conversation, ConversationSchema } from "../conversations/schemas/conversation.schema";
 import { Expense, ExpenseSchema } from "../expenses/expenses.shema";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserSchema } from "../user/entity/user.schema";
 
 @Module({
@@ -18,7 +19,7 @@ import { User, UserSchema } from "../user/entity/user.schema";
 		]),
 	],
 	controllers: [UserRoadmapNodesController],
-	providers: [UserRoadmapNodesService],
+	providers: [UserRoadmapNodesService, SubscriptionsService],
 	exports: [],
 })
 export class UserRoadmapNodesModule {}

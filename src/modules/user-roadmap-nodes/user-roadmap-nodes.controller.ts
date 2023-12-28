@@ -6,6 +6,7 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 import { GenerateRootRoadmapBodyDto } from "./dto/generate-root-roadmap-body.dto";
 import { UserRoadmapNodesService } from "./user-roadmap-nodes.service";
 import { CreditsGuard } from "../subscriptions/credits.guard";
+import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 
 @Controller("/roadmaps")
 export class UserRoadmapNodesController {
@@ -23,7 +24,7 @@ export class UserRoadmapNodesController {
 		return await this.service.getRoadmapNodeById(id);
 	}
 
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(20))
+	@UseGuards(AuthGuard("jwt"), CreditsGuard(GENERATE_ROADMAP_CREDIT_COST))
 	@Post("/")
 	public async generateRootRoadmap(
 		@Body() body: GenerateRootRoadmapBodyDto,

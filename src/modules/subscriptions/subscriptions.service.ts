@@ -45,4 +45,16 @@ export class SubscriptionsService {
 
 		return await user.save();
 	}
+
+	public async deductCredits(id: string, credits: number) {
+		const user = await this.userModel.findOne({ user_id: id });
+		if (!user) throw new NotFoundException();
+
+		user.subscription.credits -= credits;
+		user.subscription.last_credits_update = new Date();
+
+		user.markModified("subscription");
+
+		return await user.save();
+	}
 }

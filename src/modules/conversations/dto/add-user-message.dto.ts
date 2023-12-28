@@ -11,7 +11,7 @@ export class AddUserMessageDto {
 	public conversationId: string;
 
 	@IsString()
-	@ApiProperty({ example: "google-oauth2|116000322186574711788" })
+	@ApiProperty({ example: "user_29w83sxmDNGwOuEthce5gg56FcC" })
 	public ownerId: string;
 
 	@IsMongoId()

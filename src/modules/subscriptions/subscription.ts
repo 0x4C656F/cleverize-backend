@@ -3,6 +3,9 @@ export enum SubscriptionTypeEnum {
 }
 
 export const TRIAL_CREDITS = 250;
+export const GENERATE_ROADMAP_CREDIT_COST = 20;
+export const INIT_CONVERSATION_CREDIT_COST = 3;
+export const ADD_MESSAGE_CREDIT_COST = 4;
 
 export class Subscription {
 	public is_trial_activated: boolean;

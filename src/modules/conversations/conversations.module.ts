@@ -6,6 +6,7 @@ import { ConversationsService } from "./conversations.service";
 import { Conversation, ConversationSchema } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import { Expense, ExpenseSchema } from "../expenses/expenses.shema";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserSchema } from "../user/entity/user.schema";
 import {
 	UserRoadmapNode,
@@ -20,7 +21,7 @@ import {
 		MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
 	],
 	controllers: [ConversationsController],
-	providers: [ConversationsService, StreamService],
+	providers: [ConversationsService, StreamService, SubscriptionsService],
 	exports: [],
 })
 export class ConversationsModule {}

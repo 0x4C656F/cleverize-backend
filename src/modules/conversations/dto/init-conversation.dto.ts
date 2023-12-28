@@ -14,6 +14,10 @@ export class InitConversationByIdDto {
 	@IsIn(["english", "russian"])
 	@ApiProperty({ example: "english" })
 	public language: "english" | "russian";
+
+	@IsString()
+	@ApiProperty({ example: "user_29w83sxmDNGwOuEthce5gg56FcC" })
+	public user_id: string;
 }
 
 export class InitConversationByIdBodyDto extends OmitType(InitConversationByIdDto, [
