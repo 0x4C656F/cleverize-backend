@@ -4,7 +4,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { Model } from "mongoose";
-import Stripe from "stripe";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
