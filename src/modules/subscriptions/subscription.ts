@@ -2,7 +2,7 @@ export enum SubscriptionTypeEnum {
 	PRO = "pro",
 }
 
-export const TRIAL_CREDITS = 10;
+export const TRIAL_CREDITS = 250;
 
 export class Subscription {
 	public is_trial_activated: boolean;

@@ -20,6 +20,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET, {
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
+import { Subscription } from "./subscription";
 import { SubscriptionsService } from "./subscriptions.service";
 
 @ApiTags("Subscriptions")
@@ -30,19 +31,14 @@ export class SubscriptionsController {
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Get("activate-trial")
-	public async activateTrial(@Param("id") id: string) {
-		return await this.service.activateTrial(id);
+	public async activateTrial(@UserPayload() payload: JWTPayload) {
+		return await this.service.activateTrial(payload.sub);
 	}
 
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/subscription-data")
-	public async getSubscriptionData(@UserPayload() payload: JWTPayload): Promise<any> {
-		try {
-			return await this.service.getSubscriptionData(payload.sub);
-		} catch (error) {
-			console.error(error);
-			throw new Error("An error occurred while fetching subscription data.");
-		}
+	public async getSubscriptionData(@UserPayload() payload: JWTPayload): Promise<Subscription> {
+		return await this.service.getSubscriptionData(payload.sub);
 	}
 
 	@Get("/top-up/:id/:credits") // Prototype
@@ -50,12 +46,7 @@ export class SubscriptionsController {
 		@Param("id") id: string,
 		@Param("credits") credits: number
 	): Promise<any> {
-		try {
-			await this.service.topUpCredits(id, credits);
-		} catch (error) {
-			console.error(error);
-			throw new Error("An error occurred while topping up credits.");
-		}
+		return await this.service.topUpCredits(id, credits);
 	}
 
 	@Post("/stripe-webhook")

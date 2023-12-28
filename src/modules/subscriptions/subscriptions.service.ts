@@ -12,11 +12,15 @@ export class SubscriptionsService {
 	public async activateTrial(id: string) {
 		const user = await this.userModel.findOne({ user_id: id });
 		if (!user) throw new NotFoundException();
+		if (user.subscription.is_trial_activated) {
+			console.log("trial not activated");
 
-		if (user.subscription.is_trial_activated)
-			throw new ConflictException("trial is already activated");
+			throw new ConflictException("trial was already activated");
+		}
 
 		user.subscription.is_trial_activated = true;
+		console.log("trial activated");
+
 		user.subscription.credits = TRIAL_CREDITS;
 		user.subscription.last_credits_update = new Date();
 

@@ -20,14 +20,11 @@ export class UserService {
 		const stripe = new Stripe(getConfig().stripe);
 
 		if (user) {
-			console.log(user.subscription);
 			if (user.subscription.stripe_customer_id) {
-				console.log("id:", user.subscription.stripe_customer_id);
 				return user;
 			} else {
 				const newCustomer = await stripe.customers.create({});
 				user.subscription.stripe_customer_id = newCustomer.id;
-				console.log(user.subscription);
 				user.markModified("subscription");
 				await user.save();
 				return user;
