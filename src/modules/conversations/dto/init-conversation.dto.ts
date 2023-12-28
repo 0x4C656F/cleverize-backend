@@ -22,4 +22,5 @@ export class InitConversationByIdDto {
 
 export class InitConversationByIdBodyDto extends OmitType(InitConversationByIdDto, [
 	"conversationId",
+	"user_id",
 ]) {}

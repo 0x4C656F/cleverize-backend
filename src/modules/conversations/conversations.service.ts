@@ -63,6 +63,7 @@ export class ConversationsService {
 		const { conversationId, language, userRoadmapId, user_id } = dto;
 		const [userRoadmap] = await this.model.find({ _id: userRoadmapId });
 		const roadmapForAi = roadmapParser(userRoadmap);
+		console.log(dto);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {

@@ -63,6 +63,7 @@ export class ConversationsController {
 		@Param() parameters: OperateConversationByIdDto,
 		@UserPayload() payload: JWTPayload
 	) {
+		console.log("trgieers", Object.assign(dto, parameters, { user_id: payload.sub }));
 		return await this.service.initConversation(
 			Object.assign(dto, parameters, { user_id: payload.sub })
 		);
