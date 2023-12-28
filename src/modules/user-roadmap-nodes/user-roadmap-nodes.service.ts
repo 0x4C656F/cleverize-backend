@@ -22,7 +22,7 @@ export class UserRoadmapNodesService {
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
 		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>,
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
-	private readonly subscriptionsService: SubscriptionsService,
+		private readonly subscriptionsService: SubscriptionsService
 	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
@@ -45,7 +45,7 @@ export class UserRoadmapNodesService {
 			user.roadmaps.push(id);
 
 			await user.save();
-			await this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST)
+			void this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST);
 			return user;
 		} catch (error) {
 			Logger.error(error);

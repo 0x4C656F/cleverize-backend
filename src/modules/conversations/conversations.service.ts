@@ -55,7 +55,7 @@ export class ConversationsService {
 
 		await conversation.save();
 		this.streamService.closeStream(conversationId);
-		await this.subscriptionsService.deductCredits(ownerId, ADD_MESSAGE_CREDIT_COST);
+		void this.subscriptionsService.deductCredits(ownerId, ADD_MESSAGE_CREDIT_COST);
 		return "ok";
 	}
 
@@ -99,7 +99,7 @@ export class ConversationsService {
 					};
 					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
 					this.streamService.closeStream(conversationId);
-					await this.subscriptionsService.deductCredits(user_id, INIT_CONVERSATION_CREDIT_COST);
+					void this.subscriptionsService.deductCredits(user_id, INIT_CONVERSATION_CREDIT_COST);
 					return await conversation.save();
 				}
 			};
