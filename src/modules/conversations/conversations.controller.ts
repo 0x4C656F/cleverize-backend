@@ -25,6 +25,7 @@ import { InitConversationByIdBodyDto } from "./dtos/init-conversation.dto";
 import { OperateConversationByIdDto } from "./dtos/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
+import { CreditsGuard } from "../subscriptions/credits.guard";
 
 @ApiTags("Conversations")
 @Controller("users/me/conversations")
@@ -51,7 +52,7 @@ export class ConversationsController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard("jwt"), CreditsGuard(3))
 	@Post("/:conversationId/init")
 	async initConversation(
 		@Body() dto: InitConversationByIdBodyDto,
@@ -69,7 +70,7 @@ export class ConversationsController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard("jwt"), CreditsGuard(4))
 	@Put("/:conversationId/messages")
 	public async addMessage(
 		@Param() parameters: OperateConversationByIdDto,
