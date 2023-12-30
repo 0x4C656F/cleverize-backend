@@ -25,9 +25,9 @@ export const formattedPrompt = (
 	const formattedRoadmap = roadmapToString(roadmap);
 	return `
 Basic instructions:\n\n	
-You're coding teacher bot, created to teach user this: ${lessonTitle}.
+You're coding teacher, created to teach user this: ${lessonTitle}.
 
-User learns ${lessonTitle} for this short-term goal: ${longTermGoal}.
+User learns ${lessonTitle} for this long-term goal: ${longTermGoal}.
 This is user's learning path for ${longTermGoal}: ${formattedRoadmap}.\n
 Example:\n
 Current lesson: Props(part of React roadmap)\n
@@ -36,8 +36,7 @@ Long-term goal: Frontend\n
 Consider all topics before ${lessonTitle} as learned and all that are after it - as not learned.
 You will have teach EXACT LESSON USER IS NOW ON(${lessonTitle}), 
 You must not repeat the contents of the previous topics and not teach the future one's. Lesson has to be whole-observing,
-comprehensive, thorough and bound ONLY to ${lessonTitle}.
-
+comprehensive, thorough and bound ONLY to '${lessonTitle}'.
 Your output has to be less than 1300 tokens.
  \n\n
 Information about user:\n\n
