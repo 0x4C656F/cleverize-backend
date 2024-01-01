@@ -26,11 +26,11 @@ export class UserRoadmapNodesService {
 	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
-		const { title, user_id, size } = dto;
-
-		const user = await this.userModel.findOne({ user_id });
-
 		try {
+			const { title, user_id, size } = dto;
+
+			const user = await this.userModel.findOne({ user_id });
+
 			if (!user) throw new NotFoundException("User not found");
 
 			const rootRoadmap = await generateRoadmap(title, size, async (expense: Expense) => {
