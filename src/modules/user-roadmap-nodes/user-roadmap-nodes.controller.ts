@@ -3,7 +3,7 @@ import { AuthGuard } from "@nestjs/passport";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
-import { GenerateRootRoadmapBodyDto } from "./dto/generate-root-roadmap-body.dto";
+import { GenerateRootRoadmapBodyDto } from "./dto/generate-root-roadmap.dto";
 import { UserRoadmapNodesService } from "./user-roadmap-nodes.service";
 import { CreditsGuard } from "../subscriptions/credits.guard";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
@@ -33,6 +33,7 @@ export class UserRoadmapNodesController {
 		return await this.service.generateRootRoadmap({
 			title: body.title,
 			user_id: payload.sub,
+			size: body.size,
 		});
 	}
 

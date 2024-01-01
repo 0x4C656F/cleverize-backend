@@ -26,17 +26,14 @@ export class UserRoadmapNodesService {
 	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
-		const { title, user_id } = dto;
+		const { title, user_id, size } = dto;
 
 		const user = await this.userModel.findOne({ user_id });
 
 		try {
 			if (!user) throw new NotFoundException("User not found");
 
-			// const roadmapSize = await getRoadmapSize(body.title); //This func gets the complexity of roadmap(sm|md|lg)
-			const roadmapSize = "md";
-
-			const rootRoadmap = await generateRoadmap(title, roadmapSize, async (expense: Expense) => {
+			const rootRoadmap = await generateRoadmap(title, size, async (expense: Expense) => {
 				await new this.expenseModel(expense).save();
 			});
 			// const mock = roadmap;
