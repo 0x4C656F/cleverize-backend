@@ -21,10 +21,9 @@ export default async function generateResponse(
 		max_tokens: 1500,
 	});
 
-	let prompt_tokens = 0;
+	let prompt_tokens = 250;
 
-	const completion_tokens = 280;
-
+	const completion_tokens = 1000;
 	messages.map((message) => {
 		prompt_tokens += message.content.length / 4;
 	});
