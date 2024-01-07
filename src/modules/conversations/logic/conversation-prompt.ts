@@ -29,13 +29,10 @@ export const formattedPrompt = (
 	
 	Your goal is to deliver a clear, engaging lesson on '${lessonTitle}', tailored for beginners with no prior experience. Avoid previous and future topics in the roadmap. 
 	
-	If ${lessonTitle} is introduction, tell user about: what is ${longTermGoal}?
-	If ${lessonTitle} is not introduction to ${longTermGoal} - tell user only about ${lessonTitle}, don't explain user what is ${longTermGoal}.
-	Don't show user any complex code examples on introductory lesson.  
-	Don't test user on introductory lesson.
 
 	Key Teaching Points:
 	- Use simple, beginner-friendly language.
+	- Include as many code examples as you can.
 	- Include practical examples relevant to real-life projects.
 	- Gradually progress from basic to more complex concepts.
 	- Incorporate user interaction with coding exercises.
