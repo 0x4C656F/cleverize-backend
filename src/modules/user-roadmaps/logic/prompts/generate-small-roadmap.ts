@@ -16,7 +16,7 @@ export default function smallTemplate(frameworkTitle: string) {
     - Exclude technologies, tools, or libraries not directly related to ${frameworkTitle}.
     - Maintain a clean format, focusing solely on the list of topics.
     - Do not include descriptions and explanations in curly braces.
-    Aim for a roadmap with 6 to 8 items.
+    Aim for a roadmap with 5 to 8 items depending on complexity of ${frameworkTitle}.
     Output must be in JSON format without any special characters or punctuation marks.
     Your output should be formatted as follows (example for a React roadmap):
         {
