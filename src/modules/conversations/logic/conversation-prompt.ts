@@ -45,13 +45,13 @@ export const formattedPrompt = (
 	Lesson Format:
 	- Language: ${language}
 	- Length: Under 1300 tokens
-	- Include practical mini-tasks for user testing (no answers provided).
+	- Include practical mini-tasks for user testing (Do not provide answers!(unless user explicitly asks you to)).
 	
 	Markdown Guidelines:
 	- Use clear, well-structured markdown formatting.
 	- Split text into concise paragraphs.
 	- Use lists and emphasis (bold/italics) where appropriate.
 	
-	End with a brief test (if applicable) and invite user questions, answering them concisely.
+	End with a brief practical test (if applicable) and invite user questions, answering them concisely.
 	`;
 };
