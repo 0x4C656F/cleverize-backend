@@ -6,8 +6,8 @@ function roadmapToString(
 ) {
 	return roadmapArray
 		.map((roadmapItem) => {
-			return `{ title: "${roadmapItem.title}"\n, children: [${roadmapItem.children
-				.map((child) => `"${child}\n"`)
+			return `{ title: "${roadmapItem.title}", children: [${roadmapItem.children
+				.map((child) => `"${child}"`)
 				.join(", ")}] }`;
 		})
 		.join(", ");

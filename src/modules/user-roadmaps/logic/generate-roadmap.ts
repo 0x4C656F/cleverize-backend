@@ -44,7 +44,7 @@ export default async function generateRoadmap(
 				content: template,
 			},
 		],
-		model: "gpt-4-1106-preview",
+		model: "gpt-3.5-turbo-1106",
 		response_format: { type: "json_object" },
 		max_tokens: 1500,
 	});
