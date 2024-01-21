@@ -16,16 +16,14 @@ export default function smallTemplate(frameworkTitle: string) {
     - Exclude technologies, tools, or libraries not directly related to ${frameworkTitle}.
     - Maintain a clean format, focusing solely on the list of topics.
     - Do not include descriptions and explanations in curly braces.
+    - You must not use any special characters or punctuation marks.
     Aim for a roadmap with 5 to 8 items depending on complexity of ${frameworkTitle}.
-    Output must be in JSON format without any special characters or punctuation marks.
-    Your output should be formatted as follows (example for a React roadmap):
-        {
-            title: "React",
-            children: [
-                {title: "React Environment Setup", children: [{title: 'Setting up Node.js'}, {title: 'Installing React'}, ...]},
-                {title: "JSX and Components", children: [{title: 'Understanding JSX'}, {title: 'Functional Components'},  ...]},
-                {title: "State and Lifecycle", children: [{title: 'Using State'}, {title: 'Component Lifecycle Methods'}, ...]},
-                ...
-            ]
-        }`;
+    
+    Output only JSON.
+    OUTPUT EXAMPLES:
+    {"title":"jQuery","children":[{"title":"jQuery Basics","children":[{"title":"Selecting Elements"},{"title":"Manipulating DOM"},{"title":"Event Handling"}]},{"title":"jQuery Effects","children":[{"title":"Show/Hide Effects"},{"title":"Fading Effects"},{"title":"Sliding Effects"},{"title":"Custom Animations"}]},{"title":"jQuery AJAX","children":[{"title":"AJAX Methods"},{"title":"Handling AJAX Responses"},{"title":"AJAX Error Handling"}]},{"title":"jQuery Plugins","children":[{"title":"Using Existing Plugins"},{"title":"Creating Custom Plugins"}]}]}
+    {"title":"React","children":[{"title":"Getting Started","children":[{"title":"Introduction to React"},{"title":"Setting Up React Environment"}]},{"title":"Core Concepts","children":[{"title":"JSX"},{"title":"Components and Props"},{"title":"State and setState"},{"title":"Lifecycle Methods"}]},{"title":"Hooks in Action","children":[{"title":"useState and useEffect Hooks"},{"title":"Custom Hooks"}]},{"title":"Forms and Validation","children":[{"title":"Controlled Components"},{"title":"Form Validation"}]},{"title":"Routing with React Router","children":[{"title":"Basic Routing"},{"title":"Nested Routes"},{"title":"Route Parameters"}]},{"title":"Connecting to APIs","children":[{"title":"Fetching Data"},{"title":"Handling API Responses"}]},{"title":"Styling in React","children":[{"title":"CSS-in-JS"},{"title":"Styled Components"}]}]}
+    {"title":"NumPy","children":[{"title":"Introduction","children":[{"title":"Overview of NumPy"},{"title":"Installing NumPy"},{"title":"NumPy Arrays"}]},{"title":"Array Operations","children":[{"title":"Array Indexing"},{"title":"Array Slicing"},{"title":"Element-wise Operations"},{"title":"Aggregation Functions"}]},{"title":"Linear Algebra","children":[{"title":"Matrix Operations"},{"title":"Eigenvalues and Eigenvectors"},{"title":"Singular Value Decomposition"}]},{"title":"Random in NumPy","children":[{"title":"Random Sampling"},{"title":"Random Distributions"},{"title":"Seed for Reproducibility"}]},{"title":"Advanced Techniques","children":[{"title":"Broadcasting"},{"title":"Universal Functions (ufunc)"},{"title":"Memory Layout and Stride"}]},{"title":"File Handling","children":[{"title":"Reading and Writing Data"},{"title":"File Formats (CSV, NPZ)"}]},{"title":"NumPy and Integration","children":[{"title":"Integration with Pandas"},{"title":"NumPy and Matplotlib"},{"title":"NumPy in Machine Learning"}]}]}
+
+    `;
 }
