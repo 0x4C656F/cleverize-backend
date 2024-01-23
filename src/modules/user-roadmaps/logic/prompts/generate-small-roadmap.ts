@@ -6,10 +6,12 @@ export default function smallTemplate(frameworkTitle: string) {
     The roadmap should list essential topics and components specific to ${frameworkTitle} in a clear and concise manner. 
     It should be organized logically, guiding learners from a beginner level to a solid intermediate level with a strong foundation in ${frameworkTitle}.
     Each section in the roadmap must include at least 6 lessons (the introduction section can have fewer).
+    
     Guidelines for the roadmap:
     1. Focus the roadmap on the unique features, components, and best practices of ${frameworkTitle}.
     2. Each item should be a distinct, relevant topic for ${frameworkTitle}, presented without additional elaboration.
     3. Ensure the roadmap progresses logically from fundamental to more complex aspects of ${frameworkTitle}.
+    
     Restrictions:
     - Avoid using symbols like: ., /, %, $, #, @, !, ,, \\, |, (, *, &,
     - List only topic names without parenthetical information or descriptions.

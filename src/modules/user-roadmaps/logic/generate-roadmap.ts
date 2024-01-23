@@ -3,7 +3,6 @@ import OpenAI from "openai";
 import { Expense } from "src/modules/expenses/expenses.shema";
 import { calculateExpenses } from "src/modules/expenses/get-cost";
 
-import largeTemplate from "./prompts/generate-large-roadmap";
 import mediumTemplate from "./prompts/generate-medium-roadmap";
 import smallTemplate from "./prompts/generate-small-roadmap";
 import getConfig from "../../../config/config";
@@ -30,10 +29,6 @@ export default async function generateRoadmap(
 		}
 		case "md": {
 			template = mediumTemplate(title);
-			break;
-		}
-		case "lg": {
-			template = largeTemplate(title);
 			break;
 		}
 	}
