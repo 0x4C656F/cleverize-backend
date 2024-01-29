@@ -12,7 +12,7 @@ import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 export class UserRoadmapNodesController {
 	constructor(private readonly service: UserRoadmapNodesService) {}
 
-	// @UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard("jwt"))
 	@Get("subtree/:id")
 	public async getSubtree(@Param("id") id: string) {
 		return await this.service.getRoadmapSubtreeById(id);
@@ -49,3 +49,5 @@ export class UserRoadmapNodesController {
 		return await this.service.deleteRoadmapSubtreeById(id, payload.sub);
 	}
 }
+
+

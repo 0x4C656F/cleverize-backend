@@ -2,7 +2,7 @@ export enum SubscriptionTypeEnum {
 	PRO = "pro",
 }
 
-export const TRIAL_CREDITS = 250;
+export const DEFAULT_CREDITS = 250;
 export const GENERATE_ROADMAP_CREDIT_COST = 20;
 export const INIT_CONVERSATION_CREDIT_COST = 3;
 export const ADD_MESSAGE_CREDIT_COST = 4;
@@ -17,7 +17,7 @@ export class Subscription {
 
 export const subscriptionDefaultObject: Subscription = {
 	is_trial_activated: false,
-	credits: 0,
+	credits: DEFAULT_CREDITS,
 	subscription_type: undefined,
 	last_credits_update: new Date(),
 	stripe_customer_id: undefined,
