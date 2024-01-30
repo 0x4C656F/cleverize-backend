@@ -46,8 +46,11 @@ export class UserService {
 				user_id: message.data.user_id,
 				roadmaps: [],
 				achievements: [],
+				subscription: {
+					stripe_customer_id: newCustomer.id,
+				},
 			});
-			newUser.subscription.stripe_customer_id = newCustomer.id;
+
 			return newUser.save();
 		} catch {
 			throw new HttpException("Invalid webhook signature", 400);
