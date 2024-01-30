@@ -43,7 +43,7 @@ export class UserService {
 			const newCustomer = await stripe.customers.create({});
 
 			const newUser = new this.userModel({
-				user_id: newCustomer.id,
+				user_id: message.data.user_id,
 				roadmaps: [],
 				achievements: [],
 			});
