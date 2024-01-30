@@ -27,7 +27,6 @@ export class UserService {
 			message = wh.verify(payload, headers as unknown as WebhookRequiredHeaders) as {
 				data: { user_id: string };
 			};
-			console.log(message);
 			const user = await this.userModel.findOne({ user_id: message.data.user_id });
 
 			if (user) {
@@ -44,7 +43,7 @@ export class UserService {
 			const newCustomer = await stripe.customers.create({});
 
 			const newUser = new this.userModel({
-				user_id: "1",
+				user_id: newCustomer.id,
 				roadmaps: [],
 				achievements: [],
 			});
