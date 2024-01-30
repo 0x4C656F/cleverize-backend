@@ -28,12 +28,12 @@ import { SubscriptionsService } from "./subscriptions.service";
 export class SubscriptionsController {
 	constructor(private readonly service: SubscriptionsService) {}
 
-	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
-	@Get("activate-trial")
-	public async activateTrial(@UserPayload() payload: JWTPayload) {
-		return await this.service.activateTrial(payload.sub);
-	}
+	// @ApiBearerAuth()
+	// @UseGuards(AuthGuard("jwt"))
+	// @Get("activate-trial")
+	// public async activateTrial(@UserPayload() payload: JWTPayload) {
+	// 	return await this.service.activateTrial(payload.sub);
+	// }
 
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/subscription-data")
