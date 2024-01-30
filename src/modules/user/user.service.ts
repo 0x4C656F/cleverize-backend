@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable, RawBodyRequest } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Stripe } from "stripe";
+import { Webhook, WebhookRequiredHeaders } from "svix";
 
 import { User, UserDocument } from "./entity/user.schema";
 import getConfig from "../../config/config";
@@ -14,30 +15,41 @@ export class UserService {
 		return this.userModel.find().exec();
 	}
 
-	async findOrCreate(userData: { data: { user_id: string } }): Promise<User> {
-		const user = await this.userModel.findOne({ user_id: userData.data.user_id });
+	async findOrCreate(request: RawBodyRequest<Request>): Promise<User> {
+		// const user = await this.userModel.findOne({ user_id: userData.data.user_id });
 
-		const stripe = new Stripe(getConfig().stripe);
-
-		if (user) {
-			if (user.subscription.stripe_customer_id) {
-				return user;
-			} else {
-				const newCustomer = await stripe.customers.create({});
-				user.subscription.stripe_customer_id = newCustomer.id;
-				user.markModified("subscription");
-				await user.save();
-				return user;
-			}
+		const config = getConfig();
+		const stripe = new Stripe(config.stripe);
+		const webhookSecret = config.clerk.sessionCreateWhsec;
+		const wh = new Webhook(webhookSecret);
+		const payload = request.rawBody.toString("utf8");
+		const headers = request.headers;
+		let message;
+		try {
+			message = wh.verify(payload, headers as unknown as WebhookRequiredHeaders);
+			console.log(message);
+		} catch {
+			throw new HttpException("Invalid webhook signature", 400);
 		}
-		const newCustomer = await stripe.customers.create({});
+		// if (user) {
+		// 	if (user.subscription.stripe_customer_id) {
+		// 		return user;
+		// 	} else {
+		// 		const newCustomer = await stripe.customers.create({});
+		// 		user.subscription.stripe_customer_id = newCustomer.id;
+		// 		user.markModified("subscription");
+		// 		await user.save();
+		// 		return user;
+		// 	}
+		// }
+		// const newCustomer = await stripe.customers.create({});
 
 		const newUser = new this.userModel({
-			user_id: userData.data.user_id,
+			user_id: "1",
 			roadmaps: [],
 			achievements: [],
 		});
-		newUser.subscription.stripe_customer_id = newCustomer.id;
+		// newUser.subscription.stripe_customer_id = newCustomer.id;
 		return newUser.save();
 	}
 }

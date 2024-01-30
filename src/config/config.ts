@@ -11,6 +11,7 @@ export type Config = {
 	};
 	clerk: {
 		issuerUrl: string;
+		sessionCreateWhsec: string;
 	};
 	stripe: string;
 	stripeWebhook: string;
@@ -32,6 +33,7 @@ export default () => {
 		},
 		clerk: {
 			issuerUrl: process.env.CLERK_ISSUER_URL,
+			sessionCreateWhsec: process.env.CLERK_SESSION_CREATE_WHSEC,
 		},
 		stripe: process.env.STRIPE_SECRET,
 		stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET,

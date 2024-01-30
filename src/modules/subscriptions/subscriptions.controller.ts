@@ -9,7 +9,7 @@ import {
 	RawBodyRequest,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import * as dotenv from "dotenv";
 import { Request } from "express";
 import { Stripe } from "stripe";
@@ -27,13 +27,6 @@ import { SubscriptionsService } from "./subscriptions.service";
 @Controller("subscriptions")
 export class SubscriptionsController {
 	constructor(private readonly service: SubscriptionsService) {}
-
-	// @ApiBearerAuth()
-	// @UseGuards(AuthGuard("jwt"))
-	// @Get("activate-trial")
-	// public async activateTrial(@UserPayload() payload: JWTPayload) {
-	// 	return await this.service.activateTrial(payload.sub);
-	// }
 
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/subscription-data")
