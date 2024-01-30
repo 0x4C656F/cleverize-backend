@@ -37,6 +37,7 @@ export class UserRoadmapNodesService {
 				await new this.expenseModel(expense).save();
 			});
 			// const mock = roadmap;
+			console.log(rootRoadmap);
 			const id = await this.roadmapNodeSaver(rootRoadmap, true, user_id);
 
 			user.roadmaps.push(id);
