@@ -16,40 +16,42 @@ export class UserService {
 	}
 
 	async findOrCreate(request: RawBodyRequest<Request>): Promise<User> {
-		// const user = await this.userModel.findOne({ user_id: userData.data.user_id });
-
 		const config = getConfig();
 		const stripe = new Stripe(config.stripe);
 		const webhookSecret = config.clerk.sessionCreateWhsec;
 		const wh = new Webhook(webhookSecret);
 		const payload = request.rawBody.toString("utf8");
 		const headers = request.headers;
-		let message;
+		let message: { data: { user_id: string } };
 		try {
-			message = wh.verify(payload, headers as unknown as WebhookRequiredHeaders);
+			message = wh.verify(payload, headers as unknown as WebhookRequiredHeaders) as {
+				data: { user_id: string };
+			};
 			console.log(message);
+			const user = await this.userModel.findOne({ user_id: message.data.user_id });
+
+			if (user) {
+				if (user.subscription.stripe_customer_id) {
+					return user;
+				} else {
+					const newCustomer = await stripe.customers.create({});
+					user.subscription.stripe_customer_id = newCustomer.id;
+					user.markModified("subscription");
+					await user.save();
+					return user;
+				}
+			}
+			const newCustomer = await stripe.customers.create({});
+
+			const newUser = new this.userModel({
+				user_id: "1",
+				roadmaps: [],
+				achievements: [],
+			});
+			newUser.subscription.stripe_customer_id = newCustomer.id;
+			return newUser.save();
 		} catch {
 			throw new HttpException("Invalid webhook signature", 400);
 		}
-		// if (user) {
-		// 	if (user.subscription.stripe_customer_id) {
-		// 		return user;
-		// 	} else {
-		// 		const newCustomer = await stripe.customers.create({});
-		// 		user.subscription.stripe_customer_id = newCustomer.id;
-		// 		user.markModified("subscription");
-		// 		await user.save();
-		// 		return user;
-		// 	}
-		// }
-		// const newCustomer = await stripe.customers.create({});
-
-		const newUser = new this.userModel({
-			user_id: "1",
-			roadmaps: [],
-			achievements: [],
-		});
-		// newUser.subscription.stripe_customer_id = newCustomer.id;
-		return newUser.save();
 	}
 }
