@@ -66,5 +66,9 @@ export const formattedPrompt = (
 	- Summary: Recap the main points of the lesson.
 	- Test: End with a brief practical test, if applicable.
 
-	End the lesson by inviting user questions and answer them concisely.`
+	End the lesson by inviting user questions and answer them concisely.
+	
+	
+	Your overall response should be under 1500 tokens.
+	`
 };

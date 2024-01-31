@@ -18,7 +18,7 @@ export default async function generateResponse(
 		messages: messages as ChatCompletionMessageParam[],
 		model: "gpt-3.5-turbo-16k",
 		stream: true,
-		max_tokens: 1500,
+		max_tokens: 1000,
 	});
 
 	let prompt_tokens = 250;
