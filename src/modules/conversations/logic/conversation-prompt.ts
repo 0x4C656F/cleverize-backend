@@ -32,8 +32,7 @@ export const formattedPrompt = (
 
 	Your goal is to deliver a clear, engaging lesson on '${lessonTitle}', tailored for beginners with no prior experience. Avoid previous and future topics in the roadmap.
 
-	If ${lessonTitle} starts with "Introduction to ...", then your lesson should contain minimal code and focus on the theory. 
-	If ${lessonTitle} is "Setting up environment", then your lesson should contain minimal code and focus on the setup process. Otherwise, your lesson should contain practical code examples.
+	If ${lessonTitle} is "Setting up environment", then your lesson should not contain code and must focus on the setup process. Otherwise, your lesson should contain practical code examples.
 
 	Key Teaching Points:
 	- Use simple, beginner-friendly language.
