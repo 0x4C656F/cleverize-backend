@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			}),
 
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-			issuer: `${getConfig().clerk.issuerUrl}`,
+			issuer: getConfig().clerk.issuerUrl,
 			algorithms: ["RS256"],
 		});
 	}

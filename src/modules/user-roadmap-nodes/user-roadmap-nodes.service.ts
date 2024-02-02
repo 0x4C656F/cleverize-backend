@@ -42,7 +42,7 @@ export class UserRoadmapNodesService {
 			user.roadmaps.push(id);
 
 			await user.save();
-			void this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST);
+			void (await this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST));
 			return user;
 		} catch (error) {
 			Logger.error(error);
