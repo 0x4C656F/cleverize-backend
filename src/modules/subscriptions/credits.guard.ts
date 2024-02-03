@@ -14,9 +14,7 @@ export const CreditsGuard = (expectedCredits: number) => {
 			const id = getUserPayload(context).sub;
 			const user = await this.userModel.findOne({ user_id: id });
 
-			if (!user) return false;
-
-			return user.subscription.credits >= expectedCredits;
+			return !!user;
 		}
 	}
 
