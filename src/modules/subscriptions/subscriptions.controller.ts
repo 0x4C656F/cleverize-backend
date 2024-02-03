@@ -34,7 +34,8 @@ export class SubscriptionsController {
 		return await this.service.getSubscriptionData(payload.sub);
 	}
 
-	@Get("/top-up/:id/:credits") // Prototype
+	@UseGuards(AuthGuard("jwt"))
+	@Get("/top-up/:id/:credits") 
 	public async topUpCredits(
 		@Param("id") id: string,
 		@Param("credits") credits: number
