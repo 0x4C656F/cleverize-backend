@@ -27,6 +27,7 @@ export class AppController {
 			mode: "subscription",
 		});
 	}
+
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/health/protected")
 	protected() {
