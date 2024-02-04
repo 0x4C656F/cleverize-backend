@@ -3,7 +3,6 @@ import {
 	Post,
 	BadRequestException,
 	Get,
-	Param,
 	UseGuards,
 	Req,
 	RawBodyRequest,
@@ -34,14 +33,14 @@ export class SubscriptionsController {
 		return await this.service.getSubscriptionData(payload.sub);
 	}
 
-	@UseGuards(AuthGuard("jwt"))
-	@Get("/top-up/:id/:credits") 
-	public async topUpCredits(
-		@Param("id") id: string,
-		@Param("credits") credits: number
-	): Promise<any> {
-		return await this.service.topUpCredits(id, credits);
-	}
+	// @UseGuards(AuthGuard("jwt"))
+	// @Get("/top-up/:id/:credits")
+	// public async topUpCredits(
+	// 	@Param("id") id: string,
+	// 	@Param("credits") credits: number
+	// ): Promise<any> {
+	// 	return await this.service.topUpCredits(id, credits);
+	// }
 
 	@Post("/stripe-webhook")
 	public async handleStripeWebhook(@Req() request: RawBodyRequest<Request>): Promise<any> {
