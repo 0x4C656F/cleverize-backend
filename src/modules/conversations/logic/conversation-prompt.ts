@@ -51,7 +51,7 @@ export const formattedPrompt = (
 	Lesson Format:
 	- Language: ${language}
 	- Length: Under 1300 tokens
-	- Include coding practical mini-tasks for user testing (Do not provide answers unless the user explicitly asks you to).
+	- Include coding practical mini-tasks based on learned material for user testing (Do not provide answers unless the user explicitly asks you to).
 
 
 
@@ -65,7 +65,7 @@ export const formattedPrompt = (
 	- Main Content: Explain the topic in detail with code examples.
 	- Practical Examples: Provide real-life examples where this topic can be applied.
 	- Summary: Recap the main points of the lesson.
-	- Test: End with a brief practical test with coding tasks, if applicable.
+	- Test: End with a brief practical test with coding tasks based on learned material, if applicable.
 
 	End the lesson by inviting user questions and answer them concisely.
 	
