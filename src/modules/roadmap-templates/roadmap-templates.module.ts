@@ -5,6 +5,8 @@ import { RoadmapTemplatesController } from "./roadmap-templates.controller";
 import { TemplateRoadmapNode, TemplateRoadmapNodeSchema } from "./roadmap-templates.schema";
 import { RoadmapTemplatesService } from "./roadmap-templates.service";
 import {
+	Conversation,
+	ConversationSchema,
 	TemplateConversation,
 	TemplateConversationSchema,
 } from "../conversations/schemas/conversation.schema";
@@ -19,6 +21,7 @@ import {
 			{ name: TemplateRoadmapNode.name, schema: TemplateRoadmapNodeSchema },
 			{ name: UserRoadmapNode.name, schema: UserRoadmapNodeSchema },
 			{ name: TemplateConversation.name, schema: TemplateConversationSchema },
+			{ name: Conversation.name, schema: ConversationSchema },
 		]),
 	],
 	controllers: [RoadmapTemplatesController],

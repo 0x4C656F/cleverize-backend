@@ -5,6 +5,8 @@ import { Model } from "mongoose";
 import { SaveTemplateObjectDto, TemplateObjectNode } from "./dtos/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
 import {
+	Conversation,
+	ConversationDocument,
 	TemplateConversation,
 	TemplateConversationDocument,
 } from "../conversations/schemas/conversation.schema";
@@ -21,7 +23,9 @@ export class RoadmapTemplatesService {
 		@InjectModel(UserRoadmapNode.name)
 		private readonly userRoadmapsModel: Model<UserRoadmapNodeDocument>,
 		@InjectModel(TemplateConversation.name)
-		private readonly conversationTemplatesModel: Model<TemplateConversationDocument>
+		private readonly conversationTemplatesModel: Model<TemplateConversationDocument>,
+		@InjectModel(Conversation.name)
+		private readonly conversationModel: Model<ConversationDocument>
 	) {}
 
 	public async saveTemplateObject(root: SaveTemplateObjectDto) {
@@ -41,6 +45,7 @@ export class RoadmapTemplatesService {
 						node_id: currentNode._id,
 						messages: [],
 					}).save();
+
 					await this.model.findByIdAndUpdate(currentNode._id, {
 						$set: { conversation_id: savedConversation._id as string },
 					});
@@ -62,9 +67,10 @@ export class RoadmapTemplatesService {
 		return savedRoot;
 	}
 
+	// eslint-disable-next-line sonarjs/cognitive-complexity
 	public async copyTemplateToUserRoadmap(templateRoadmapId: string, userId: string) {
-		const template = await this.model.findById(templateRoadmapId);
-
+		const template = await this.model.findOne({_id:templateRoadmapId});
+		console.log(template)
 		if (!template) throw new NotFoundException();
 
 		const savedRoot = await new this.userRoadmapsModel({
@@ -74,7 +80,6 @@ export class RoadmapTemplatesService {
 			title: template.title,
 			is_completed: false,
 		}).save();
-
 		savedRoot.children = template.children as unknown as UserRoadmapNode[];
 
 		const queue: TemplateRoadmapNode[] = [template];
@@ -83,25 +88,44 @@ export class RoadmapTemplatesService {
 		while (queue.length > 0) {
 			const currentNode = queue.shift();
 			const childrenIds = [];
-
+``
 			if (currentNode) {
-				for (const child of currentNode.children) {
-					const savedChild = await new this.userRoadmapsModel({
-						owner_id: userId,
-						conversation_id: undefined,
-						title: child.title,
-						is_completed: false,
+				if (currentNode.children.length === 0) {
+					const templateConversation = await this.conversationTemplatesModel.findOne({
+						node_id: currentNode._id,
+					});
+					if (!templateConversation) throw new NotFoundException();
+					const savedConversation = await new this.conversationModel({
+						node_title: currentNode.title,
+						node_id: currentNode._id,
+						messages: templateConversation.messages,
 					}).save();
 
-					childrenIds.push(savedChild._id);
+					await this.model.findByIdAndUpdate(currentNode._id, {
+						$set: { conversation_id: savedConversation._id as string },
+					});
+				} else {
+					for (const child of currentNode.children) {
+						if (!child.title) {
+							throw new Error(`Child node ${child._id.toString()} does not have a title`);
+						}
+						const savedChild = await new this.userRoadmapsModel({
+							owner_id: userId,
+							conversation_id: undefined,
+							title: child.title,
+							is_completed: false,
+						}).save();
 
-					savedChild.children = child.children as unknown as UserRoadmapNode[];
+						childrenIds.push(savedChild._id);
 
-					queue.push(savedChild);
+						savedChild.children = child.children as unknown as UserRoadmapNode[];
+
+						queue.push(savedChild);
+					}
 				}
-			}
 
-			await this.model.findByIdAndUpdate(currentNode._id, { $set: { children: childrenIds } });
+				await this.model.findByIdAndUpdate(currentNode._id, { $set: { children: childrenIds } });
+			}
 		}
 	}
 }
