@@ -69,7 +69,7 @@ export class ConversationsService {
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
-
+			''
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
 				const completion = await generateAiLesson(
