@@ -23,24 +23,24 @@ export class Conversation {
 	public messages: Message[];
 }
 
-const TemplateConversationCollectionName = "template_conversations";
+// const TemplateConversationCollectionName = "template_conversations";
 
-@Schema({ collection: TemplateConversationCollectionName })
-export class TemplateConversation {
-	public _id: Types.ObjectId;
+// @Schema({ collection: TemplateConversationCollectionName })
+// export class TemplateConversation {
+// 	public _id: Types.ObjectId;
 
-	@Prop({ required: true })
-	public node_title: string;
+// 	@Prop({ required: true })
+// 	public node_title: string;
 
-	@Prop({ required: true, type: Types.ObjectId })
-	public node_id: string;
+// 	@Prop({ required: true, type: Types.ObjectId })
+// 	public node_id: string;
 
-	@Prop({ type: [{ type: Object }] })
-	public messages: Message[];
-}
+// 	@Prop({ type: [{ type: Object }] })
+// 	public messages: Message[];
+// }
 
-export type TemplateConversationDocument = TemplateConversation & Document;
-export const TemplateConversationSchema = SchemaFactory.createForClass(TemplateConversation);
+// export type TemplateConversationDocument = TemplateConversation & Document;
+// export const TemplateConversationSchema = SchemaFactory.createForClass(TemplateConversation);
 
 export type ConversationDocument = Conversation & Document;
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

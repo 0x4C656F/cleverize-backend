@@ -7,8 +7,6 @@ import { RoadmapTemplatesService } from "./roadmap-templates.service";
 import {
 	Conversation,
 	ConversationSchema,
-	TemplateConversation,
-	TemplateConversationSchema,
 } from "../conversations/schemas/conversation.schema";
 import {
 	UserRoadmapNode,
@@ -20,7 +18,6 @@ import {
 		MongooseModule.forFeature([
 			{ name: TemplateRoadmapNode.name, schema: TemplateRoadmapNodeSchema },
 			{ name: UserRoadmapNode.name, schema: UserRoadmapNodeSchema },
-			{ name: TemplateConversation.name, schema: TemplateConversationSchema },
 			{ name: Conversation.name, schema: ConversationSchema },
 		]),
 	],
