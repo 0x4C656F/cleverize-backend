@@ -12,6 +12,7 @@ export type Config = {
 	clerk: {
 		issuerUrl: string;
 		sessionCreateWhsec: string;
+		secretKey: string;
 	};
 	stripe: string;
 	stripeWebhook: string;
@@ -21,7 +22,7 @@ export type Config = {
 	};
 };
 
-export default () => {
+export default (): Config => {
 	return {
 		port: Number.parseInt(process.env.PORT, 10) || 80,
 		mongodbURI: process.env.MONGODB_URI,
@@ -34,6 +35,7 @@ export default () => {
 		clerk: {
 			issuerUrl: process.env.CLERK_ISSUER_URL,
 			sessionCreateWhsec: process.env.CLERK_SESSION_CREATE_WHSEC,
+			secretKey: process.env.CLERK_SECRET_KEY,
 		},
 		stripe: process.env.STRIPE_SECRET,
 		stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET,

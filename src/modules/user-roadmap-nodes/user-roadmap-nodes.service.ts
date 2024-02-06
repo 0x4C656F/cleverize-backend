@@ -1,3 +1,4 @@
+import { Clerk } from "@clerk/clerk-sdk-node";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
@@ -8,22 +9,24 @@ import {
 	UserRoadmapNodeDocument,
 	UserRoadmapNodesCollectionName,
 } from "./user-roadmap-nodes.schema";
+import getConfig, { Config } from "../../config/config";
+import { formattedPrompt } from "../conversations/logic/conversation-prompt";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
-import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserDocument } from "../user/entity/user.schema";
 import generateRoadmap, { AiOutputRoadmap } from "../user-roadmaps/logic/generate-roadmap";
-
 @Injectable()
 export class UserRoadmapNodesService {
+	private config: Config;
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
-		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>,
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		private readonly subscriptionsService: SubscriptionsService
-	) {}
+	) {
+		this.config = getConfig();
+	}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
 		try {
@@ -33,13 +36,28 @@ export class UserRoadmapNodesService {
 
 			if (!user) throw new NotFoundException("User not found");
 
-			const rootRoadmap = await generateRoadmap(title, size, async (expense: Expense) => {
-				await new this.expenseModel(expense).save();
-			});
-			// const mock = roadmap;
-			const id = await this.roadmapNodeSaver(rootRoadmap, true, user_id);
+			// Initialize Clerk SDK
+			const clerk = Clerk({ secretKey: this.config.clerk.secretKey });
 
-			user.roadmaps.push(id);
+			// Inside the generateRootRoadmap method
+			const clerkUser = await clerk.users.getUser(user_id);
+
+			// Access the unsafe user metadata
+			const unsafeMetadata = clerkUser.unsafeMetadata as { language: "english" | "russian" };
+			const language = unsafeMetadata.language;
+			const rootRoadmap = await generateRoadmap(title, size);
+
+			const formatConversationPromptCallback = (lessonTitle: string) =>
+				formattedPrompt(language, lessonTitle, rootRoadmap.children, rootRoadmap.title);
+
+			const roadmap = await this.saveRoadmap(
+				rootRoadmap,
+				true,
+				user_id,
+				formatConversationPromptCallback
+			);
+
+			user.roadmaps.push(roadmap._id);
 
 			await user.save();
 			void (await this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST));
@@ -50,58 +68,82 @@ export class UserRoadmapNodesService {
 		}
 	}
 
-	private async roadmapNodeSaver(
-		node: AiOutputRoadmap,
+	private async saveRoadmap(
+		firstNode: AiOutputRoadmap,
 		isRoot: boolean,
-		user_id: string
-	): Promise<Types.ObjectId> {
-		try {
+		userId: string,
+		formatConversationPromptCallback: (lessonTitle: string) => string
+	): Promise<UserRoadmapNode> {
+		const model = this.model;
+		const conversationModel = this.conversationModel;
+
+		async function roadmapNodeSaver(
+			node: AiOutputRoadmap,
+			isRoot: boolean,
+			userId: string
+		): Promise<UserRoadmapNode> {
 			if (node.children && node.children.length > 0) {
-				const childrenPromises = node.children.map(async (childNode) => {
-					return await this.roadmapNodeSaver(childNode, false, user_id);
+				const childrenPromises = node.children.map((childNode) => {
+					return roadmapNodeSaver(childNode, false, userId);
 				});
 
 				const children = await Promise.all(childrenPromises);
 
-				const newNode = isRoot
-					? new this.model({
-							title: node.title,
-							children: children,
-							is_completed: false,
-							owner_id: user_id,
-					  })
-					: new this.model({
-							title: node.title,
-							children: children,
-							is_completed: false,
-					  });
-				await newNode.save();
+				let roadmapNode: UserRoadmapNodeDocument;
+				if (isRoot) {
+					node = new model({
+						title: node.title,
+						children: children,
+						is_completed: false,
+						owner_id: userId,
+					});
+				} else {
+					node = new model({
+						title: node.title,
+						children: children,
+						is_completed: false,
+					});
+				}
 
-				return newNode._id as Types.ObjectId;
+				try {
+					await roadmapNode.save();
+				} catch (error) {
+					Logger.error(error);
+					throw error;
+				}
+
+				return roadmapNode;
 			} else {
-				const conversation = new this.conversationModel({
+				const conversation = new conversationModel({
 					node_title: node.title,
-					messages: [],
-					owner_id: user_id,
+					messages: [
+						{
+							role: "system",
+							content: formatConversationPromptCallback(node.title),
+						},
+					],
+					owner_id: userId,
 				});
 
-				const newNode = new this.model({
+				const newNode = new model({
 					conversation_id: conversation._id as string,
 					title: node.title,
 					is_completed: false,
 					children: [],
 				});
 
-				await conversation.save();
+				try {
+					await conversation.save();
+					await newNode.save();
+				} catch (error) {
+					Logger.error(error);
+					throw error;
+				}
 
-				await newNode.save();
-
-				return newNode._id as Types.ObjectId;
+				return newNode;
 			}
-		} catch (error) {
-			Logger.error(error);
-			throw error;
 		}
+		return await roadmapNodeSaver(firstNode, isRoot, userId);
 	}
 
 	public async getRoadmapNodeById(id: string) {

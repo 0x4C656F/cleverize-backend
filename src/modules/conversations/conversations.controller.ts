@@ -21,7 +21,6 @@ import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { ConversationsService } from "./conversations.service";
 import { AddUserMessageBodyDto } from "./dto/add-user-message.dto";
-import { InitConversationByIdBodyDto } from "./dto/init-conversation.dto";
 import { OperateConversationByIdDto } from "./dto/operate-conversation-by-id.dto";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
@@ -59,14 +58,10 @@ export class ConversationsController {
 	@UseGuards(AuthGuard("jwt"), CreditsGuard(INIT_CONVERSATION_CREDIT_COST))
 	@Post("/:conversationId/init")
 	async initConversation(
-		@Body() dto: InitConversationByIdBodyDto,
 		@Param() parameters: OperateConversationByIdDto,
 		@UserPayload() payload: JWTPayload
 	) {
-		console.log("trgieers", Object.assign(dto, parameters, { user_id: payload.sub }));
-		return await this.service.initConversation(
-			Object.assign(dto, parameters, { user_id: payload.sub })
-		);
+		return await this.service.initConversation(Object.assign(parameters, { user_id: payload.sub }));
 	}
 
 	@Sse(":conversationId/stream")
@@ -86,7 +81,7 @@ export class ConversationsController {
 		@UserPayload() payload: JWTPayload
 	) {
 		return await this.service.addUserMessage(
-			Object.assign(dto, parameters, { ownerId: payload.sub })
+			Object.assign(dto, parameters, { user_id: payload.sub })
 		);
 	}
 

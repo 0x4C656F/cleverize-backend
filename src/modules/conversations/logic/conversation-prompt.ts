@@ -1,10 +1,9 @@
+import { AiOutputRoadmap } from "src/modules/user-roadmaps/logic/generate-roadmap";
+
 export const formattedPrompt = (
 	language: "russian" | "english",
 	lessonTitle: string,
-	roadmap: {
-		title: string;
-		children: string[];
-	}[],
+	roadmap: AiOutputRoadmap[],
 	longTermGoal: string
 ): string => {
 	let foundCurrentLesson = false;
@@ -12,13 +11,13 @@ export const formattedPrompt = (
 		.map((roadmapItem) => {
 			return `Section title: "${roadmapItem.title}", children: [${roadmapItem.children
 				.map((child) => {
-					if (child === lessonTitle) {
+					if (child.title === lessonTitle) {
 						foundCurrentLesson = true;
-						return `"This is current lesson: ${child}"`;
+						return `"This is current lesson: ${child.title}"`;
 					} else if (foundCurrentLesson) {
-						return `Not learned:" ${child}"`;
+						return `Not learned:" ${child.title}"`;
 					} else {
-						return `Learned:" ${child}"`;
+						return `Learned:" ${child.title}"`;
 					}
 				})
 				.join(", ")}] `;
