@@ -120,7 +120,7 @@ export class RoadmapTemplatesService {
 		await this.userRoadmapsModel.findByIdAndUpdate(savedRoot._id, {
 			$set: { children: childIds },
 		});
-		await this.userModel.findByIdAndUpdate(userId, {
+		await this.userModel.findById({user_id: userId}, {
 			$push: { roadmaps: savedRoot._id as Types.ObjectId },
 		});
 	}
