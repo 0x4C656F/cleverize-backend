@@ -48,22 +48,17 @@ export class UserRoadmapNodesService {
 	private async saveRoadmap(
 		firstNode: AiOutputRoadmap,
 		userId: string,
-		parentId?: string
 	): Promise<UserRoadmapNode> {
 		const model = this.model;
 		const conversationModel = this.conversationModel;
-
 		async function roadmapNodeSaver(
 			node: AiOutputRoadmap,
-			isRoot: boolean,
-			userId: string
+			isRoot: boolean
 		): Promise<UserRoadmapNode> {
 			// Process children nodes recursively
 			const children =
 				node.children?.length > 0
-					? await Promise.all(
-							node.children.map((childNode) => roadmapNodeSaver(childNode, false, userId))
-					  )
+					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
 					: [];
 
 			// Common node creation logic
@@ -73,7 +68,6 @@ export class UserRoadmapNodesService {
 					title: node.title,
 					children: children,
 					is_completed: false,
-					...(!isRoot && { parent_id: parentId }), // Conditionally add parent_id
 					...(isRoot && { owner_id: userId }), // Conditionally add owner_id
 				});
 			} else {
@@ -82,14 +76,13 @@ export class UserRoadmapNodesService {
 					node_title: node.title,
 					messages: [],
 					owner_id: userId,
-					node_id: '_',
+					node_id: "_",
 				});
 				await conversation.save(); // Save conversation first to use its ID
 				newNode = new model({
 					conversation_id: conversation._id as string,
 					title: node.title,
 					is_completed: false,
-					parent_id: parentId,
 					children: [], // Explicitly set empty children for clarity
 				});
 				conversation.node_id = newNode._id as string; // Set conversation node_id
@@ -108,7 +101,7 @@ export class UserRoadmapNodesService {
 
 		// Assuming firstNode, isRoot, and userId are defined elsewhere
 		// Call the function with the initial parameters
-		return await roadmapNodeSaver(firstNode, true, userId);
+		return await roadmapNodeSaver(firstNode, true);
 	}
 
 	public async getRoadmapNodeById(id: string) {

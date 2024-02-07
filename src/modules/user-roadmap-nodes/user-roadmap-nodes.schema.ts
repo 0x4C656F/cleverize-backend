@@ -24,9 +24,6 @@ export class UserRoadmapNode {
 	@Prop()
 	public conversation_id?: string;
 
-	@Prop({type: Types.ObjectId, ref: UserRoadmapNode.name})
-	public parent_id?: string;
-
 	@Prop({ required: true })
 	public title: string;
 
