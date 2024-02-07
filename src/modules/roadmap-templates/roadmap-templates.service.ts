@@ -101,6 +101,7 @@ export class RoadmapTemplatesService {
 		const savedRoot = await new this.userRoadmapsModel({
 			owner_id: userId,
 			title: template.title,
+			size: template.size,
 			is_completed: false,
 			// Other properties from the template as necessary.
 		}).save();

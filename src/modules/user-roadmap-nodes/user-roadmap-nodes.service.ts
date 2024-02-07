@@ -63,7 +63,7 @@ export class UserRoadmapNodesService {
 				node.children?.length > 0
 					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
 					: [];
-
+			
 			// Common node creation logic
 			let newNode: UserRoadmapNodeDocument;
 			if (isRoot || children.length > 0) {
