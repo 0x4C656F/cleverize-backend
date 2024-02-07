@@ -4,7 +4,10 @@ import { Model } from "mongoose";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitConversationByIdDto } from "./dto/init-conversation.dto";
+import roadmapParser from "./helpers/roadmap-parser";
+import { formattedPrompt } from "./logic/conversation-prompt";
 import generateResponse from "./logic/generate-response";
+import generateAiLesson from "./logic/init-conversation";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import {
@@ -16,7 +19,6 @@ import {
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
 } from "../user-roadmap-nodes/user-roadmap-nodes.schema";
-import roadmapParser from "./helpers/roadmap-parser";
 
 @Injectable()
 export class ConversationsService {
@@ -37,8 +39,8 @@ export class ConversationsService {
 		let fullAiResponseString = "";
 		const completion = await generateResponse(conversation.messages);
 		for await (const part of completion) {
-			const text = part.choices[0].delta.content ?? ""; 
-			fullAiResponseString += text; 
+			const text = part.choices[0].delta.content ?? "";
+			fullAiResponseString += text;
 
 			this.streamService.sendData(conversationId, fullAiResponseString);
 		}
@@ -57,23 +59,18 @@ export class ConversationsService {
 		const { conversationId, language, userRoadmapId, user_id } = dto;
 		const [userRoadmap] = await this.model.find({ _id: userRoadmapId });
 		const roadmapForAi = roadmapParser(userRoadmap);
-		console.log(dto);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
-			''
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
 				const completion = await generateAiLesson(
 					conversation.node_title,
 					userRoadmap.title,
 					roadmapForAi,
-					language,
-					async (expense: Expense) => {
-						await new this.expenseModel(expense).save();
-					}
+					language
 				);
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";

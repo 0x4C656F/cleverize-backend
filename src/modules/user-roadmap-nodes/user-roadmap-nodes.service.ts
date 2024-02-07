@@ -1,4 +1,3 @@
-import { Clerk } from "@clerk/clerk-sdk-node";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
@@ -9,8 +8,6 @@ import {
 	UserRoadmapNodeDocument,
 	UserRoadmapNodesCollectionName,
 } from "./user-roadmap-nodes.schema";
-import getConfig, { Config } from "../../config/config";
-import { formattedPrompt } from "../conversations/logic/conversation-prompt";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
@@ -18,15 +15,12 @@ import { User, UserDocument } from "../user/entity/user.schema";
 import generateRoadmap, { AiOutputRoadmap } from "../user-roadmaps/logic/generate-roadmap";
 @Injectable()
 export class UserRoadmapNodesService {
-	private config: Config;
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		private readonly subscriptionsService: SubscriptionsService
-	) {
-		this.config = getConfig();
-	}
+	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
 		try {
@@ -36,26 +30,9 @@ export class UserRoadmapNodesService {
 
 			if (!user) throw new NotFoundException("User not found");
 
-			// Initialize Clerk SDK
-			const clerk = Clerk({ secretKey: this.config.clerk.secretKey });
-
-			// Inside the generateRootRoadmap method
-			const clerkUser = await clerk.users.getUser(user_id);
-
-			// Access the unsafe user metadata
-			const unsafeMetadata = clerkUser.unsafeMetadata as { language: "english" | "russian" };
-			const language = unsafeMetadata.language;
 			const rootRoadmap = await generateRoadmap(title, size);
 
-			const formatConversationPromptCallback = (lessonTitle: string) =>
-				formattedPrompt(language, lessonTitle, rootRoadmap.children, rootRoadmap.title);
-
-			const roadmap = await this.saveRoadmap(
-				rootRoadmap,
-				true,
-				user_id,
-				formatConversationPromptCallback
-			);
+			const roadmap = await this.saveRoadmap(rootRoadmap, true, user_id);
 
 			user.roadmaps.push(roadmap._id);
 
@@ -71,8 +48,7 @@ export class UserRoadmapNodesService {
 	private async saveRoadmap(
 		firstNode: AiOutputRoadmap,
 		isRoot: boolean,
-		userId: string,
-		formatConversationPromptCallback: (lessonTitle: string) => string
+		userId: string
 	): Promise<UserRoadmapNode> {
 		const model = this.model;
 		const conversationModel = this.conversationModel;
@@ -116,12 +92,7 @@ export class UserRoadmapNodesService {
 			} else {
 				const conversation = new conversationModel({
 					node_title: node.title,
-					messages: [
-						{
-							role: "system",
-							content: formatConversationPromptCallback(node.title),
-						},
-					],
+					messages: [],
 					owner_id: userId,
 				});
 
