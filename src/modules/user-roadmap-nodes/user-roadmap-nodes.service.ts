@@ -4,6 +4,7 @@ import { Model, Types } from "mongoose";
 
 import { GenerateRootRoadmapDto } from "./dto/generate-root-roadmap.dto";
 import {
+	RoadmapSize,
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
 	UserRoadmapNodesCollectionName,
@@ -32,7 +33,7 @@ export class UserRoadmapNodesService {
 
 			const rootRoadmap = await generateRoadmap(title, size);
 
-			const roadmap = await this.saveRoadmap(rootRoadmap, user_id);
+			const roadmap = await this.saveRoadmap(rootRoadmap, user_id, size);
 
 			user.roadmaps.push(roadmap._id);
 
@@ -45,9 +46,14 @@ export class UserRoadmapNodesService {
 		}
 	}
 
-	private async saveRoadmap(firstNode: AiOutputRoadmap, userId: string): Promise<UserRoadmapNode> {
+	private async saveRoadmap(
+		firstNode: AiOutputRoadmap,
+		userId: string,
+		size: RoadmapSize
+	): Promise<UserRoadmapNode> {
 		const model = this.model;
 		const conversationModel = this.conversationModel;
+
 		async function roadmapNodeSaver(
 			node: AiOutputRoadmap,
 			isRoot: boolean
@@ -65,7 +71,7 @@ export class UserRoadmapNodesService {
 					title: node.title,
 					children: children,
 					is_completed: false,
-					...(isRoot && { owner_id: userId }), // Conditionally add owner_id
+					...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id
 				});
 			} else {
 				// If no children and not root, handle conversation node
