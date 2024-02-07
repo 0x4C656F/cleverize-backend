@@ -27,7 +27,6 @@ export class RoadmapTemplatesController {
 	public async getTemplateFullTree(@Param("id") id: string) {
 		// on findOne request - auto children population, see schema
 		const template = await this.model.findOne({ _id: id });
-
 		if (!template) throw new NotFoundException();
 
 		return template;

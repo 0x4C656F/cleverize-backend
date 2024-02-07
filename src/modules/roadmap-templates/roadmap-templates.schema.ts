@@ -29,7 +29,10 @@ export type TemplateRoadmapNodeDocument = TemplateRoadmapNode & Document;
 export const TemplateRoadmapNodeSchema = SchemaFactory.createForClass(TemplateRoadmapNode);
 
 TemplateRoadmapNodeSchema.pre("findOne", function (next) {
-	void this.populate("children");
+	void this.populate({
+		path: "children",
+		model: TemplateRoadmapNode.name,
+		populate: { path: "children", model: TemplateRoadmapNode.name },
+	});
 	next();
 });
-

@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
 import { IsArray, IsString, ValidateNested } from "class-validator";
+import { Types } from "mongoose";
 
 import { RoadmapSize } from "src/modules/user-roadmap-nodes/user-roadmap-nodes.schema";
 

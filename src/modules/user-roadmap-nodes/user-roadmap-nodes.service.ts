@@ -45,10 +45,7 @@ export class UserRoadmapNodesService {
 		}
 	}
 
-	private async saveRoadmap(
-		firstNode: AiOutputRoadmap,
-		userId: string,
-	): Promise<UserRoadmapNode> {
+	private async saveRoadmap(firstNode: AiOutputRoadmap, userId: string): Promise<UserRoadmapNode> {
 		const model = this.model;
 		const conversationModel = this.conversationModel;
 		async function roadmapNodeSaver(
@@ -156,6 +153,6 @@ export class UserRoadmapNodesService {
 	}
 
 	public async getAllUserRoadmaps(owner_id: string) {
-		return await this.model.find({ owner_id });
+		return await this.model.find({ owner_id, size: { $exists: true } });
 	}
 }

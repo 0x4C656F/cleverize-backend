@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 
 import { SaveTemplateObjectDto, TemplateObjectNode } from "./dtos/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
@@ -47,56 +47,75 @@ export class RoadmapTemplatesService {
 		return savedRoot;
 	}
 
+	// eslint-disable-next-line sonarjs/cognitive-complexity
 	public async copyTemplateToUserRoadmap(templateRoadmapId: string, userId: string) {
-		const template = await this.model.findOne({ _id: templateRoadmapId });
-		if (!template) throw new NotFoundException();
+		const template: TemplateRoadmapNodeDocument = await this.model
+			.findById(templateRoadmapId)
+			.populate({ path: "children", populate: { path: "children" } });
 
-		const savedRoot = await new this.userRoadmapsModel({
-			owner_id: userId,
-			size: template.size,
-			conversation_id: undefined,
-			title: template.title,
-			is_completed: false,
-		}).save();
-		savedRoot.children = template.children as unknown as UserRoadmapNode[];
 
-		const queue: TemplateRoadmapNode[] = [template];
 
-		// BFS algorithm
-		while (queue.length > 0) {
-			const currentNode = queue.shift();
-			const childrenIds = [];
+		const copyAndSaveNode = async (node: TemplateRoadmapNodeDocument, parentId: string) => {
+			const childIds: string[] = []; // Initialize an array to hold the IDs of the current node's children.
 
-			if (currentNode) {
-				if (currentNode.children.length === 0) {
-					const newConversation = await new this.conversationModel({
-						node_title: currentNode.title,
-						node_id: currentNode._id,
-						messages: [],
+			if (node.children && node.children.length > 0) {
+				for (const child of node.children) {
+					const newUserRoadmapNode = new this.userRoadmapsModel({
+						title: child.title,
 						owner_id: userId,
-					}).save();
-
-					await this.model.findByIdAndUpdate(currentNode._id, {
-						$set: { conversation_id: newConversation._id as string },
+						is_completed: false,
+						parent_node_id: parentId, // This ensures the link to its immediate parent.
+						// Copy other necessary properties here.
 					});
-				} else {
-					for (const child of currentNode.children) {
-						const savedChild = await new this.userRoadmapsModel({
-							conversation_id: undefined,
-							title: child.title,
-							is_completed: false,
-						}).save();
 
-						childrenIds.push(savedChild._id);
+					const savedChild = await newUserRoadmapNode.save();
+					childIds.push(savedChild._id as string); // Add the saved child's ID to the array.
 
-						savedChild.children = child.children as unknown as UserRoadmapNode[];
-
-						queue.push(savedChild);
-					}
+					// Recursively copy this child's structure, passing savedChild._id as the new parentId.
+					await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id as string);
 				}
 
-				await this.model.findByIdAndUpdate(currentNode._id, { $set: { children: childrenIds } });
+				// Update the current node to include all its children's IDs.
+				// This step correctly associates children with their parent node.
+				await this.userRoadmapsModel.findByIdAndUpdate(parentId, {
+					$set: { children: childIds },
+				});
+			} else {
+				// For nodes without children, create a conversation.
+				const newConversation = await new this.conversationModel({
+					node_title: node.title,
+					node_id: node._id as string,
+					messages: [],
+					owner_id: userId,
+				}).save();
+
+				// Link the node with the created conversation. This should be the leaf node logic.
+				await this.userRoadmapsModel.findByIdAndUpdate(parentId, {
+					$set: { conversation_id: newConversation._id as string },
+				});
 			}
+		};
+		const savedRoot = await new this.userRoadmapsModel({
+			owner_id: userId,
+			title: template.title,
+			is_completed: false,
+			// Other properties from the template as necessary.
+		}).save();
+		const childIds: string[] = [];
+		// Start the recursive process with the template's children, using the saved root's ID as the initial parentId.
+		for (const child of template.children) {
+			const savedChild = await new this.userRoadmapsModel({
+				title: child.title,
+				owner_id: userId,
+				is_completed: false,
+				parent_node_id: savedRoot._id as string,
+				children: child.children,
+			}).save();
+			childIds.push(savedChild._id as string);
+			await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id as string);
 		}
+		await this.userRoadmapsModel.findByIdAndUpdate(savedRoot._id, {
+			$set: { children: childIds }})
+
 	}
 }

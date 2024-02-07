@@ -27,6 +27,9 @@ export class UserRoadmapNode {
 	@Prop({ required: true })
 	public title: string;
 
+	@Prop()
+	public parent_node_id?: string;
+
 	@Prop({ required: true })
 	public is_completed: boolean;
 
