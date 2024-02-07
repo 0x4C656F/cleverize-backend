@@ -124,5 +124,6 @@ export class RoadmapTemplatesService {
 			{ user_id: userId },
 			{ $push: { roadmaps: savedRoot._id as Types.ObjectId } }
 		);
+		return savedRoot;
 	}
 }
