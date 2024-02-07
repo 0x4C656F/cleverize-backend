@@ -5,6 +5,7 @@ import { Model, Types } from "mongoose";
 import { SaveTemplateObjectDto, TemplateObjectNode } from "./dtos/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
+import { User, UserDocument } from "../user/entity/user.schema";
 import {
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
@@ -18,7 +19,9 @@ export class RoadmapTemplatesService {
 		@InjectModel(UserRoadmapNode.name)
 		private readonly userRoadmapsModel: Model<UserRoadmapNodeDocument>,
 		@InjectModel(Conversation.name)
-		private readonly conversationModel: Model<ConversationDocument>
+		private readonly conversationModel: Model<ConversationDocument>,
+		@InjectModel(User.name)
+		private readonly userModel: Model<UserDocument>
 	) {}
 
 	public async saveTemplateObject(root: SaveTemplateObjectDto) {
@@ -52,9 +55,9 @@ export class RoadmapTemplatesService {
 		const template: TemplateRoadmapNodeDocument = await this.model
 			.findById(templateRoadmapId)
 			.populate({ path: "children", populate: { path: "children" } });
-
-
-
+		if (!template) {
+			throw new NotFoundException("Template not found");
+		}
 		const copyAndSaveNode = async (node: TemplateRoadmapNodeDocument, parentId: string) => {
 			const childIds: string[] = []; // Initialize an array to hold the IDs of the current node's children.
 
@@ -115,7 +118,10 @@ export class RoadmapTemplatesService {
 			await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id as string);
 		}
 		await this.userRoadmapsModel.findByIdAndUpdate(savedRoot._id, {
-			$set: { children: childIds }})
-
+			$set: { children: childIds },
+		});
+		await this.userModel.findByIdAndUpdate(userId, {
+			$push: { roadmaps: savedRoot._id as Types.ObjectId },
+		});
 	}
 }

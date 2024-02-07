@@ -96,8 +96,6 @@ export class UserRoadmapNodesService {
 			return newNode;
 		}
 
-		// Assuming firstNode, isRoot, and userId are defined elsewhere
-		// Call the function with the initial parameters
 		return await roadmapNodeSaver(firstNode, true);
 	}
 
