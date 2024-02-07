@@ -1,4 +1,3 @@
-import { User } from "@clerk/clerk-sdk-node";
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 
@@ -6,7 +5,7 @@ import { RoadmapTemplatesController } from "./roadmap-templates.controller";
 import { TemplateRoadmapNode, TemplateRoadmapNodeSchema } from "./roadmap-templates.schema";
 import { RoadmapTemplatesService } from "./roadmap-templates.service";
 import { Conversation, ConversationSchema } from "../conversations/schemas/conversation.schema";
-import { UserSchema } from "../user/entity/user.schema";
+import { User, UserSchema } from "../user/entity/user.schema";
 import {
 	UserRoadmapNode,
 	UserRoadmapNodeSchema,
