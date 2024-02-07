@@ -49,7 +49,6 @@ export class RoadmapTemplatesService {
 
 	public async copyTemplateToUserRoadmap(templateRoadmapId: string, userId: string) {
 		const template = await this.model.findOne({ _id: templateRoadmapId });
-		console.log(template);
 		if (!template) throw new NotFoundException();
 
 		const savedRoot = await new this.userRoadmapsModel({
@@ -83,7 +82,6 @@ export class RoadmapTemplatesService {
 				} else {
 					for (const child of currentNode.children) {
 						const savedChild = await new this.userRoadmapsModel({
-							owner_id: userId,
 							conversation_id: undefined,
 							title: child.title,
 							is_completed: false,

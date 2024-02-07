@@ -33,27 +33,3 @@ TemplateRoadmapNodeSchema.pre("findOne", function (next) {
 	next();
 });
 
-const template = `{
-	"title": "Web development",
-	"size": "md",
-	"children": [
-		{ "title": "HTML", "children": [] },
-		{
-			"title": "CSS",
-			"children": []
-		},
-		{
-			"title": "JS",
-			"children": [
-				{
-					"title": "Basics",
-					"children": []
-				},
-				{
-					"title": "Advanced stuff",
-					"children": []
-				}
-			]
-		}
-	]
-}`;

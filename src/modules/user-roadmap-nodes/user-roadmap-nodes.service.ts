@@ -82,6 +82,7 @@ export class UserRoadmapNodesService {
 					node_title: node.title,
 					messages: [],
 					owner_id: userId,
+					node_id: undefined,
 				});
 				await conversation.save(); // Save conversation first to use its ID
 				newNode = new model({
