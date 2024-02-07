@@ -16,6 +16,7 @@ import {
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
 } from "../user-roadmap-nodes/user-roadmap-nodes.schema";
+import roadmapParser from "./helpers/roadmap-parser";
 
 @Injectable()
 export class ConversationsService {
@@ -53,29 +54,49 @@ export class ConversationsService {
 	}
 
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
-		const { conversationId, user_id } = dto;
+		const { conversationId, language, userRoadmapId, user_id } = dto;
+		const [userRoadmap] = await this.model.find({ _id: userRoadmapId });
+		const roadmapForAi = roadmapParser(userRoadmap);
+		console.log(dto);
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
 			if (conversation.messages.length > 0) {
 				return conversation;
 			}
-
+			''
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
-				const completion = await generateResponse(conversation.messages);
+				const completion = await generateAiLesson(
+					conversation.node_title,
+					userRoadmap.title,
+					roadmapForAi,
+					language,
+					async (expense: Expense) => {
+						await new this.expenseModel(expense).save();
+					}
+				);
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
 					this.streamService.sendData(conversationId, fullAiResponseString);
 				}
-
-				conversation.messages.push({ role: "assistant", content: fullAiResponseString });
-
-				this.streamService.closeStream(conversationId);
-
-				void this.subscriptionsService.deductCredits(user_id, INIT_CONVERSATION_CREDIT_COST);
-
-				return await conversation.save();
+				if (fullAiResponseString.length < 100) {
+					await fullAiResponse();
+				} else {
+					const message = {
+						role: "system",
+						content: formattedPrompt(
+							language,
+							conversation.node_title,
+							roadmapForAi,
+							userRoadmap.title
+						),
+					};
+					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
+					this.streamService.closeStream(conversationId);
+					void this.subscriptionsService.deductCredits(user_id, INIT_CONVERSATION_CREDIT_COST);
+					return await conversation.save();
+				}
 			};
 			return await fullAiResponse();
 		} catch (error) {
