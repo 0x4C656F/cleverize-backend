@@ -22,7 +22,10 @@ export class UserRoadmapNode {
 	public size: RoadmapSize;
 
 	@Prop()
-	public conversation_id: string;
+	public conversation_id?: string;
+
+	@Prop({type: Types.ObjectId, ref: UserRoadmapNode.name})
+	public parent_id?: string;
 
 	@Prop({ required: true })
 	public title: string;

@@ -17,7 +17,6 @@ export class RoadmapTemplatesService {
 		private readonly model: Model<TemplateRoadmapNodeDocument>,
 		@InjectModel(UserRoadmapNode.name)
 		private readonly userRoadmapsModel: Model<UserRoadmapNodeDocument>,
-
 		@InjectModel(Conversation.name)
 		private readonly conversationModel: Model<ConversationDocument>
 	) {}
@@ -50,7 +49,7 @@ export class RoadmapTemplatesService {
 
 	public async copyTemplateToUserRoadmap(templateRoadmapId: string, userId: string) {
 		const template = await this.model.findOne({ _id: templateRoadmapId });
-
+		console.log(template);
 		if (!template) throw new NotFoundException();
 
 		const savedRoot = await new this.userRoadmapsModel({
@@ -71,7 +70,7 @@ export class RoadmapTemplatesService {
 
 			if (currentNode) {
 				if (currentNode.children.length === 0) {
-					const savedConversation = await new this.conversationModel({
+					const newConversation = await new this.conversationModel({
 						node_title: currentNode.title,
 						node_id: currentNode._id,
 						messages: [],
@@ -79,7 +78,7 @@ export class RoadmapTemplatesService {
 					}).save();
 
 					await this.model.findByIdAndUpdate(currentNode._id, {
-						$set: { conversation_id: savedConversation._id as string },
+						$set: { conversation_id: newConversation._id as string },
 					});
 				} else {
 					for (const child of currentNode.children) {

@@ -32,7 +32,7 @@ export class UserRoadmapNodesService {
 
 			const rootRoadmap = await generateRoadmap(title, size);
 
-			const roadmap = await this.saveRoadmap(rootRoadmap, true, user_id);
+			const roadmap = await this.saveRoadmap(rootRoadmap, user_id);
 
 			user.roadmaps.push(roadmap._id);
 
@@ -47,8 +47,8 @@ export class UserRoadmapNodesService {
 
 	private async saveRoadmap(
 		firstNode: AiOutputRoadmap,
-		isRoot: boolean,
-		userId: string
+		userId: string,
+		parentId?: string
 	): Promise<UserRoadmapNode> {
 		const model = this.model;
 		const conversationModel = this.conversationModel;
@@ -58,63 +58,56 @@ export class UserRoadmapNodesService {
 			isRoot: boolean,
 			userId: string
 		): Promise<UserRoadmapNode> {
-			if (node.children && node.children.length > 0) {
-				const childrenPromises = node.children.map((childNode) => {
-					return roadmapNodeSaver(childNode, false, userId);
+			// Process children nodes recursively
+			const children =
+				node.children?.length > 0
+					? await Promise.all(
+							node.children.map((childNode) => roadmapNodeSaver(childNode, false, userId))
+					  )
+					: [];
+
+			// Common node creation logic
+			let newNode: UserRoadmapNodeDocument;
+			if (isRoot || children.length > 0) {
+				newNode = new model({
+					title: node.title,
+					children: children,
+					is_completed: false,
+					...(!isRoot && { parent_id: parentId }), // Conditionally add parent_id
+					...(isRoot && { owner_id: userId }), // Conditionally add owner_id
 				});
-
-				const children = await Promise.all(childrenPromises);
-
-				let roadmapNode: UserRoadmapNodeDocument;
-				if (isRoot) {
-					node = new model({
-						title: node.title,
-						children: children,
-						is_completed: false,
-						owner_id: userId,
-					});
-				} else {
-					node = new model({
-						title: node.title,
-						children: children,
-						is_completed: false,
-					});
-				}
-
-				try {
-					await roadmapNode.save();
-				} catch (error) {
-					Logger.error(error);
-					throw error;
-				}
-
-				return roadmapNode;
 			} else {
+				// If no children and not root, handle conversation node
 				const conversation = new conversationModel({
 					node_title: node.title,
 					messages: [],
 					owner_id: userId,
 				});
-
-				const newNode = new model({
+				await conversation.save(); // Save conversation first to use its ID
+				newNode = new model({
 					conversation_id: conversation._id as string,
 					title: node.title,
 					is_completed: false,
-					children: [],
+					parent_id: parentId,
+					children: [], // Explicitly set empty children for clarity
 				});
-
-				try {
-					await conversation.save();
-					await newNode.save();
-				} catch (error) {
-					Logger.error(error);
-					throw error;
-				}
-
-				return newNode;
+				conversation.node_id = newNode._id as string; // Set conversation node_id
+				await conversation.save(); // Save conversation with node_id
 			}
+
+			try {
+				await newNode.save(); // Save the new or updated node
+			} catch (error) {
+				Logger.error(error);
+				throw error; // Consider centralized error handling outside this function
+			}
+
+			return newNode;
 		}
-		return await roadmapNodeSaver(firstNode, isRoot, userId);
+
+		// Assuming firstNode, isRoot, and userId are defined elsewhere
+		// Call the function with the initial parameters
+		return await roadmapNodeSaver(firstNode, true, userId);
 	}
 
 	public async getRoadmapNodeById(id: string) {
