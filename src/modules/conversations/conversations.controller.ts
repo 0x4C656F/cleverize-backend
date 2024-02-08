@@ -63,12 +63,10 @@ export class ConversationsController {
 		@Param() parameters: OperateConversationByIdDto,
 		@UserPayload() payload: JWTPayload
 	) {
-		console.log("trgieers", Object.assign(dto, parameters, { user_id: payload.sub }));
 		return await this.service.initConversation(
 			Object.assign(dto, parameters, { user_id: payload.sub })
 		);
 	}
-
 	@Sse(":conversationId/stream")
 	stream(@Param("conversationId") conversationId: string): Observable<MessageEvent> {
 		return new Observable((subscriber) => {
@@ -86,7 +84,7 @@ export class ConversationsController {
 		@UserPayload() payload: JWTPayload
 	) {
 		return await this.service.addUserMessage(
-			Object.assign(dto, parameters, { ownerId: payload.sub })
+			Object.assign(dto, parameters, { user_id: payload.sub })
 		);
 	}
 

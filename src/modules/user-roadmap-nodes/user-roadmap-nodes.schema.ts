@@ -22,10 +22,13 @@ export class UserRoadmapNode {
 	public size: RoadmapSize;
 
 	@Prop()
-	public conversation_id: string;
+	public conversation_id?: string;
 
 	@Prop({ required: true })
 	public title: string;
+
+	@Prop()
+	public parent_node_id?: string;
 
 	@Prop({ required: true })
 	public is_completed: boolean;

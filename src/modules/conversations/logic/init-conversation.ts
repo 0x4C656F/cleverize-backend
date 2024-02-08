@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 
-import { Expense } from "src/modules/expenses/expenses.shema";
-import { calculateExpenses } from "src/modules/expenses/get-cost";
+import type { AiOutputRoadmap } from "src/modules/user-roadmaps/logic/generate-roadmap";
 
 import { formattedPrompt } from "./conversation-prompt";
 
@@ -13,12 +12,11 @@ export default async function generateAiLesson(
 	finalRoadmapTitle: string,
 	roadmap: {
 		title: string;
-		children: string[];
+		children: AiOutputRoadmap[];
 	}[],
-	language: "english" | "russian",
-	expenseCallback?: (expense: Expense) => Promise<void>
+	language: "english" | "russian"
 ) {
-	const response = await openai.chat.completions.create({
+	return await openai.chat.completions.create({
 		messages: [
 			{
 				role: "system",
@@ -29,23 +27,4 @@ export default async function generateAiLesson(
 		stream: true,
 		max_tokens: 2000,
 	});
-	const prompt_tokens = 830;
-
-	const completion_tokens = 650; //597 523 654 911 566 641 548 707 615 734
-	const total_tokens = prompt_tokens + completion_tokens;
-	const expense: Expense = {
-		usage: {
-			completion_tokens: completion_tokens,
-			prompt_tokens: prompt_tokens,
-			total_tokens: total_tokens,
-		},
-		date: new Date(),
-
-		title: undefined,
-		type: "conversation",
-		action: "init conversation",
-		cost: calculateExpenses(prompt_tokens, completion_tokens, "3"),
-	};
-	await expenseCallback(expense);
-	return response;
 }

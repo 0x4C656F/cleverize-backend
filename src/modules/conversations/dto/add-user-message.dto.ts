@@ -12,7 +12,7 @@ export class AddUserMessageDto {
 
 	@IsString()
 	@ApiProperty({ example: "user_29w83sxmDNGwOuEthce5gg56FcC" })
-	public ownerId: string;
+	public user_id: string;
 
 	@IsMongoId()
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
@@ -29,5 +29,5 @@ export class AddUserMessageDto {
 
 export class AddUserMessageBodyDto extends OmitType(AddUserMessageDto, [
 	"conversationId",
-	"ownerId",
+	"user_id",
 ]) {}

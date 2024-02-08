@@ -18,6 +18,7 @@ export class AppController {
 		console.log("touched");
 		return "OK";
 	}
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/pay")
 	async pay() {
 		const stripe = new Stripe(this.envvars.stripe);
@@ -36,6 +37,7 @@ export class AppController {
 			statusCode: 200,
 		};
 	}
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/call")
 	async call() {
 		return await generateRoadmap("java", "md");

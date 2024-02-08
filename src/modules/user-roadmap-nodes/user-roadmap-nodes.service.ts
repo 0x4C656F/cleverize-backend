@@ -4,23 +4,21 @@ import { Model, Types } from "mongoose";
 
 import { GenerateRootRoadmapDto } from "./dto/generate-root-roadmap.dto";
 import {
+	RoadmapSize,
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
 	UserRoadmapNodesCollectionName,
 } from "./user-roadmap-nodes.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
-import { Expense, ExpenseDocument } from "../expenses/expenses.shema";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserDocument } from "../user/entity/user.schema";
 import generateRoadmap, { AiOutputRoadmap } from "../user-roadmaps/logic/generate-roadmap";
-
 @Injectable()
 export class UserRoadmapNodesService {
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
-		@InjectModel(Expense.name) private readonly expenseModel: Model<ExpenseDocument>,
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		private readonly subscriptionsService: SubscriptionsService
 	) {}
@@ -33,13 +31,11 @@ export class UserRoadmapNodesService {
 
 			if (!user) throw new NotFoundException("User not found");
 
-			const rootRoadmap = await generateRoadmap(title, size, async (expense: Expense) => {
-				await new this.expenseModel(expense).save();
-			});
-			// const mock = roadmap;
-			const id = await this.roadmapNodeSaver(rootRoadmap, true, user_id);
+			const rootRoadmap = await generateRoadmap(title, size);
 
-			user.roadmaps.push(id);
+			const roadmap = await this.saveRoadmap(rootRoadmap, user_id, size);
+
+			user.roadmaps.push(roadmap._id);
 
 			await user.save();
 			void (await this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST));
@@ -50,58 +46,63 @@ export class UserRoadmapNodesService {
 		}
 	}
 
-	private async roadmapNodeSaver(
-		node: AiOutputRoadmap,
-		isRoot: boolean,
-		user_id: string
-	): Promise<Types.ObjectId> {
-		try {
-			if (node.children && node.children.length > 0) {
-				const childrenPromises = node.children.map(async (childNode) => {
-					return await this.roadmapNodeSaver(childNode, false, user_id);
+	private async saveRoadmap(
+		firstNode: AiOutputRoadmap,
+		userId: string,
+		size: RoadmapSize
+	): Promise<UserRoadmapNode> {
+		const model = this.model;
+		const conversationModel = this.conversationModel;
+
+		async function roadmapNodeSaver(
+			node: AiOutputRoadmap,
+			isRoot: boolean
+		): Promise<UserRoadmapNode> {
+			// Process children nodes recursively
+			const children =
+				node.children?.length > 0
+					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
+					: [];
+			
+			// Common node creation logic
+			let newNode: UserRoadmapNodeDocument;
+			if (isRoot || children.length > 0) {
+				newNode = new model({
+					title: node.title,
+					children: children,
+					is_completed: false,
+					...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id
 				});
-
-				const children = await Promise.all(childrenPromises);
-
-				const newNode = isRoot
-					? new this.model({
-							title: node.title,
-							children: children,
-							is_completed: false,
-							owner_id: user_id,
-					  })
-					: new this.model({
-							title: node.title,
-							children: children,
-							is_completed: false,
-					  });
-				await newNode.save();
-
-				return newNode._id as Types.ObjectId;
 			} else {
-				const conversation = new this.conversationModel({
+				// If no children and not root, handle conversation node
+				const conversation = new conversationModel({
 					node_title: node.title,
 					messages: [],
-					owner_id: user_id,
+					owner_id: userId,
+					node_id: "_",
 				});
-
-				const newNode = new this.model({
+				await conversation.save(); // Save conversation first to use its ID
+				newNode = new model({
 					conversation_id: conversation._id as string,
 					title: node.title,
 					is_completed: false,
-					children: [],
+					children: [], // Explicitly set empty children for clarity
 				});
-
-				await conversation.save();
-
-				await newNode.save();
-
-				return newNode._id as Types.ObjectId;
+				conversation.node_id = newNode._id as string; // Set conversation node_id
+				await conversation.save(); // Save conversation with node_id
 			}
-		} catch (error) {
-			Logger.error(error);
-			throw error;
+
+			try {
+				await newNode.save(); // Save the new or updated node
+			} catch (error) {
+				Logger.error(error);
+				throw error; // Consider centralized error handling outside this function
+			}
+
+			return newNode;
 		}
+
+		return await roadmapNodeSaver(firstNode, true);
 	}
 
 	public async getRoadmapNodeById(id: string) {
@@ -156,6 +157,6 @@ export class UserRoadmapNodesService {
 	}
 
 	public async getAllUserRoadmaps(owner_id: string) {
-		return await this.model.find({ owner_id });
+		return await this.model.find({ owner_id, size: { $exists: true } });
 	}
 }
