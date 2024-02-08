@@ -18,7 +18,7 @@ export class AppController {
 		console.log("touched");
 		return "OK";
 	}
-
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/pay")
 	async pay() {
 		const stripe = new Stripe(this.envvars.stripe);
