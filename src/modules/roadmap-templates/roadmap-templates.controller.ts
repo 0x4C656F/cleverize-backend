@@ -16,13 +16,13 @@ export class RoadmapTemplatesController {
 		private readonly model: Model<TemplateRoadmapNodeDocument>,
 		private readonly service: RoadmapTemplatesService
 	) {}
-
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/all")
 	public async getAllTemplateRootNodes() {
 		// if node has size value - is root
 		return await this.model.find({ size: { $exists: true } });
 	}
-
+	@UseGuards(AuthGuard("jwt"))
 	@Get("/:id")
 	public async getTemplateFullTree(@Param("id") id: string) {
 		// on findOne request - auto children population, see schema
@@ -31,7 +31,7 @@ export class RoadmapTemplatesController {
 
 		return template;
 	}
-
+	@UseGuards(AuthGuard("jwt"))
 	@Post("/")
 	public async createTemplateRoadmap(@Body() dto: SaveTemplateObjectDto) {
 		return await this.service.saveTemplateObject(dto);

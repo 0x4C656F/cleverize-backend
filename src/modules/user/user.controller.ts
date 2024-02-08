@@ -19,10 +19,7 @@ export class UserController {
 		return this.userService.findOrCreate(request);
 	}
 
-	@Get("/all")
-	async findAll(): Promise<any> {
-		return this.userService.findAll();
-	}
+
 
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/:userId")
