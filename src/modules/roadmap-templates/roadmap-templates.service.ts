@@ -50,7 +50,6 @@ export class RoadmapTemplatesService {
 		return savedRoot;
 	}
 
-	// eslint-disable-next-line sonarjs/cognitive-complexity
 	public async copyTemplateToUserRoadmap(templateRoadmapId: string, userId: string) {
 		const template: TemplateRoadmapNodeDocument = await this.model
 			.findById(templateRoadmapId)
@@ -68,7 +67,7 @@ export class RoadmapTemplatesService {
 						owner_id: userId,
 						is_completed: false,
 						parent_node_id: parentId, // This ensures the link to its immediate parent.
-						// Copy other necessary properties here.
+						
 					});
 
 					const savedChild = await newUserRoadmapNode.save();
@@ -79,7 +78,6 @@ export class RoadmapTemplatesService {
 				}
 
 				// Update the current node to include all its children's IDs.
-				// This step correctly associates children with their parent node.
 				await this.userRoadmapsModel.findByIdAndUpdate(parentId, {
 					$set: { children: childIds },
 				});
@@ -103,8 +101,9 @@ export class RoadmapTemplatesService {
 			title: template.title,
 			size: template.size,
 			is_completed: false,
-			// Other properties from the template as necessary.
+			
 		}).save();
+		
 		const childIds: string[] = [];
 		// Start the recursive process with the template's children, using the saved root's ID as the initial parentId.
 		for (const child of template.children) {
