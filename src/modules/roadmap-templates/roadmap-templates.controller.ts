@@ -8,6 +8,7 @@ import { UserPayload, JWTPayload } from "src/common/user-payload.decorator";
 import { SaveTemplateObjectDto } from "./dtos/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
 import { RoadmapTemplatesService } from "./roadmap-templates.service";
+import { CreditsGuard } from "../subscriptions/credits.guard";
 
 @Controller("templates")
 export class RoadmapTemplatesController {
@@ -31,12 +32,14 @@ export class RoadmapTemplatesController {
 
 		return template;
 	}
+	@UseGuards(AuthGuard("jwt"))
+
 	@Post("/")
 	public async createTemplateRoadmap(@Body() dto: SaveTemplateObjectDto) {
 		return await this.service.saveTemplateObject(dto);
 	}
 
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard("jwt"), CreditsGuard(10))
 	@Post("/copy/:id")
 	public async copyTemplateToUserRoadmap(
 		@Param("id") id: string,
