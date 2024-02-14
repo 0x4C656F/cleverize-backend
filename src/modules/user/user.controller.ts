@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
 import { Model } from "mongoose";
 
-import { User, UserDocument } from "./entity/user.schema";
+import { User, UserDocument } from "./schema/user.schema";
 import { UserService } from "./user.service";
 
 @Controller("/users")
@@ -18,8 +18,6 @@ export class UserController {
 	async upsertUser(@Req() request: RawBodyRequest<Request>): Promise<any> {
 		return this.userService.findOrCreate(request);
 	}
-
-
 
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/:userId")

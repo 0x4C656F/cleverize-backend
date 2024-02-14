@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 
-import { SaveTemplateObjectDto, TemplateObjectNode } from "./dtos/save-template-object.dto";
+import { SaveTemplateObjectDto, TemplateObjectNode } from "./dto/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
-import { User, UserDocument } from "../user/entity/user.schema";
+import { User, UserDocument } from "../user/schema/user.schema";
 import {
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
@@ -67,7 +67,6 @@ export class RoadmapTemplatesService {
 						owner_id: userId,
 						is_completed: false,
 						parent_node_id: parentId, // This ensures the link to its immediate parent.
-						
 					});
 
 					const savedChild = await newUserRoadmapNode.save();
@@ -101,9 +100,8 @@ export class RoadmapTemplatesService {
 			title: template.title,
 			size: template.size,
 			is_completed: false,
-			
 		}).save();
-		
+
 		const childIds: string[] = [];
 		// Start the recursive process with the template's children, using the saved root's ID as the initial parentId.
 		for (const child of template.children) {

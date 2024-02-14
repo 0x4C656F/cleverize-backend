@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 
 import { getUserPayload } from "src/common/user-payload.decorator";
 
-import { User, UserDocument } from "../user/entity/user.schema";
+import { User, UserDocument } from "../user/schema/user.schema";
 
 export const CreditsGuard = (expectedCredits: number) => {
 	class CreditsGuardMixin implements CanActivate {

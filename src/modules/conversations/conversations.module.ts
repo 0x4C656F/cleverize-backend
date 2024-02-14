@@ -6,7 +6,7 @@ import { ConversationsService } from "./conversations.service";
 import { Conversation, ConversationSchema } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { User, UserSchema } from "../user/entity/user.schema";
+import { User, UserSchema } from "../user/schema/user.schema";
 import {
 	UserRoadmapNode,
 	UserRoadmapNodeSchema,

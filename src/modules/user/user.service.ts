@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 import { Stripe } from "stripe";
 import { Webhook, WebhookRequiredHeaders } from "svix";
 
-import { User, UserDocument } from "./entity/user.schema";
+import { User, UserDocument } from "./schema/user.schema";
 import getConfig from "../../config/config";
 
 @Injectable()

@@ -6,7 +6,7 @@ import { UserRoadmapNode, UserRoadmapNodeSchema } from "./user-roadmap-nodes.sch
 import { UserRoadmapNodesService } from "./user-roadmap-nodes.service";
 import { Conversation, ConversationSchema } from "../conversations/schemas/conversation.schema";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { User, UserSchema } from "../user/entity/user.schema";
+import { User, UserSchema } from "../user/schema/user.schema";
 
 @Module({
 	imports: [

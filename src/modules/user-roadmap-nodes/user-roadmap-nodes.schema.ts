@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { User } from "src/modules/user/entity/user.schema";
+import { User } from "src/modules/user/schema/user.schema";
 
 export enum RoadmapSize {
 	SMALL = "sm",

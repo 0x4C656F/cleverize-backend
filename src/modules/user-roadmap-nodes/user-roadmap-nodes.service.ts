@@ -12,7 +12,7 @@ import {
 import { Conversation, ConversationDocument } from "../conversations/schemas/conversation.schema";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { User, UserDocument } from "../user/entity/user.schema";
+import { User, UserDocument } from "../user/schema/user.schema";
 import generateRoadmap, { AiOutputRoadmap } from "../user-roadmaps/logic/generate-roadmap";
 @Injectable()
 export class UserRoadmapNodesService {
@@ -63,7 +63,7 @@ export class UserRoadmapNodesService {
 				node.children?.length > 0
 					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
 					: [];
-			
+
 			// Common node creation logic
 			let newNode: UserRoadmapNodeDocument;
 			if (isRoot || children.length > 0) {
@@ -71,7 +71,7 @@ export class UserRoadmapNodesService {
 					title: node.title,
 					children: children,
 					is_completed: false,
-					...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id
+					...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id and size
 				});
 			} else {
 				// If no children and not root, handle conversation node
