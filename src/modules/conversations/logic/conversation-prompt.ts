@@ -67,6 +67,6 @@ export const formattedPrompt = (
 	End the lesson by inviting user questions and answer them concisely.
 	
 	
-	Your overall response should be under 1500 tokens.
+	Your overall response should be under 1300 tokens.
 	`;
 };
