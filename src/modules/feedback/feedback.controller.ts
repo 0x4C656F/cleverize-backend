@@ -36,7 +36,6 @@ export class FeedbackController {
 		} else {
 			feedbackBody.roadmap_id = new Types.ObjectId(roadmap_id);
 		}
-		console.log(feedbackBody)
 		return await new this.model(feedbackBody).save();
 	}
 }
