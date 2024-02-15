@@ -28,7 +28,7 @@ export class FeedbackController {
 		
 		} = {
 			rating,
-			feedback,
+			feedback: feedback,
 			user_id: payload.sub,
 		};
 		if (conversation_id) {
@@ -36,6 +36,7 @@ export class FeedbackController {
 		} else {
 			feedbackBody.roadmap_id = new Types.ObjectId(roadmap_id);
 		}
+		console.log(feedbackBody)
 		return await new this.model(feedbackBody).save();
 	}
 }
