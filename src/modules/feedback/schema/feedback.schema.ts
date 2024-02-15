@@ -6,17 +6,19 @@ export class Feedback extends Document {
 	@Prop({ required: true })
 	user_id: string;
 
+  @Prop()
+	feedback: string;
+
+	@Prop({ type: Number, min: 0, max: 5, required: true })
+	rating: number;
+  
 	@Prop({ type: Types.ObjectId, ref: "Conversation" })
 	conversation_id?: Types.ObjectId;
 
 	@Prop({ type: Types.ObjectId, ref: "Roadmap" })
 	roadmap_id?: Types.ObjectId;
 
-	@Prop()
-	feedback: string;
 
-	@Prop({ type: Number, min: 0, max: 5, required: true })
-	rating: number;
 }
 
 export type FeedbackDocument = Feedback & Document;

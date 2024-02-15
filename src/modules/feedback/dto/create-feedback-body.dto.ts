@@ -1,10 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateFeedbackBodyDto {
+	@IsString()
 	@ApiProperty({ example: "I think that" })
 	public feedback: string;
-	
+
 	@IsNumber()
 	@IsNotEmpty()
 	@ApiProperty({ required: true })
