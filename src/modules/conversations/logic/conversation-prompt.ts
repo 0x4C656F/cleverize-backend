@@ -62,11 +62,11 @@ export const formattedPrompt = (
 	Lesson Structure:
 	- Introduction: Briefly introduce the topic and its relevance.
 	- Main Content: Explain the topic in detail with code examples.
-	- Test: End with a brief practical test with coding tasks based on learned material, if applicable.
+	- Test: End with a brief practical test with coding tasks based on learned material, if applicable. Note: Avoid using not learned material in the test(view roadmap above).
 
 	End the lesson by inviting user questions and answer them concisely.
 	
 	
-	Your overall response should be under 1500 tokens.
+	Your overall response should be under 1300 tokens.
 	`;
 };

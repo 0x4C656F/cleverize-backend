@@ -11,6 +11,7 @@ import { RoadmapTemplatesModule } from "./modules/roadmap-templates/roadmap-temp
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
 import { UserModule } from "./modules/user/user.module";
 import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadmap-nodes.module";
+import { FeedbackModule } from "./modules/feedback/feedback.module";
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadma
 		ConversationsModule,
 		UserRoadmapNodesModule,
 		SubscriptionsModule,
+		FeedbackModule,
 		RoadmapTemplatesModule,
 	],
 	controllers: [AppController],
