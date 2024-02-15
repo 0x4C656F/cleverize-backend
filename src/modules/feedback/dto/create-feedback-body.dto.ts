@@ -1,10 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, ValidateIf } from "class-validator";
+import { IsMongoId, IsNotEmpty, ValidateIf } from "class-validator";
 
 export class CreateFeedbackBodyDto {
+	@IsMongoId()
+	@ValidateIf((o: CreateFeedbackBodyDto) => !o.roadmap_id)
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
 	public conversation_id?: string;
 
+	@IsMongoId()
+	@ValidateIf((o: CreateFeedbackBodyDto) => !o.conversation_id)
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
 	public roadmap_id?: string;
 
