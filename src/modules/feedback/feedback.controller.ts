@@ -18,9 +18,16 @@ export class FeedbackController {
 		@Body() createFeedbackBodyDto: CreateFeedbackBodyDto,
 		@UserPayload() payload: JWTPayload
 	) {
+		const { conversation_id, roadmap_id, rating, feedback } = createFeedbackBodyDto;
+		if ((conversation_id && roadmap_id) || (!conversation_id && !roadmap_id)) {
+			throw new Error("Either conversation_id or roadmap_id must be provided, but not both.");
+		}
 		console.log(createFeedbackBodyDto)
 		return await new this.model({
-			...createFeedbackBodyDto,
+			conversation_id,
+			roadmap_id,
+			rating,
+			feedback,
 			user_id: payload.sub,
 		}).save();
 	}
