@@ -22,7 +22,7 @@ export class FeedbackController {
 		if ((conversation_id && roadmap_id) || (!conversation_id && !roadmap_id)) {
 			throw new Error("Either conversation_id or roadmap_id must be provided, but not both.");
 		}
-		console.log(createFeedbackBodyDto)
+		console.log(createFeedbackBodyDto);
 		return await new this.model({
 			conversation_id,
 			roadmap_id,
