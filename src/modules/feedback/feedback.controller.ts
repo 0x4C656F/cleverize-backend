@@ -18,6 +18,7 @@ export class FeedbackController {
 		@Body() createFeedbackBodyDto: CreateFeedbackBodyDto,
 		@UserPayload() payload: JWTPayload
 	) {
+		console.log(createFeedbackBodyDto)
 		return await new this.model({
 			rating: createFeedbackBodyDto.rating,
 			feedback: createFeedbackBodyDto.feedback,
