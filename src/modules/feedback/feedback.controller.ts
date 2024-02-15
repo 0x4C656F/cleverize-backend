@@ -19,7 +19,10 @@ export class FeedbackController {
 		@UserPayload() payload: JWTPayload
 	) {
 		return await new this.model({
-			...createFeedbackBodyDto,
+			rating: createFeedbackBodyDto.rating,
+			feedback: createFeedbackBodyDto.feedback,
+			conversation_id: createFeedbackBodyDto.conversation_id,
+			roadmap_id: createFeedbackBodyDto.roadmap_id,
 			user_id: payload.sub,
 		}).save();
 	}

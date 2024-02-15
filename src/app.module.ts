@@ -7,11 +7,11 @@ import { AppService } from "./app.service";
 import config from "./config/config";
 import { AuthorizationModule } from "./modules/authorization/authorization.module";
 import { ConversationsModule } from "./modules/conversations/conversations.module";
+import { FeedbackModule } from "./modules/feedback/feedback.module";
 import { RoadmapTemplatesModule } from "./modules/roadmap-templates/roadmap-templates.module";
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
 import { UserModule } from "./modules/user/user.module";
 import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadmap-nodes.module";
-import { FeedbackModule } from "./modules/feedback/feedback.module";
 
 @Module({
 	imports: [
