@@ -5,8 +5,8 @@ import { Validate, ValidatorConstraint, ValidatorConstraintInterface } from "cla
 export class IsEitherConversationOrRoadmapPresent implements ValidatorConstraintInterface {
 	validate(value: any): boolean {
 		const { conversation_id, roadmap_id } = value as {
-			conversation_id?: string;
-			roadmap_id?: string;
+			conversation_id: string | undefined;
+			roadmap_id: string | undefined;
 		};
 		return !!((conversation_id && !roadmap_id) || (!conversation_id && roadmap_id));
 	}
