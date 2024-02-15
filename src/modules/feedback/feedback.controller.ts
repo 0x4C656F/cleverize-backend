@@ -20,10 +20,7 @@ export class FeedbackController {
 	) {
 		console.log(createFeedbackBodyDto)
 		return await new this.model({
-			rating: createFeedbackBodyDto.rating,
-			feedback: createFeedbackBodyDto.feedback,
-			conversation_id: createFeedbackBodyDto.conversation_id,
-			roadmap_id: createFeedbackBodyDto.roadmap_id,
+			...createFeedbackBodyDto,
 			user_id: payload.sub,
 		}).save();
 	}

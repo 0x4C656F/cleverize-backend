@@ -22,10 +22,3 @@ export class Feedback extends Document {
 export type FeedbackDocument = Feedback & Document;
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);
 
-FeedbackSchema.pre('validate', function(next) {
-  if (!this.conversation_id && !this.roadmap_id) {
-    next(new Error('Either conversation_id or roadmap_id must be present'));
-  } else {
-    next();
-  }
-});
