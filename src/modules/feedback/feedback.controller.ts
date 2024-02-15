@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
@@ -19,16 +19,23 @@ export class FeedbackController {
 		@UserPayload() payload: JWTPayload
 	) {
 		const { conversation_id, roadmap_id, rating, feedback } = createFeedbackBodyDto;
-		if ((conversation_id && roadmap_id) || (!conversation_id && !roadmap_id)) {
-			throw new Error("Either conversation_id or roadmap_id must be provided, but not both.");
-		}
-		console.log(createFeedbackBodyDto);
-		return await new this.model({
-			conversation_id,
-			roadmap_id,
+		const feedbackBody: {
+			conversation_id?: Types.ObjectId;
+			roadmap_id?: Types.ObjectId;
+			rating: number;
+			feedback: string;
+			user_id: string;
+		
+		} = {
 			rating,
 			feedback,
 			user_id: payload.sub,
-		}).save();
+		};
+		if (conversation_id) {
+			feedbackBody.conversation_id = new Types.ObjectId(conversation_id);
+		} else {
+			feedbackBody.roadmap_id = new Types.ObjectId(roadmap_id);
+		}
+		return await new this.model(feedbackBody).save();
 	}
 }

@@ -3,13 +3,13 @@ import { Document, Types } from "mongoose";
 
 @Schema({ timestamps: true })
 export class Feedback extends Document {
-	@Prop({ type: Types.ObjectId, required: true })
-	user_id: Types.ObjectId;
+	@Prop({ required: true })
+	user_id: string;
 
 	@Prop({ type: Types.ObjectId, ref: "Conversation" })
 	conversation_id?: Types.ObjectId;
 
-	@Prop({ type: Types.ObjectId, ref: 'Roadmap' })
+	@Prop({ type: Types.ObjectId, ref: "Roadmap" })
 	roadmap_id?: Types.ObjectId;
 
 	@Prop()
