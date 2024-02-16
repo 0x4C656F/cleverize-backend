@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-import getConfig from "src/config/config";
+import getConfig, { Config } from "src/config/config";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitConversationByIdDto } from "./dto/init-conversation.dto";
@@ -26,14 +26,15 @@ import {
 @Injectable()
 export class ConversationsService {
 	private openai: OpenAI;
-
+	private config: Config;
 	constructor(
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
-		private readonly streamService: StreamService,
-		private readonly config = getConfig()
+		private readonly streamService: StreamService
 	) {
+		this.config = getConfig();
+
 		this.openai = new OpenAI({
 			apiKey: this.config.openai.levApiKey,
 		});
