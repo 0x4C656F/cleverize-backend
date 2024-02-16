@@ -13,8 +13,8 @@ export class Conversation {
 	@Prop({ type: Types.ObjectId, required: true })
 	public owner_id: string;
 
-	@Prop()
-	public node_title?: string;
+	@Prop({required: true})
+	public node_title: string;
 
 	@Prop()
 	public test_id?: string;

@@ -83,7 +83,7 @@ export class RoadmapTemplatesService {
 			} else {
 				// For nodes without children, create a conversation.
 				const newTestConversation = await new this.conversationModel({
-					node_title: node.title,
+					node_title: `Knowledge check for ${node.title}`,
 					messages: [],
 					owner_id: userId,
 				}).save();
