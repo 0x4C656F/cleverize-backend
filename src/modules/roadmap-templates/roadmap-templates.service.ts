@@ -58,7 +58,7 @@ export class RoadmapTemplatesService {
 			throw new NotFoundException("Template not found");
 		}
 		const copyAndSaveNode = async (node: TemplateRoadmapNodeDocument, parentId: string) => {
-			const childIds: string[] = []; // Initialize an array to hold the IDs of the current node's children.
+			const childIds: string[] = []; // An array to hold the IDs of the current node's children.
 
 			if (node.children && node.children.length > 0) {
 				for (const child of node.children) {
@@ -66,7 +66,7 @@ export class RoadmapTemplatesService {
 						title: child.title,
 						owner_id: userId,
 						is_completed: false,
-						parent_node_id: parentId, // This ensures the link to its immediate parent.
+						parent_node_id: parentId, 
 					});
 
 					const savedChild = await newUserRoadmapNode.save();
@@ -82,14 +82,20 @@ export class RoadmapTemplatesService {
 				});
 			} else {
 				// For nodes without children, create a conversation.
-				const newConversation = await new this.conversationModel({
+				const newTestConversation = await new this.conversationModel({
 					node_title: node.title,
-					node_id: node._id as string,
 					messages: [],
 					owner_id: userId,
 				}).save();
 
-				// Link the node with the created conversation. This should be the leaf node logic.
+				const newConversation = await new this.conversationModel({
+					node_title: node.title,
+					node_id: node._id as string,
+					messages: [],
+					test_id: newTestConversation._id as string,
+					owner_id: userId,
+				}).save();
+
 				await this.userRoadmapsModel.findByIdAndUpdate(parentId, {
 					$set: { conversation_id: newConversation._id as string },
 				});

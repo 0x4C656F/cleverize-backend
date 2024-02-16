@@ -1,13 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+
+import getConfig from "src/config/config";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitConversationByIdDto } from "./dto/init-conversation.dto";
+import getChildrenArray from "./helpers/get-children-array";
 import roadmapParser from "./helpers/roadmap-parser";
-import { formattedPrompt } from "./logic/conversation-prompt";
-import generateResponse from "./logic/generate-response";
-import generateAiLesson from "./logic/init-conversation";
+import { conversationPrompt } from "./prompts/conversation-prompt";
+import testPrompt from "./prompts/test-prompt";
 import { Conversation, ConversationDocument } from "./schemas/conversation.schema";
 import { StreamService } from "./stream.service";
 import {
@@ -19,34 +23,50 @@ import {
 	UserRoadmapNode,
 	UserRoadmapNodeDocument,
 } from "../user-roadmap-nodes/user-roadmap-nodes.schema";
-
 @Injectable()
 export class ConversationsService {
+	private openai: OpenAI;
+
 	constructor(
 		@InjectModel(Conversation.name) private readonly conversationModel: Model<ConversationDocument>,
 		@InjectModel(UserRoadmapNode.name) private readonly model: Model<UserRoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
-		private readonly streamService: StreamService
-	) {}
+		private readonly streamService: StreamService,
+		private readonly config = getConfig()
+	) {
+		this.openai = new OpenAI({
+			apiKey: this.config.openai.levApiKey,
+		});
+	}
 
 	public async addUserMessage(dto: AddUserMessageDto) {
 		const { conversationId, content, role, user_id } = dto;
+		this.streamService.closeStream(conversationId);
 		const conversation = await this.conversationModel.findById(conversationId);
+
 		conversation.messages.push({
 			role: role,
 			content: content,
 		});
-		let fullAiResponseString = "";
-		const completion = await generateResponse(conversation.messages);
-		for await (const part of completion) {
-			const text = part.choices[0].delta.content ?? "";
-			fullAiResponseString += text;
 
-			this.streamService.sendData(conversationId, fullAiResponseString);
+		let completeAiResponse = "";
+
+		const completion = await this.openai.chat.completions.create({
+			messages: conversation.messages as ChatCompletionMessageParam[],
+			model: "gpt-3.5-turbo-16k",
+			stream: true,
+			max_tokens: 2000,
+		});
+
+		for await (const part of completion) {
+			const textChunk = part.choices[0].delta.content ?? "";
+			completeAiResponse += textChunk;
+			this.streamService.sendData(conversationId, completeAiResponse);
 		}
+
 		conversation.messages.push({
 			role: "assistant",
-			content: fullAiResponseString,
+			content: completeAiResponse,
 		});
 
 		await conversation.save();
@@ -57,21 +77,40 @@ export class ConversationsService {
 
 	async initConversation(dto: InitConversationByIdDto): Promise<Conversation> {
 		const { conversationId, language, userRoadmapId, user_id } = dto;
+
 		const [userRoadmap] = await this.model.find({ _id: userRoadmapId });
-		const roadmapForAi = roadmapParser(userRoadmap);
+
 		try {
 			const conversation = await this.conversationModel.findById(conversationId);
-			if (conversation.messages.length > 0) {
-				return conversation;
+
+			if (conversation.messages.length > 0) return conversation;
+
+			let prompt: string;
+			if (conversation.test_id) {
+				const childrenTitlesArray = getChildrenArray(userRoadmap);
+				prompt = testPrompt(childrenTitlesArray, userRoadmap.title);
+			} else {
+				const roadmapForAi = roadmapParser(userRoadmap);
+				prompt = conversationPrompt(
+					language,
+					conversation.node_title,
+					roadmapForAi,
+					userRoadmap.title
+				);
 			}
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
-				const completion = await generateAiLesson(
-					conversation.node_title,
-					userRoadmap.title,
-					roadmapForAi,
-					language
-				);
+				const completion = await this.openai.chat.completions.create({
+					messages: [
+						{
+							role: "system",
+							content: prompt,
+						},
+					],
+					model: "gpt-3.5-turbo-1106",
+					stream: true,
+					max_tokens: 2000,
+				});
 				for await (const part of completion) {
 					const chunk = part.choices[0].delta.content ?? "";
 					fullAiResponseString += chunk;
@@ -82,16 +121,21 @@ export class ConversationsService {
 				} else {
 					const message = {
 						role: "system",
-						content: formattedPrompt(
-							language,
-							conversation.node_title,
-							roadmapForAi,
-							userRoadmap.title
-						),
+						content: prompt,
 					};
-					conversation.messages.push(message, { role: "assistant", content: fullAiResponseString });
+					await this.model.findByIdAndUpdate(conversation.node_id, {
+						$set: { is_completed: true },
+					});
+
+					conversation.messages.push(message, {
+						role: "assistant",
+						content: fullAiResponseString,
+					});
+
 					this.streamService.closeStream(conversationId);
-					void this.subscriptionsService.deductCredits(user_id, INIT_CONVERSATION_CREDIT_COST);
+
+					await this.subscriptionsService.deductCredits(user_id, INIT_CONVERSATION_CREDIT_COST);
+
 					return await conversation.save();
 				}
 			};
@@ -102,3 +146,8 @@ export class ConversationsService {
 		}
 	}
 }
+
+//TODO + Make a test-conversation with each conversation in user-roadmap-nodes;
+//TODO + Make a prompt for test-conversation;
+//TODO + Add test-conversation generation to template roadmaps;
+//TODO + Make check for test_id on init conversation

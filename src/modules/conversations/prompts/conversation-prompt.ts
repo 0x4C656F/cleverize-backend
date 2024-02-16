@@ -1,6 +1,6 @@
 import { AiOutputRoadmap } from "src/modules/user-roadmaps/logic/generate-roadmap";
 
-export const formattedPrompt = (
+export const conversationPrompt = (
 	language: "russian" | "english",
 	lessonTitle: string,
 	roadmap: AiOutputRoadmap[],
@@ -49,8 +49,7 @@ export const formattedPrompt = (
 
 	Lesson Format:
 	- Language: ${language}
-	- Length: Under 1300 tokens
-	- Include coding practical mini-tasks based on learned material for user testing (Do not provide answers unless the user explicitly asks you to).
+	- Length: Under 1000 tokens
 
 
 
@@ -60,13 +59,12 @@ export const formattedPrompt = (
 	- Use lists and emphasis (bold/italics) where appropriate.
 
 	Lesson Structure:
-	- Introduction: Briefly introduce the topic and its relevance.
+	- Introduction: Very shortly introduce the topic and its relevance.
 	- Main Content: Explain the topic in detail with code examples.
-	- Test: End with a brief practical test with coding tasks based on learned material, if applicable. Note: Avoid using not learned material in the test(view roadmap above).
 
 	End the lesson by inviting user questions and answer them concisely.
 	
 	
-	Your overall response should be under 1300 tokens.
+	Your overall response should be under 1000 tokens.
 	`;
 };

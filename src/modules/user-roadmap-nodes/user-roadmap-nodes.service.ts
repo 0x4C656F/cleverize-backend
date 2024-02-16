@@ -58,7 +58,6 @@ export class UserRoadmapNodesService {
 			node: AiOutputRoadmap,
 			isRoot: boolean
 		): Promise<UserRoadmapNode> {
-			// Process children nodes recursively
 			const children =
 				node.children?.length > 0
 					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
@@ -75,28 +74,29 @@ export class UserRoadmapNodesService {
 				});
 			} else {
 				// If no children and not root, handle conversation node
+				newNode = await new model({
+					conversation_id: "_",
+					title: node.title,
+					is_completed: false,
+					children: [],
+				}).save();
+
+				const testConversation = await new conversationModel({
+					node_title: node.title,
+					messages: [],
+					owner_id: userId,
+				}).save();
+
 				const conversation = new conversationModel({
 					node_title: node.title,
 					messages: [],
 					owner_id: userId,
-					node_id: "_",
+					test_id: testConversation._id as string,
+					node_id: newNode._id as string,
 				});
 				await conversation.save(); // Save conversation first to use its ID
-				newNode = new model({
-					conversation_id: conversation._id as string,
-					title: node.title,
-					is_completed: false,
-					children: [], // Explicitly set empty children for clarity
-				});
-				conversation.node_id = newNode._id as string; // Set conversation node_id
-				await conversation.save(); // Save conversation with node_id
-			}
-
-			try {
-				await newNode.save(); // Save the new or updated node
-			} catch (error) {
-				Logger.error(error);
-				throw error; // Consider centralized error handling outside this function
+				newNode.conversation_id = conversation._id as string; // Set conversation node_id
+				await newNode.save(); // Save conversation with node_id
 			}
 
 			return newNode;
