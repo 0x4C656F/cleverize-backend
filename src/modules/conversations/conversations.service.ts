@@ -90,6 +90,7 @@ export class ConversationsService {
 			if (conversation.test_id) {
 				const childrenTitlesArray = getChildrenArray(userRoadmap);
 				prompt = testPrompt(childrenTitlesArray, userRoadmap.title);
+				console.log("Inited test conversation with prompt on:", conversation.test_id, prompt);
 			} else {
 				const roadmapForAi = roadmapParser(userRoadmap);
 				prompt = conversationPrompt(
@@ -98,6 +99,7 @@ export class ConversationsService {
 					roadmapForAi,
 					userRoadmap.title
 				);
+				console.log("Inited conversation with prompt:", conversation.test_id, prompt);
 			}
 			const fullAiResponse = async () => {
 				let fullAiResponseString: string = "";
