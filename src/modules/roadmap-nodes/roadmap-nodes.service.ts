@@ -42,8 +42,6 @@ export class RoadmapNodesService {
 
 			await this.saveRoadmap(rootRoadmap, user_id, size, (roadmap) => {
 				user.roadmaps.push(roadmap._id);
-				console.log(roadmap);
-
 				void user.save();
 			});
 			void this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST);
@@ -68,9 +66,8 @@ export class RoadmapNodesService {
 					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
 					: [];
 
-			// Common node creation logic
 			let newNode: RoadmapNodeDocument;
-			if (isRoot || children.length > 0) {
+			if (children.length > 0) {
 				newNode = await new model({
 					title: node.title,
 					children: children,
