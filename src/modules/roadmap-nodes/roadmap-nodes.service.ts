@@ -40,11 +40,12 @@ export class RoadmapNodesService {
 
 			const rootRoadmap = await this.generateRoadmap(title, size);
 
-			const roadmap = await this.saveRoadmap(rootRoadmap, user_id, size, () => {
+			 await this.saveRoadmap(rootRoadmap, user_id, size, (roadmap) => {
 				user.roadmaps.push(roadmap._id);
+			console.log(roadmap);
+
 				void user.save();
 			});
-			console.log(roadmap);
 			void this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST);
 		} catch (error) {
 			Logger.error(error);
