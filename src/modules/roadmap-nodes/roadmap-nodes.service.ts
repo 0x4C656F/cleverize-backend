@@ -40,9 +40,9 @@ export class RoadmapNodesService {
 
 			const rootRoadmap = await this.generateRoadmap(title, size);
 
-			 await this.saveRoadmap(rootRoadmap, user_id, size, (roadmap) => {
+			await this.saveRoadmap(rootRoadmap, user_id, size, (roadmap) => {
 				user.roadmaps.push(roadmap._id);
-			console.log(roadmap);
+				console.log(roadmap);
 
 				void user.save();
 			});
@@ -71,12 +71,12 @@ export class RoadmapNodesService {
 			// Common node creation logic
 			let newNode: RoadmapNodeDocument;
 			if (isRoot || children.length > 0) {
-				newNode = new model({
+				newNode = await new model({
 					title: node.title,
 					children: children,
 					is_completed: false,
 					...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id and size
-				});
+				}).save();
 			} else {
 				// If no children and not root, handle lesson node
 				newNode = await new model({
