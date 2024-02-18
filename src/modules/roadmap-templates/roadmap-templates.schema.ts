@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { RoadmapSize } from "../user-roadmap-nodes/user-roadmap-nodes.schema";
+import { RoadmapSize } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 
 export const TemplateRoadmapNodesCollectionName = "template_roadmap_nodes";
 
@@ -16,7 +16,7 @@ export class TemplateRoadmapNode {
 	public title: string;
 
 	@Prop({ ref: "TemplateConversation" })
-	public conversation_id?: string;
+	public lesson_id?: string;
 
 	@Prop({ required: true, type: [Types.ObjectId], ref: TemplateRoadmapNode.name, index: true })
 	public children: TemplateRoadmapNode[];

@@ -6,12 +6,13 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import config from "./config/config";
 import { AuthorizationModule } from "./modules/authorization/authorization.module";
-import { ConversationsModule } from "./modules/conversations/conversations.module";
 import { FeedbackModule } from "./modules/feedback/feedback.module";
+import { LessonModule } from "./modules/lessons/lessons.module";
+import { QuizzesModule } from "./modules/quizzes/quizzes.module";
+import { RoadmapNodesModule } from "./modules/roadmap-nodes/roadmap-nodes.module";
 import { RoadmapTemplatesModule } from "./modules/roadmap-templates/roadmap-templates.module";
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
 import { UserModule } from "./modules/user/user.module";
-import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadmap-nodes.module";
 
 @Module({
 	imports: [
@@ -22,11 +23,12 @@ import { UserRoadmapNodesModule } from "./modules/user-roadmap-nodes/user-roadma
 		MongooseModule.forRoot(process.env.MONGODB_URI),
 		AuthorizationModule,
 		UserModule,
-		ConversationsModule,
-		UserRoadmapNodesModule,
+		LessonModule,
+		RoadmapNodesModule,
 		SubscriptionsModule,
 		FeedbackModule,
 		RoadmapTemplatesModule,
+		QuizzesModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

@@ -1,18 +1,12 @@
 import { users } from "@clerk/clerk-sdk-node";
 import { Controller, Post, Get, Param, UseGuards, Req, RawBodyRequest } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { AuthGuard } from "@nestjs/passport";
-import { Model } from "mongoose";
 
-import { User, UserDocument } from "./schema/user.schema";
 import { UserService } from "./user.service";
 
 @Controller("/users")
 export class UserController {
-	constructor(
-		private readonly userService: UserService,
-		@InjectModel(User.name) private readonly userModel: Model<UserDocument>
-	) {}
+	constructor(private readonly userService: UserService) {}
 
 	@Post()
 	async upsertUser(@Req() request: RawBodyRequest<Request>): Promise<any> {

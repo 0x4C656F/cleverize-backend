@@ -10,11 +10,6 @@ import config from "./config/config";
 async function bootstrap() {
 	const { port } = config();
 
-	// const swaggerConfig = new DocumentBuilder()
-	// 	.setTitle("Veritech backend documentation")
-	// 	.setVersion("1.0.0")
-	// 	.addBearerAuth()
-	// 	.build();
 
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		rawBody: true,
@@ -25,6 +20,14 @@ async function bootstrap() {
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	app.enableCors();
+
+
+	// const swaggerConfig = new DocumentBuilder()
+	// 	.setTitle("Veritech backend documentation")
+	// 	.setVersion("1.0.0")
+	// 	.addBearerAuth()
+	// 	.build();
+
 	// const document = SwaggerModule.createDocument(app, swaggerConfig);
 	// SwaggerModule.setup("/api/docs", app, document);
 

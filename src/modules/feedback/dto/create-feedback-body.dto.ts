@@ -14,14 +14,14 @@ export class CreateFeedbackBodyDto {
 	@ApiProperty({
 		example: "507f191e810c19729de860ea",
 		description:
-			"Identifier for the conversation. Either conversation_id or roadmap_id must be provided, but not both.",
+			"Identifier for the lesson. Either lesson_id or roadmap_id must be provided, but not both.",
 	})
-	public conversation_id?: string;
+	public lesson_id?: string;
 
 	@ApiProperty({
 		example: "507f191e810c19729de860ea",
 		description:
-			"Identifier for the roadmap. Either roadmap_id or conversation_id must be provided, but not both.",
+			"Identifier for the roadmap. Either roadmap_id or lesson_id must be provided, but not both.",
 	})
 	public roadmap_id?: string;
 }

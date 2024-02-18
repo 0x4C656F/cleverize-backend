@@ -44,6 +44,6 @@ export class RoadmapTemplatesController {
 		@Param("id") id: string,
 		@UserPayload() payload: JWTPayload
 	) {
-		return await this.service.copyTemplateToUserRoadmap(id, payload.sub);
+		return await this.service.copyTemplateToUser(id, payload.sub);
 	}
 }

@@ -1,7 +1,7 @@
 import { Type } from "class-transformer";
 import { IsArray, IsString, ValidateNested } from "class-validator";
 
-import { RoadmapSize } from "src/modules/user-roadmap-nodes/user-roadmap-nodes.schema";
+import { RoadmapSize } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
 
 export class TemplateObjectNode {
 	@IsString()
@@ -12,7 +12,7 @@ export class TemplateObjectNode {
 	public children?: TemplateObjectNode[];
 	public _id?: string;
 	// @ValidateNested({ each: true })
-	// public conversation_id?: string;
+	// public lesson_id?: string;
 }
 
 export class SaveTemplateObjectDto extends TemplateObjectNode {

@@ -4,19 +4,16 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { RoadmapTemplatesController } from "./roadmap-templates.controller";
 import { TemplateRoadmapNode, TemplateRoadmapNodeSchema } from "./roadmap-templates.schema";
 import { RoadmapTemplatesService } from "./roadmap-templates.service";
-import { Conversation, ConversationSchema } from "../conversations/schemas/conversation.schema";
+import { Lesson, LessonSchema } from "../lessons/schema/lesson.schema";
+import { RoadmapNode, RoadmapNodeSchema } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { User, UserSchema } from "../user/schema/user.schema";
-import {
-	UserRoadmapNode,
-	UserRoadmapNodeSchema,
-} from "../user-roadmap-nodes/user-roadmap-nodes.schema";
 
 @Module({
 	imports: [
 		MongooseModule.forFeature([
 			{ name: TemplateRoadmapNode.name, schema: TemplateRoadmapNodeSchema },
-			{ name: UserRoadmapNode.name, schema: UserRoadmapNodeSchema },
-			{ name: Conversation.name, schema: ConversationSchema },
+			{ name: RoadmapNode.name, schema: RoadmapNodeSchema },
+			{ name: Lesson.name, schema: LessonSchema },
 			{ name: User.name, schema: UserSchema },
 		]),
 	],

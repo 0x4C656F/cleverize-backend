@@ -18,21 +18,20 @@ export class FeedbackController {
 		@Body() createFeedbackBodyDto: CreateFeedbackBodyDto,
 		@UserPayload() payload: JWTPayload
 	) {
-		const { conversation_id, roadmap_id, rating, feedback } = createFeedbackBodyDto;
+		const { lesson_id, roadmap_id, rating, feedback } = createFeedbackBodyDto;
 		const feedbackBody: {
-			conversation_id?: Types.ObjectId;
+			lesson_id?: Types.ObjectId;
 			roadmap_id?: Types.ObjectId;
 			rating: number;
 			feedback: string;
 			user_id: string;
-		
 		} = {
 			rating,
 			feedback: feedback,
 			user_id: payload.sub,
 		};
-		if (conversation_id) {
-			feedbackBody.conversation_id = new Types.ObjectId(conversation_id);
+		if (lesson_id) {
+			feedbackBody.lesson_id = new Types.ObjectId(lesson_id);
 		} else {
 			feedbackBody.roadmap_id = new Types.ObjectId(roadmap_id);
 		}

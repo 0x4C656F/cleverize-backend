@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
+import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
 import { Subscription, subscriptionDefaultObject } from "src/modules/subscriptions/subscription";
 
 @Schema()
@@ -10,11 +11,8 @@ export class User {
 	@Prop({})
 	public user_id: string;
 
-	@Prop({ type: [{ type: Types.ObjectId, ref: "UserRoadmap" }] })
+	@Prop({ type: [{ type: Types.ObjectId, ref: RoadmapNodesCollectionName }] })
 	public roadmaps: Types.ObjectId[];
-
-	@Prop({ type: [{ type: Types.ObjectId }] })
-	public achievements: Types.ObjectId[];
 
 	@Prop({ type: Subscription, default: subscriptionDefaultObject })
 	public subscription: Subscription;
