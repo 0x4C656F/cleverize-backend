@@ -21,8 +21,11 @@ export class RoadmapNode {
 	@Prop({ type: String, enum: RoadmapSize })
 	public size: RoadmapSize;
 
-	@Prop()
-	public lesson_id?: string;
+	@Prop({type: String, ref:"Lesson"})
+	public lesson_id?: string
+
+	@Prop({type: String, ref:"Quiz"})
+	public quiz_id?: string;
 
 	@Prop({ required: true })
 	public title: string;

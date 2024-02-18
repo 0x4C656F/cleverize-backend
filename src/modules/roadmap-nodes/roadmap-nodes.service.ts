@@ -13,6 +13,7 @@ import {
 import { RawRoadmap } from "./types/raw-roadmap";
 import getConfig from "../../config/config";
 import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
+import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
 import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
 import smallTemplate from "../roadmap-nodes/prompts/sm-roadmap.prompt";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
@@ -25,6 +26,7 @@ export class RoadmapNodesService {
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(RoadmapNode.name) private readonly model: Model<RoadmapNodeDocument>,
 		@InjectModel(Lesson.name) private readonly lessonModel: Model<LessonDocument>,
+		@InjectModel(Quiz.name) private readonly quizModel: Model<QuizDocument>,
 		private readonly subscriptionsService: SubscriptionsService
 	) {}
 
@@ -58,7 +60,7 @@ export class RoadmapNodesService {
 	): Promise<RoadmapNode> {
 		const model = this.model;
 		const lessonModel = this.lessonModel;
-
+		const quizModel = this.quizModel;
 		async function roadmapNodeSaver(node: RawRoadmap, isRoot: boolean): Promise<RoadmapNode> {
 			const children =
 				node.children?.length > 0
@@ -77,27 +79,26 @@ export class RoadmapNodesService {
 			} else {
 				// If no children and not root, handle lesson node
 				newNode = await new model({
-					lesson_id: "_",
 					title: node.title,
 					is_completed: false,
 					children: [],
 				}).save();
 
-				const testConversation = await new lessonModel({
-					node_title: node.title,
+				const quiz = await new quizModel({
+					title: `Quiz: ${node.title}`,
 					messages: [],
-					owner_id: userId,
+					node_id: newNode._id as string,
 				}).save();
 
-				const lesson = new lessonModel({
+				const lesson = await new lessonModel({
 					title: node.title,
 					messages: [],
-					owner_id: userId,
-					test_id: testConversation._id as string,
 					node_id: newNode._id as string,
-				});
-				await lesson.save(); // Save lesson first to use its ID
-				newNode.lesson_id = lesson._id as string; // Set lesson node_id
+				}).save();
+
+				newNode.lesson_id = lesson._id as string;
+				newNode.quiz_id = quiz._id as string;
+
 				await newNode.save(); // Save lesson with node_id
 			}
 
