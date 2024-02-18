@@ -40,13 +40,11 @@ export class RoadmapNodesService {
 
 			const rootRoadmap = await this.generateRoadmap(title, size);
 
-			const roadmap = await this.saveRoadmap(rootRoadmap, user_id, size);
-
-			user.roadmaps.push(roadmap._id);
-
-			await user.save();
-			void (await this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST));
-			return user;
+			const roadmap = await this.saveRoadmap(rootRoadmap, user_id, size,  ()=>{
+				user.roadmaps.push(roadmap._id);
+				void user.save();
+			});
+			void this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST);
 		} catch (error) {
 			Logger.error(error);
 			throw error;
@@ -56,7 +54,8 @@ export class RoadmapNodesService {
 	private async saveRoadmap(
 		firstNode: RawRoadmap,
 		userId: string,
-		size: RoadmapSize
+		size: RoadmapSize,
+		callback: (roadmap: RoadmapNode) => void
 	): Promise<RoadmapNode> {
 		const model = this.model;
 		const lessonModel = this.lessonModel;
@@ -104,8 +103,9 @@ export class RoadmapNodesService {
 
 			return newNode;
 		}
-
-		return await roadmapNodeSaver(firstNode, true);
+		const roadmap = await roadmapNodeSaver(firstNode, true);
+		callback(roadmap);
+		return roadmap;
 	}
 
 	public async getRoadmapNodeById(id: string) {

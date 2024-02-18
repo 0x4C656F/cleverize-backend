@@ -5,9 +5,9 @@ import { RoadmapNodesController } from "./roadmap-nodes.controller";
 import { RoadmapNodesService } from "./roadmap-nodes.service";
 import { RoadmapNode, RoadmapNodeSchema } from "./schema/roadmap-nodes.schema";
 import { Lesson, LessonSchema } from "../lessons/schema/lesson.schema";
+import { Quiz, QuizSchema } from "../quizzes/schema/quiz.schema";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserSchema } from "../user/schema/user.schema";
-import { Quiz, QuizSchema } from "../quizzes/schema/quiz.schema";
 
 @Module({
 	imports: [
@@ -15,7 +15,7 @@ import { Quiz, QuizSchema } from "../quizzes/schema/quiz.schema";
 			{ name: RoadmapNode.name, schema: RoadmapNodeSchema },
 			{ name: User.name, schema: UserSchema },
 			{ name: Lesson.name, schema: LessonSchema },
-			{name: Quiz.name, schema: QuizSchema}
+			{ name: Quiz.name, schema: QuizSchema },
 		]),
 	],
 	controllers: [RoadmapNodesController],
