@@ -5,10 +5,11 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 import { StreamService } from "src/common/stream.service";
-import getConfig, { Config } from "src/config/config";
+import getConfig from "src/config/config";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitQuizByIdDto } from "./dto/init-quiz-by-id.dto";
+import RestartQuizByIdDto from "./dto/restart-quiz-by-id.dto";
 import getChildrenArray from "./helpers/get-children-array";
 import quizPrompt from "./prompts/quiz.prompt";
 import { Quiz, QuizDocument } from "./schema/quiz.schema";
@@ -18,7 +19,6 @@ import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 @Injectable()
 export class QuizzesService {
 	private openai: OpenAI;
-	private config: Config;
 	constructor(
 		@InjectModel(Quiz.name) private readonly model: Model<QuizDocument>,
 		@InjectModel(RoadmapNode.name)
@@ -26,14 +26,12 @@ export class QuizzesService {
 		private readonly subscriptionsService: SubscriptionsService,
 		private readonly streamService: StreamService
 	) {
-		this.config = getConfig();
-
 		this.openai = new OpenAI({
-			apiKey: this.config.openai.levApiKey,
+			apiKey: getConfig().openai.levApiKey,
 		});
 	}
 
-	public async addUserMessage(dto: AddUserMessageDto): Promise<Quiz> {
+	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
 		const { quizId, content, role, user_id } = dto;
 		this.streamService.closeStream(quizId);
 		const quiz = await this.model.findById(quizId);
@@ -65,24 +63,33 @@ export class QuizzesService {
 
 		this.streamService.closeStream(quizId);
 		void this.subscriptionsService.deductCredits(user_id, ADD_MESSAGE_CREDIT_COST);
-		return await quiz.save();
+		await quiz.save();
 	}
 
-	public async initQuiz(dto: InitQuizByIdDto): Promise<Quiz> {
+	public async restartQuiz(dto: RestartQuizByIdDto) {
+		const { quizId } = dto;
+		const quiz = await this.model.findById(quizId);
+		quiz.messages = quiz.messages.slice(1);
+		await quiz.save();
+	}
+	
+	public async initQuiz(dto: InitQuizByIdDto): Promise<void> {
 		const { quizId, language, roadmapId, user_id } = dto;
 
 		const [roadmap] = await this.roadmapModel.find({ _id: roadmapId });
 
 		try {
 			const quiz = await this.model.findById(quizId);
-			if(!quiz) throw new NotFoundException("Quiz not found");
-			if (quiz.messages.length > 0) return quiz;
+
+			if (!quiz) throw new NotFoundException("Quiz not found");
+
+			if (quiz.messages.length > 0) return;
 
 			const arrayOfChildren = getChildrenArray(roadmap);
 
 			const prompt = quizPrompt(arrayOfChildren, language, roadmap.title);
 
-			let fullAiResponseString: string = "";
+			let completeAiResponseString: string = "";
 			const completion = await this.openai.chat.completions.create({
 				messages: [
 					{
@@ -94,10 +101,11 @@ export class QuizzesService {
 				stream: true,
 				max_tokens: 2000,
 			});
+
 			for await (const part of completion) {
 				const chunk = part.choices[0].delta.content ?? "";
-				fullAiResponseString += chunk;
-				this.streamService.sendData(quizId, fullAiResponseString);
+				completeAiResponseString += chunk;
+				this.streamService.sendData(quizId, completeAiResponseString);
 			}
 
 			const systemMessage = {
@@ -106,7 +114,7 @@ export class QuizzesService {
 			};
 			const assistantMessage = {
 				role: "assistant",
-				content: fullAiResponseString,
+				content: completeAiResponseString,
 			};
 
 			await this.model.findByIdAndUpdate(quiz.node_id, {

@@ -60,6 +60,7 @@ export class RoadmapNodesService {
 		const model = this.model;
 		const lessonModel = this.lessonModel;
 		const quizModel = this.quizModel;
+		const childrenTitles: string[] = []
 		async function roadmapNodeSaver(node: RawRoadmap, isRoot: boolean): Promise<RoadmapNode> {
 			const children =
 				node.children?.length > 0
@@ -81,10 +82,11 @@ export class RoadmapNodesService {
 					is_completed: false,
 					children: [],
 				}).save();
-
+				childrenTitles.push(node.title)
 				const quiz = await new quizModel({
 					title: `Quiz: ${node.title}`,
 					messages: [],
+					covered_material: childrenTitles,
 					node_id: newNode._id as string,
 				}).save();
 

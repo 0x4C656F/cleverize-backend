@@ -63,7 +63,7 @@ export class LessonController {
 		void this.service.initLesson(Object.assign(dto, parameters, { user_id: payload.sub }));
 	}
 
-	@Sse(":lessonId/stream")
+	@Sse("/:lessonId/stream")
 	stream(@Param("lessonId") lessonId: string): Observable<MessageEvent> {
 		return new Observable((subscriber) => {
 			this.streamService.addSubscriber(lessonId, subscriber);
