@@ -60,29 +60,33 @@ export class RoadmapNodesService {
 		const model = this.model;
 		const lessonModel = this.lessonModel;
 		const quizModel = this.quizModel;
-		const childrenTitles: string[] = []
-		async function roadmapNodeSaver(node: RawRoadmap, isRoot: boolean): Promise<RoadmapNode> {
+		const childrenTitles: string[] = [];
+		async function roadmapNodeSaver(
+			node: RawRoadmap,
+			isRoot: boolean,
+			parent_node_id?: string
+		): Promise<RoadmapNode> {
+			const newNode = new model({
+				title: node.title,
+				is_completed: false,
+				children: [],
+				...(!isRoot && parent_node_id && { parent_node_id }),
+				...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id and size
+			});
 			const children =
 				node.children?.length > 0
-					? await Promise.all(node.children.map((childNode) => roadmapNodeSaver(childNode, false)))
+					? await Promise.all(
+							node.children.map((childNode) =>
+								roadmapNodeSaver(childNode, false, newNode._id as string)
+							)
+					  )
 					: [];
 
-			let newNode: RoadmapNodeDocument;
 			if (children.length > 0) {
-				newNode = await new model({
-					title: node.title,
-					children: children,
-					is_completed: false,
-					...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id and size
-				}).save();
+				newNode.children = children;
+				await newNode.save();
 			} else {
-				// If no children and not root, handle lesson node
-				newNode = await new model({
-					title: node.title,
-					is_completed: false,
-					children: [],
-				}).save();
-				childrenTitles.push(node.title)
+				childrenTitles.push(node.title);
 				const quiz = await new quizModel({
 					title: `Quiz: ${node.title}`,
 					messages: [],

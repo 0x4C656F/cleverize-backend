@@ -5,6 +5,7 @@ import { Model, Types } from "mongoose";
 import { SaveTemplateObjectDto, TemplateObjectNode } from "./dto/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
 import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
+import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { User, UserDocument } from "../user/schema/user.schema";
 
@@ -18,7 +19,9 @@ export class RoadmapTemplatesService {
 		@InjectModel(Lesson.name)
 		private readonly lessonModel: Model<LessonDocument>,
 		@InjectModel(User.name)
-		private readonly userModel: Model<UserDocument>
+		private readonly userModel: Model<UserDocument>,
+		@InjectModel(Quiz.name)
+		private readonly quizModel: Model<QuizDocument>
 	) {}
 
 	public async saveTemplateObject(root: SaveTemplateObjectDto) {
@@ -56,7 +59,8 @@ export class RoadmapTemplatesService {
 		}
 		const copyAndSaveNode = async (node: TemplateRoadmapNodeDocument, parentId: string) => {
 			const childIds: string[] = []; // An array to hold the IDs of the current node's children.
-
+			const childrenTitles: string[] = []; // An array to hold the titles of the current node's children.
+			childrenTitles.push(node.title); // Add the current node's title to the array.
 			if (node.children && node.children.length > 0) {
 				for (const child of node.children) {
 					const newRoadmapNode = new this.roadmapsModel({
@@ -79,22 +83,20 @@ export class RoadmapTemplatesService {
 				});
 			} else {
 				// For nodes without children, create a lesson.
-				const newTestConversation = await new this.lessonModel({
-					node_title: `Knowledge check for ${node.title}`,
+				const newTestConversation = await new this.quizModel({
+					title: `Quiz: ${node.title}`,
 					messages: [],
-					owner_id: userId,
+					covered_material: childrenTitles,
 				}).save();
 
 				const newConversation = await new this.lessonModel({
-					node_title: node.title,
+					title: node.title,
 					node_id: node._id as string,
 					messages: [],
-					test_id: newTestConversation._id as string,
-					owner_id: userId,
 				}).save();
 
 				await this.roadmapsModel.findByIdAndUpdate(parentId, {
-					$set: { lesson_id: newConversation._id as string },
+					$set: { lesson_id: newConversation._id as string, quiz_id: newTestConversation._id as string},
 				});
 			}
 		};

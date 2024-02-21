@@ -5,6 +5,7 @@ import { RoadmapTemplatesController } from "./roadmap-templates.controller";
 import { TemplateRoadmapNode, TemplateRoadmapNodeSchema } from "./roadmap-templates.schema";
 import { RoadmapTemplatesService } from "./roadmap-templates.service";
 import { Lesson, LessonSchema } from "../lessons/schema/lesson.schema";
+import { Quiz, QuizSchema } from "../quizzes/schema/quiz.schema";
 import { RoadmapNode, RoadmapNodeSchema } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { User, UserSchema } from "../user/schema/user.schema";
 
@@ -15,6 +16,7 @@ import { User, UserSchema } from "../user/schema/user.schema";
 			{ name: RoadmapNode.name, schema: RoadmapNodeSchema },
 			{ name: Lesson.name, schema: LessonSchema },
 			{ name: User.name, schema: UserSchema },
+			{ name: Quiz.name, schema: QuizSchema },
 		]),
 	],
 	controllers: [RoadmapTemplatesController],
