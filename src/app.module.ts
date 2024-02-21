@@ -13,7 +13,6 @@ import { RoadmapNodesModule } from "./modules/roadmap-nodes/roadmap-nodes.module
 import { RoadmapTemplatesModule } from "./modules/roadmap-templates/roadmap-templates.module";
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
 import { UserModule } from "./modules/user/user.module";
-
 @Module({
 	imports: [
 		ConfigModule.forRoot({
