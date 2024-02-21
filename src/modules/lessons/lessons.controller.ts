@@ -37,16 +37,10 @@ export class LessonController {
 		private readonly streamService: StreamService
 	) {}
 
-	@ApiBearerAuth()
 	@UseGuards(AuthGuard("jwt"))
 	@Get("/:lessonId")
-	public async getConversationById(
-		@Param() parameters: OperateLessonByIdDto,
-		@UserPayload() payload: JWTPayload
-	) {
-		const lesson = await this.model
-			.findOne({ _id: parameters.lessonId, owner_id: payload.sub })
-			.exec();
+	public async getConversationById(@Param() parameters: OperateLessonByIdDto) {
+		const lesson = await this.model.findOne({ _id: parameters.lessonId }).exec();
 
 		if (!lesson) throw new NotFoundException();
 		return lesson;
@@ -79,9 +73,7 @@ export class LessonController {
 		@Body() dto: AddUserMessageBodyDto,
 		@UserPayload() payload: JWTPayload
 	) {
-		void this.service.addUserMessage(
-			Object.assign(dto, lessonId, { user_id: payload.sub })
-		);
+		void this.service.addUserMessage(Object.assign(dto, lessonId, { user_id: payload.sub }));
 	}
 
 	@ApiBearerAuth()
