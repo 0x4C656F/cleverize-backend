@@ -1,4 +1,3 @@
-# Use Node 18 Alpine for a lightweight image
 FROM node:18-alpine
 
 # Set the working directory in the container
@@ -13,8 +12,11 @@ RUN yarn install --frozen-lockfile
 # Bundle app source
 COPY . .
 
+RUN yarn build
+
+
 # Expose port 3000 for the application
-EXPOSE 3000
+EXPOSE 8000
 
 # Define the command to run the app
 CMD ["yarn", "run", "start:prod"]
