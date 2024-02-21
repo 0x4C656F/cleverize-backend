@@ -69,9 +69,9 @@ export class LessonsService {
 	}
 
 	async initLesson(dto: InitLessonByIdDto): Promise<Lesson> {
-		const { lessonId, language, roadmapId, user_id } = dto;
+		const { lessonId, language, roadmap_id, user_id } = dto;
 
-		const [roadmap] = await this.roadmapModel.find({ _id: roadmapId });
+		const [roadmap] = await this.roadmapModel.find({ _id: roadmap_id });
 
 		try {
 			const lesson = await this.model.findById(lessonId);
