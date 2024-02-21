@@ -1,65 +1,20 @@
-# ###################
-# # BUILD FOR LOCAL DEVELOPMENT
-# ###################
+# Use Node 18 Alpine for a lightweight image
+FROM node:18-alpine
 
-# FROM node:18-alpine As build_dev
-
-# WORKDIR /usr/src/app
-
-# COPY --chown=node:node package*.json ./
-# RUN yarn install --frozen-lockfile
-
-# COPY --chown=node:node . .
-
-# USER node
-
-# ###################
-# # BUILD FOR PRODUCTION
-# ###################
-
-FROM node:18-alpine As build
-
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
-RUN yarn install --frozen-lockfile --production && yarn cache clean
-RUN yarn globals add @nestjs/cli
-COPY --chown=node:node . .
+# Copy package.json and yarn.lock to leverage Docker cache
+COPY package.json yarn.lock ./
 
-USER node
+# Install project dependencies using Yarn
+RUN yarn install --frozen-lockfile
 
-###################
-# PRODUCTION
-###################
+# Bundle app source
+COPY . .
 
-FROM node:18-alpine As production
+# Expose port 3000 for the application
+EXPOSE 3000
 
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node . .
-
-ENV NODE_ENV production
-RUN yarn build
-
-EXPOSE 8000 80
-
-CMD ["yarn", "start"]
-
-
-###################
-# DEVELOPMENT
-###################
-
-# FROM node:18-alpine As development
-
-# WORKDIR /usr/src/app
-
-# COPY --chown=node:node package*.json ./
-# COPY --chown=node:node --from=build_dev /usr/src/app/node_modules ./node_modules
-# COPY --chown=node:node . .
-
-# ENV NODE_ENV development
-
-# EXPOSE 8000 80
-
-# CMD ["yarn", "start:dev"]
+# Define the command to run the app
+CMD ["yarn", "run", "start:prod"]
