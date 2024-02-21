@@ -1,21 +1,21 @@
-###################
-# BUILD FOR LOCAL DEVELOPMENT
-###################
+# ###################
+# # BUILD FOR LOCAL DEVELOPMENT
+# ###################
 
-FROM node:18-alpine As build_dev
+# FROM node:18-alpine As build_dev
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
-RUN yarn install --frozen-lockfile
+# COPY --chown=node:node package*.json ./
+# RUN yarn install --frozen-lockfile
 
-COPY --chown=node:node . .
+# COPY --chown=node:node . .
 
-USER node
+# USER node
 
-###################
-# BUILD FOR PRODUCTION
-###################
+# ###################
+# # BUILD FOR PRODUCTION
+# ###################
 
 FROM node:18-alpine As build
 
@@ -50,16 +50,16 @@ CMD ["yarn", "start"]
 # DEVELOPMENT
 ###################
 
-FROM node:18-alpine As development
+# FROM node:18-alpine As development
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node --from=build_dev /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node . .
+# COPY --chown=node:node package*.json ./
+# COPY --chown=node:node --from=build_dev /usr/src/app/node_modules ./node_modules
+# COPY --chown=node:node . .
 
-ENV NODE_ENV development
+# ENV NODE_ENV development
 
-EXPOSE 8000 80
+# EXPOSE 8000 80
 
-CMD ["yarn", "start:dev"]
+# CMD ["yarn", "start:dev"]
