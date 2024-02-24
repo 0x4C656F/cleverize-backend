@@ -86,6 +86,7 @@ export class RoadmapTemplatesService {
 				const newTestConversation = await new this.quizModel({
 					title: `Quiz: ${node.title}`,
 					messages: [],
+					node_id: node._id as string,
 					covered_material: childrenTitles,
 				}).save();
 
@@ -96,7 +97,10 @@ export class RoadmapTemplatesService {
 				}).save();
 
 				await this.roadmapsModel.findByIdAndUpdate(parentId, {
-					$set: { lesson_id: newConversation._id as string, quiz_id: newTestConversation._id as string},
+					$set: {
+						lesson_id: newConversation._id as string,
+						quiz_id: newTestConversation._id as string,
+					},
 				});
 			}
 		};

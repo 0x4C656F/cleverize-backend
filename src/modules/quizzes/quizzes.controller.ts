@@ -23,7 +23,6 @@ import { UserPayload, JWTPayload } from "src/common/user-payload.decorator";
 import { AddUserMessageBodyDto } from "./dto/add-user-message.dto";
 import { InitQuizByIdBodyDto } from "./dto/init-quiz-by-id.dto";
 import { OperateQuizByIdDto } from "./dto/operate-quiz-by-id.dto";
-import RestartQuizByIdDto from "./dto/restart-quiz-by-id.dto";
 import { QuizzesService } from "./quizzes.service";
 import { Quiz, QuizDocument } from "./schema/quiz.schema";
 import { StreamService } from "../../common/stream.service";
