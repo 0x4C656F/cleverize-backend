@@ -62,7 +62,7 @@ export const lessonPrompt = (
 	- Introduction: Very shortly introduce the topic and its relevance.
 	- Main Content: Explain the topic in detail with code examples.
 
-	End the lesson by inviting user questions and answer them concisely.
+	End the lesson by inviting user questions.
 	
 	
 	Your overall response should be under 1000 tokens.
