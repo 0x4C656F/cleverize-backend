@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateFeedbackBodyDto {
 	@IsString()
-	@ApiProperty({ example: "I think that" })
+	@ApiProperty({ example: "I think that..." })
 	public feedback: string;
 
 	@IsNumber()

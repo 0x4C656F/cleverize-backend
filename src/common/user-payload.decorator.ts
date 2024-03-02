@@ -2,6 +2,8 @@ import { ExecutionContext, createParamDecorator } from "@nestjs/common";
 
 export type JWTPayload = {
 	sub: string;
+	email: string;
+	name: string;
 };
 
 export const getUserPayload = (context: ExecutionContext) => {

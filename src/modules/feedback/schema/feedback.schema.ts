@@ -13,10 +13,10 @@ export class Feedback extends Document {
 	rating: number;
 
 	@Prop({ type: Types.ObjectId, ref: "Conversation" })
-	lesson_id?: Types.ObjectId;
+	lesson_id?: string;
 
 	@Prop({ type: Types.ObjectId, ref: "Roadmap" })
-	roadmap_id?: Types.ObjectId;
+	roadmap_id?: string;
 }
 
 export type FeedbackDocument = Feedback & Document;
