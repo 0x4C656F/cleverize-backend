@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-import { User } from "src/modules/user/schema/user.schema";
 
 export enum RoadmapSize {
 	SMALL = "sm",
@@ -15,16 +14,16 @@ export const RoadmapNodesCollectionName = "roadmap_nodes";
 export class RoadmapNode {
 	public _id: Types.ObjectId;
 
-	@Prop({ type: String, ref: "User" })
-	public owner_id: User;
+	@Prop({ type: String, ref: 'User' })
+	public owner_id: string;
 
 	@Prop({ type: String, enum: RoadmapSize })
 	public size: RoadmapSize;
 
-	@Prop({type: String, ref:"Lesson"})
-	public lesson_id?: string
+	@Prop({ type: String, ref: "Lesson" })
+	public lesson_id?: string;
 
-	@Prop({type: String, ref:"Quiz"})
+	@Prop({ type: String, ref: "Quiz" })
 	public quiz_id?: string;
 
 	@Prop({ required: true })

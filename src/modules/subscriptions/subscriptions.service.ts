@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
 import { Subscription } from "./subscription";
-import { User, UserDocument } from "../user/schema/user.schema";
+import { User, UserDocument } from "../users/schema/user.schema";
 
 @Injectable()
 export class SubscriptionsService {
@@ -30,7 +30,7 @@ export class SubscriptionsService {
 	// }
 
 	public async getSubscriptionData(id: string): Promise<Subscription> {
-		const user = await this.userModel.findOne({ user_id: id });
+		const user = await this.userModel.findById(id);
 		return user.subscription;
 	}
 

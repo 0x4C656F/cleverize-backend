@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 
 import { getUserPayload } from "src/common/user-payload.decorator";
 
-import { User, UserDocument } from "../user/schema/user.schema";
+import { User, UserDocument } from "../users/schema/user.schema";
 
 export const CreditsGuard = (expectedCredits: number) => {
 	class CreditsGuardMixin implements CanActivate {
@@ -12,7 +12,7 @@ export const CreditsGuard = (expectedCredits: number) => {
 
 		public async canActivate(context: ExecutionContext) {
 			const id = getUserPayload(context).sub;
-			const user = await this.userModel.findOne({ user_id: id });
+			const user = await this.userModel.findById(id);
 
 			return !!(user && user.subscription.credits >= expectedCredits);
 		}

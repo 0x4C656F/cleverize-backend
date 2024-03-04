@@ -2,14 +2,13 @@ import { Controller, Get, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import Stripe from "stripe";
 
-import { AppService } from "./app.service";
 import getConfig, { Config } from "./config/config";
 
 @Controller()
 export class AppController {
 	private readonly envvars: Config;
 
-	constructor(private readonly appService: AppService) {
+	constructor() {
 		this.envvars = getConfig();
 	}
 	@Get("/health")

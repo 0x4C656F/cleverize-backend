@@ -7,7 +7,7 @@ import { Lesson, LessonSchema } from "./schema/lesson.schema";
 import { StreamService } from "../../common/stream.service";
 import { RoadmapNode, RoadmapNodeSchema } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { User, UserSchema } from "../user/schema/user.schema";
+import { User, UserSchema } from "../users/schema/user.schema";
 
 @Module({
 	imports: [

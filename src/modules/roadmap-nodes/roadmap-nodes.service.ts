@@ -18,7 +18,7 @@ import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
 import smallTemplate from "../roadmap-nodes/prompts/sm-roadmap.prompt";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { User, UserDocument } from "../user/schema/user.schema";
+import { User, UserDocument } from "../users/schema/user.schema";
 @Injectable()
 export class RoadmapNodesService {
 	private openai = new OpenAI({ apiKey: getConfig().openai.dimaApiKey });

@@ -3,7 +3,6 @@ import { ConfigModule } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 
 import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import config from "./config/config";
 import { AuthModule } from "./modules/auth/auth.module";
 import { FeedbackModule } from "./modules/feedback/feedback.module";
@@ -12,7 +11,8 @@ import { QuizzesModule } from "./modules/quizzes/quizzes.module";
 import { RoadmapNodesModule } from "./modules/roadmap-nodes/roadmap-nodes.module";
 import { RoadmapTemplatesModule } from "./modules/roadmap-templates/roadmap-templates.module";
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
-import { UsersModule } from "./modules/user/users.module";
+import { UsersModule } from "./modules/users/users.module";
+
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -30,7 +30,5 @@ import { UsersModule } from "./modules/user/users.module";
 		AuthModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
-	exports: [],
 })
 export class AppModule {}

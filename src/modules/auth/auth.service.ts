@@ -1,4 +1,4 @@
-import { Injectable, Dependencies, ConflictException } from "@nestjs/common";
+import { Injectable, ConflictException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/mongoose";
 import { compare } from "bcrypt";
@@ -7,35 +7,32 @@ import { Model } from "mongoose";
 
 import { JWTPayload } from "src/common/user-payload.decorator";
 
-import { LoginUserDto } from "./dto/login-user.dto";
-import { RegisterUserDto } from "./dto/register-user.dto";
+import { SignInDto } from "./dto/sign-in.dto";
+import { SignUpDto } from "./dto/sign-up.dto";
 import { RefreshToken } from "./schema/refresh-token.schema";
 import { UsersService } from "../users/users.service";
 
 @Injectable()
-@Dependencies(UsersService)
 export class AuthService {
 	constructor(
 		private usersService: UsersService,
 		private jwtService: JwtService,
 		@InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshToken>
 	) {}
-	async registerUser(response: Response, dto: RegisterUserDto) {
-		const { email, password, name } = dto;
-		const user = await this.usersService.findByEmail(email);
+	async registerUser(response: Response, dto: SignUpDto) {
+		const user = await this.usersService.findByEmail(dto.email);
 		if (user) {
-			throw new ConflictException("User already exists");
+			throw new ConflictException("User with this email already exists");
 		}
-		const newUser = await this.usersService.createUser({ email, password, name });
-		const payload = { email: newUser.email, name: newUser.name, sub: newUser._id };
-		const access_token = this.jwtService.sign(payload);
-		const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d" });
-		response.cookie("access_token", access_token, { httpOnly: true });
+		const newUser = await this.usersService.createUser(dto);
+		const payload = { email: newUser.email, name: newUser.name, sub: newUser._id.toString() };
+		const { access_token, refresh_token } = await this.generateTokenPair(payload);
+		response.cookie("access_token", access_token);
 		response.cookie("refresh_token", refresh_token, { httpOnly: true });
 		return newUser;
 	}
 
-	async loginUser(response: Response, dto: LoginUserDto) {
+	async loginUser(response: Response, dto: SignInDto) {
 		const { email, password } = dto;
 		const user = await this.usersService.findByEmail(email);
 		if (!user || !(await compare(password, user.password)))
@@ -43,9 +40,14 @@ export class AuthService {
 
 		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
-		const { access_token, refresh_token } = this.generatePairOfTokens(payload);
-		response.cookie("access_token", access_token, { httpOnly: true });
-		response.cookie("refresh_token", refresh_token, { httpOnly: true });
+		const { access_token, refresh_token } = await this.generateTokenPair(payload);
+		response.cookie("access_token", access_token, {
+			maxAge: 1000 * 60 * 60 * 24 * 3,
+		});
+		response.cookie("refresh_token", refresh_token, {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24 * 7,
+		});
 		return user;
 	}
 
@@ -65,7 +67,7 @@ export class AuthService {
 		const newPayload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
 		const { access_token, refresh_token: new_refresh_token } =
-			this.generatePairOfTokens(newPayload);
+			await this.generateTokenPair(newPayload);
 
 		void this.refreshTokenModel.findOneAndUpdate(
 			{ token: refresh_token },
@@ -74,15 +76,22 @@ export class AuthService {
 			}
 		);
 
-		response.cookie("access_token", access_token, { httpOnly: true });
+		response.cookie("access_token", access_token);
 		response.cookie("refresh_token", new_refresh_token, { httpOnly: true });
 		return user;
 	}
 
-	private generatePairOfTokens(payload: JWTPayload) {
-		const access_token = this.jwtService.sign(payload);
-		const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d" });
-		void this.refreshTokenModel.create({ token: refresh_token, user_id: payload.sub });
+	async generateTokenPair(payload: JWTPayload): Promise<{
+		access_token: string;
+		refresh_token: string;
+	}> {
+		const access_token = this.jwtService.sign(payload, { secret: "nuts" });
+		const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d", secret: "nuts" });
+		await this.refreshTokenModel.create({
+			token: refresh_token,
+			user_id: payload.sub,
+			is_revoked: false,
+		});
 		return { access_token, refresh_token };
 	}
 }

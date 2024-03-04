@@ -7,7 +7,7 @@ import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-temp
 import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
 import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
-import { User, UserDocument } from "../user/schema/user.schema";
+import { User, UserDocument } from "../users/schema/user.schema";
 
 @Injectable()
 export class RoadmapTemplatesService {
@@ -128,7 +128,7 @@ export class RoadmapTemplatesService {
 			$set: { children: childIds },
 		});
 		await this.userModel.updateOne(
-			{ user_id: userId },
+			{ _id: userId },
 			{ $push: { roadmaps: savedRoot._id as Types.ObjectId } }
 		);
 		return savedRoot;
