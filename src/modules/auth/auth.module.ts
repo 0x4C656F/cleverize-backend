@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { JwtModule, JwtService } from "@nestjs/jwt";
+import { JwtService } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
 import { PassportModule } from "@nestjs/passport";
 
@@ -13,6 +13,8 @@ import { UsersService } from "../users/users.service";
 	controllers: [AuthController],
 	providers: [AuthService, UsersService, JwtService],
 	imports: [
+		PassportModule.register({ defaultStrategy: "jwt" }),
+
 		MongooseModule.forFeature([
 			{
 				name: User.name,
@@ -20,11 +22,6 @@ import { UsersService } from "../users/users.service";
 			},
 			{ name: RefreshToken.name, schema: RefreshTokenSchema },
 		]),
-		PassportModule.register({ defaultStrategy: "jwt" }),
-		JwtModule.register({
-			secret: process.env.JWT_SECRET,
-			global: true,
-		}),
 	],
 })
 export class AuthModule {}

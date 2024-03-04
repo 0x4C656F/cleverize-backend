@@ -1,27 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
-import getConfig from "src/config/config";
+import { JWTPayload } from "src/common/user-payload.decorator";
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor() {
 		super({
-			secretOrKeyProvider: passportJwtSecret({
-				cache: true,
-				rateLimit: true,
-				jwksRequestsPerMinute: 5,
-				jwksUri: `${getConfig().clerk.issuerUrl}/.well-known/jwks.json`,
-			}),
-
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-			issuer: getConfig().clerk.issuerUrl,
-			algorithms: ["RS256"],
+			ignoreExpiration: false,
+			secretOrKey: process.env.JWT_SECRET,
 		});
 	}
 
-	validate(payload: unknown): unknown {
-		return payload;
+	async validate(payload: JWTPayload): Promise<{ userId: string; name: string; email: string }> {
+		return { userId: payload.sub, name: payload.name, email: payload.email };
 	}
 }
