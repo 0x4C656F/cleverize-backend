@@ -14,7 +14,12 @@ export class AuthController {
 	@Post("sign-up")
 	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
 		const { access_token, refresh_token } = await this.authService.registerUser(response, dto);
-		response.cookie("access_token", access_token, { maxAge: 1000 * 60 * 60 * 24 * 3 });
+		response.cookie("access_token", access_token, {
+			sameSite: false,
+			secure: false,
+			httpOnly: false,
+			maxAge: 1000 * 60 * 60 * 24 * 3,
+		});
 		response.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 7,

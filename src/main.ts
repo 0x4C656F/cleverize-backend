@@ -19,7 +19,9 @@ async function bootstrap() {
 
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-	app.enableCors();
+	app.enableCors({
+		credentials: true,
+	});
 
 	// const swaggerConfig = new DocumentBuilder()
 	// 	.setTitle("Veritech backend documentation")
