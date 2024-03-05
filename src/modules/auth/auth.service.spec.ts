@@ -4,12 +4,13 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Response } from "express";
 import { Model, Types } from "mongoose";
 
+import { SUPPORTED_LANGUAGES } from "src/common/constants";
 import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { AuthService } from "./auth.service";
-import { SignUpDto } from "./dto/sign-up.dto";
 import { RefreshToken } from "./schema/refresh-token.schema";
 import { DEFAULT_CREDITS } from "../subscriptions/subscription";
+import { CreateUserDto } from "../users/dto/create-user.dto";
 import { User } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 
@@ -61,7 +62,7 @@ describe("AuthService", () => {
 		model = module.get<Model<RefreshToken>>(getModelToken(RefreshToken.name));
 	});
 	describe("sign-up", () => {
-		const dto: SignUpDto = { email: "test@test.com", name: "me", password: "password" };
+		const dto: CreateUserDto = { email: "test@test.com", name: "me", password: "password" };
 		const mockUser: User = {
 			email: dto.email,
 			name: dto.name,
@@ -69,6 +70,9 @@ describe("AuthService", () => {
 			password: dto.password,
 			refresh_tokens: [],
 			roadmaps: [],
+			metadata: {
+				language: SUPPORTED_LANGUAGES.ENGLISH,
+			},
 			subscription: {
 				is_trial_activated: false,
 				credits: DEFAULT_CREDITS,
@@ -77,9 +81,11 @@ describe("AuthService", () => {
 				stripe_customer_id: undefined,
 			},
 		};
+
 		const mockResponse: Response = {
 			cookie: jest.fn(),
 		} as unknown as Response;
+
 		it('should return user and set cookies with "access_token" and "refresh_token"', async () => {
 			const mockPayload: JWTPayload = {
 				email: dto.email,

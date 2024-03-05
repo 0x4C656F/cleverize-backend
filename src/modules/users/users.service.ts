@@ -5,10 +5,9 @@ import { Model } from "mongoose";
 
 import { SALT_ROUNDS } from "src/common/constants";
 
-import { User } from "./schema/user.schema";
-import { SignUpDto } from "../auth/dto/sign-up.dto";
-import { RefreshToken } from "../auth/schema/refresh-token.schema";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./schema/user.schema";
+import { RefreshToken } from "../auth/schema/refresh-token.schema";
 
 @Injectable()
 export class UsersService {
@@ -38,8 +37,10 @@ export class UsersService {
 	}
 
 	async update(userId: string, body: unknown) {
-		return this.userModel.findByIdAndUpdate(userId, {
-			$set: body,
-		}).exec();
+		return this.userModel
+			.findByIdAndUpdate(userId, {
+				$set: body,
+			})
+			.exec();
 	}
 }
