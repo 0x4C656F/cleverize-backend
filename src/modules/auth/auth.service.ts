@@ -31,13 +31,7 @@ export class AuthService {
 			name: newUser.name,
 			sub: newUser._id.toString(),
 		};
-		const { access_token, refresh_token } = await this.generateTokenPair(payload);
-		response.cookie("access_token", access_token, { maxAge: 1000 * 60 * 60 * 24 * 3 });
-		response.cookie("refresh_token", refresh_token, {
-			httpOnly: true,
-			maxAge: 1000 * 60 * 60 * 24 * 7,
-		});
-		response.send("User created");
+		return this.generateTokenPair(payload);
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
