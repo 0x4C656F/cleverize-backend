@@ -17,7 +17,7 @@ export class AuthController {
 	}
 
 	@Post("sign-in")
-	async signIn(@Res({ passthrough: true }) response: Response, @Body() dto: SignInDto) {
+	 signIn(@Res({ passthrough: true }) response: Response, @Body() dto: SignInDto) {
 		return this.authService.loginUser(response, dto);
 	}
 
@@ -27,7 +27,7 @@ export class AuthController {
 	}
 
 	@Post("refresh-token")
-	async refresh(
+	 refresh(
 		@Res({ passthrough: true }) response: Response,
 		@Cookies("refresh_token") token: string
 	) {
