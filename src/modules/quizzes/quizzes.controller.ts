@@ -13,7 +13,6 @@ import {
 	Patch,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { Model } from "mongoose";
 import { Observable } from "rxjs";
@@ -26,6 +25,7 @@ import { OperateQuizByIdDto } from "./dto/operate-quiz-by-id.dto";
 import { QuizzesService } from "./quizzes.service";
 import { Quiz, QuizDocument } from "./schema/quiz.schema";
 import { StreamService } from "../../common/stream.service";
+import { AuthGuard } from "../auth/auth.guard";
 import { CreditsGuard } from "../subscriptions/credits.guard";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 
@@ -38,7 +38,7 @@ export class QuizzesController {
 	) {}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard)
 	@Get("/:quizId")
 	async getQuizById(@Param() parameters: OperateQuizByIdDto, @UserPayload() payload: JWTPayload) {
 		const quiz = await this.model.findOne({ _id: parameters.quizId, owner_id: payload.sub }).exec();
@@ -48,7 +48,7 @@ export class QuizzesController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(INIT_LESSON_CREDIT_COST))
+	@UseGuards(AuthGuard, CreditsGuard(INIT_LESSON_CREDIT_COST))
 	@Post("/:quizId/init")
 	initQuiz(
 		@Body() dto: InitQuizByIdBodyDto,
@@ -65,7 +65,7 @@ export class QuizzesController {
 		});
 	}
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(ADD_MESSAGE_CREDIT_COST))
+	@UseGuards(AuthGuard, CreditsGuard(ADD_MESSAGE_CREDIT_COST))
 	@Put("/:lessonId/messages")
 	addMessage(
 		@Param() parameters: OperateQuizByIdDto,
@@ -76,13 +76,13 @@ export class QuizzesController {
 	}
 
 	@Patch(":lessonId")
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(1))
+	@UseGuards(AuthGuard, CreditsGuard(1))
 	restartQuizById(@Param("lessonId") id: string) {
 		void this.service.restartQuiz({ quizId: id });
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard)
 	@Delete("/:lessonId")
 	async deleteConversationById(
 		@Param() parameters: OperateQuizByIdDto,

@@ -27,20 +27,28 @@ export class AuthService {
 		const newUser = await this.usersService.createUser(dto);
 		const payload = { email: newUser.email, name: newUser.name, sub: newUser._id.toString() };
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
-		response.cookie("access_token", access_token);
-		response.cookie("refresh_token", refresh_token, { httpOnly: true });
+		response.cookie("access_token", access_token, { maxAge: 1000 * 60 * 60 * 24 * 3 });
+		response.cookie("refresh_token", refresh_token, {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24 * 7,
+		});
 		return newUser;
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
 		const { email, password } = dto;
 		const user = await this.usersService.findByEmail(email);
-		if (!user || !(await compare(password, user.password)))
-			throw new ConflictException("Invalid email or password");
+		if (!user) throw new ConflictException("Invalid email or password");
+		console.log(user, "user", password, "password", user.password, "user.password");
+
+		const isValidPassword = await compare(password, user.password);
+
+		if (!isValidPassword) throw new ConflictException("Invalid email or password");
 
 		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
+		console.log(access_token, "access_token", refresh_token, "refresh_token");
 		response.cookie("access_token", access_token, {
 			maxAge: 1000 * 60 * 60 * 24 * 3,
 		});
@@ -85,13 +93,20 @@ export class AuthService {
 		access_token: string;
 		refresh_token: string;
 	}> {
-		const access_token = this.jwtService.sign(payload, { secret: "nuts" });
-		const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d", secret: "nuts" });
-		await this.refreshTokenModel.create({
+		const access_token = await this.jwtService.signAsync(payload, {
+			expiresIn: "1h",
+			secret: process.env.JWT_SECRET,
+		});
+		const refresh_token = await this.jwtService.signAsync(payload, {
+			expiresIn: "7d",
+			secret: process.env.JWT_SECRET,
+		});
+		const createdToken = await this.refreshTokenModel.create({
 			token: refresh_token,
 			user_id: payload.sub,
 			is_revoked: false,
 		});
+		void this.usersService.addRefreshToken(payload.sub, createdToken);
 		return { access_token, refresh_token };
 	}
 }

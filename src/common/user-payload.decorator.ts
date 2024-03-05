@@ -12,6 +12,6 @@ export const getUserPayload = (context: ExecutionContext) => {
 	return request.user;
 };
 
-export const UserPayload = createParamDecorator((data: unknown, context: ExecutionContext) =>
+export const UserPayload = createParamDecorator((_data: unknown, context: ExecutionContext) =>
 	getUserPayload(context)
 );

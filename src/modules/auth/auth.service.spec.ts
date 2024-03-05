@@ -18,7 +18,7 @@ describe("AuthService", () => {
 	let usersService: UsersService;
 	let jwtService: JwtService;
 	let model: Model<RefreshToken>;
-	
+
 	const mockService = {
 		generateTokenPair: jest.fn(),
 	};
@@ -46,7 +46,7 @@ describe("AuthService", () => {
 					},
 				},
 				{
-					provide: getModelToken('User'),
+					provide: getModelToken("User"),
 					useValue: mockService,
 				},
 				{
@@ -128,9 +128,9 @@ describe("AuthService", () => {
 
 		it("should return pair of tokens", async () => {
 			jest
-				.spyOn(jwtService, "sign")
-				.mockReturnValueOnce(generatedPair.access_token)
-				.mockReturnValueOnce(generatedPair.refresh_token);
+				.spyOn(jwtService, "signAsync")
+				.mockReturnValueOnce(Promise.resolve(generatedPair.access_token))
+				.mockReturnValueOnce(Promise.resolve(generatedPair.refresh_token));
 
 			const result = await authService.generateTokenPair(mockPayload);
 
@@ -144,6 +144,4 @@ describe("AuthService", () => {
 			expect(jwtService.sign).toHaveBeenCalledTimes(2);
 		});
 	});
-
-	
 });

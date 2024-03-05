@@ -3,7 +3,7 @@ dotenv.config();
 export type Config = {
 	port: number;
 	mongodbURI: string;
-	JwtSecret: string;
+	jwtSecret: string;
 	stripe: string;
 	stripeWebhook: string;
 	openai: {
@@ -17,7 +17,7 @@ export default (): Config => {
 		port: Number.parseInt(process.env.PORT, 10) || 80,
 		mongodbURI: process.env.MONGODB_URI,
 		stripe: process.env.STRIPE_SECRET,
-		JwtSecret: process.env.JWT_SECRET,
+		jwtSecret: process.env.JWT_SECRET,
 		stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET,
 		openai: {
 			dimaApiKey: process.env.DIMA_API_KEY,

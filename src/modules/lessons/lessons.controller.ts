@@ -12,7 +12,6 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Model } from "mongoose";
 import { Observable } from "rxjs";
@@ -25,6 +24,7 @@ import { OperateLessonByIdDto } from "./dto/operate-lesson.dto";
 import { LessonsService } from "./lessons.service";
 import { Lesson, LessonDocument } from "./schema/lesson.schema";
 import { StreamService } from "../../common/stream.service";
+import { AuthGuard } from "../auth/auth.guard";
 import { CreditsGuard } from "../subscriptions/credits.guard";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 
@@ -37,7 +37,7 @@ export class LessonController {
 		private readonly streamService: StreamService
 	) {}
 
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard)
 	@Get("/:lessonId")
 	public async getConversationById(@Param() parameters: OperateLessonByIdDto) {
 		const lesson = await this.model.findOne({ _id: parameters.lessonId }).exec();
@@ -47,7 +47,7 @@ export class LessonController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(INIT_LESSON_CREDIT_COST))
+	@UseGuards(AuthGuard, CreditsGuard(INIT_LESSON_CREDIT_COST))
 	@Post("/:lessonId/init")
 	initConversation(
 		@Body() dto: InitLessonByIdBodyDto,
@@ -66,7 +66,7 @@ export class LessonController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"), CreditsGuard(ADD_MESSAGE_CREDIT_COST))
+	@UseGuards(AuthGuard, CreditsGuard(ADD_MESSAGE_CREDIT_COST))
 	@Put("/:lessonId/messages")
 	addMessage(
 		@Param("lessonId") lessonId: OperateLessonByIdDto,
@@ -77,7 +77,7 @@ export class LessonController {
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard)
 	@Delete("/:lessonId")
 	async deleteConversationById(
 		@Param() parameters: OperateLessonByIdDto,

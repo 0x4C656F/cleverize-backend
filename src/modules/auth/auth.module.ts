@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/require-await */
 import { Module } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
-import { PassportModule } from "@nestjs/passport";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -11,17 +12,26 @@ import { UsersService } from "../users/users.service";
 
 @Module({
 	controllers: [AuthController],
-	providers: [AuthService, UsersService, JwtService],
 	imports: [
-		PassportModule.register({ defaultStrategy: "jwt" }),
+		JwtModule.registerAsync({
+			
+			imports: [ConfigModule],
+			useFactory: async (configService: ConfigService) => ({
+				global: true,
+				secret: configService.get<string>("JWT_SECRET"),
+			}),
+			global: true,
 
+			inject: [ConfigService],
+		}),
 		MongooseModule.forFeature([
+			{ name: RefreshToken.name, schema: RefreshTokenSchema },
 			{
 				name: User.name,
 				schema: UserSchema,
 			},
-			{ name: RefreshToken.name, schema: RefreshTokenSchema },
 		]),
 	],
+	providers: [AuthService, JwtService, UsersService],
 })
 export class AuthModule {}

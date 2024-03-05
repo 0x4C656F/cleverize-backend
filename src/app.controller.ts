@@ -1,8 +1,8 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import Stripe from "stripe";
 
 import getConfig, { Config } from "./config/config";
+import { AuthGuard } from "./modules/auth/auth.guard";
 
 @Controller()
 export class AppController {
@@ -16,7 +16,7 @@ export class AppController {
 		console.log("touched");
 		return "OK";
 	}
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard)
 	@Get("/pay")
 	async pay() {
 		const stripe = new Stripe(this.envvars.stripe);
@@ -27,7 +27,7 @@ export class AppController {
 		});
 	}
 
-	@UseGuards(AuthGuard("jwt"))
+	@UseGuards(AuthGuard)
 	@Get("/health/protected")
 	protected() {
 		return {
@@ -35,5 +35,4 @@ export class AppController {
 			statusCode: 200,
 		};
 	}
-
 }

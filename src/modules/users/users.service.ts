@@ -6,13 +6,14 @@ import { Model } from "mongoose";
 import { SALT_ROUNDS } from "src/common/constants";
 
 import { User } from "./schema/user.schema";
-import { SignInDto } from "../auth/dto/sign-in.dto";
+import { SignUpDto } from "../auth/dto/sign-up.dto";
+import { RefreshToken } from "../auth/schema/refresh-token.schema";
 
 @Injectable()
 export class UsersService {
 	constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
-	async findAll(): Promise<User[]> {
+	async getAll(): Promise<User[]> {
 		return this.userModel.find().exec();
 	}
 
@@ -21,11 +22,17 @@ export class UsersService {
 	}
 
 	async findByEmail(email: string): Promise<User> {
-		return this.userModel.findOne({ email }).exec();
+		return this.userModel.findOne({ email }).select('+password').exec();
 	}
 
-	async createUser(dto: SignInDto): Promise<User> {
-		dto.password = await hash(dto.password, SALT_ROUNDS);
-		return new this.userModel(dto).save();
+	async createUser(dto: SignUpDto): Promise<User> {
+		const hashedPassword = await hash(dto.password, SALT_ROUNDS);
+		return this.userModel.create({ ...dto, password: hashedPassword });
+	}
+
+	async addRefreshToken(userId: string, token: RefreshToken) {
+		const user = await this.userModel.findById(userId).exec();
+		user.refresh_tokens.push(token);
+		return user.save();
 	}
 }
