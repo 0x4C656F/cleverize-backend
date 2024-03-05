@@ -30,4 +30,5 @@ export class AuthController {
 	async refresh(@Res() response: Response, @Cookies("refresh_token") token: string) {
 		return this.authService.refreshTokens(response, token);
 	}
+	
 }

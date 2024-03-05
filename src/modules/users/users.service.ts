@@ -8,6 +8,7 @@ import { SALT_ROUNDS } from "src/common/constants";
 import { User } from "./schema/user.schema";
 import { SignUpDto } from "../auth/dto/sign-up.dto";
 import { RefreshToken } from "../auth/schema/refresh-token.schema";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -22,10 +23,10 @@ export class UsersService {
 	}
 
 	async findByEmail(email: string): Promise<User> {
-		return this.userModel.findOne({ email }).select('+password').exec();
+		return this.userModel.findOne({ email }).select("+password").exec();
 	}
 
-	async createUser(dto: SignUpDto): Promise<User> {
+	async createUser(dto: CreateUserDto): Promise<User> {
 		const hashedPassword = await hash(dto.password, SALT_ROUNDS);
 		return this.userModel.create({ ...dto, password: hashedPassword });
 	}
@@ -34,5 +35,11 @@ export class UsersService {
 		const user = await this.userModel.findById(userId).exec();
 		user.refresh_tokens.push(token);
 		return user.save();
+	}
+
+	async update(userId: string, body: unknown) {
+		return this.userModel.findByIdAndUpdate(userId, {
+			$set: body,
+		}).exec();
 	}
 }

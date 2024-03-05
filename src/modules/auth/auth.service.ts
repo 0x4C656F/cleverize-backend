@@ -20,12 +20,17 @@ export class AuthService {
 		@InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshToken>
 	) {}
 	async registerUser(response: Response, dto: SignUpDto) {
+		const [name] = dto.email.split("@");
 		const user = await this.usersService.findByEmail(dto.email);
 		if (user) {
 			throw new ConflictException("User with this email already exists");
 		}
-		const newUser = await this.usersService.createUser(dto);
-		const payload = { email: newUser.email, name: newUser.name, sub: newUser._id.toString() };
+		const newUser = await this.usersService.createUser({ ...dto, name });
+		const payload: JWTPayload = {
+			email: newUser.email,
+			name: newUser.name,
+			sub: newUser._id.toString(),
+		};
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
 		response.cookie("access_token", access_token, { maxAge: 1000 * 60 * 60 * 24 * 3 });
 		response.cookie("refresh_token", refresh_token, {
@@ -39,7 +44,6 @@ export class AuthService {
 		const { email, password } = dto;
 		const user = await this.usersService.findByEmail(email);
 		if (!user) throw new ConflictException("Invalid email or password");
-		console.log(user, "user", password, "password", user.password, "user.password");
 
 		const isValidPassword = await compare(password, user.password);
 
@@ -48,7 +52,6 @@ export class AuthService {
 		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
-		console.log(access_token, "access_token", refresh_token, "refresh_token");
 		response.cookie("access_token", access_token, {
 			maxAge: 1000 * 60 * 60 * 24 * 3,
 		});

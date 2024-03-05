@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 
 @Schema({ timestamps: true })
 export class Feedback extends Document {
@@ -12,10 +12,10 @@ export class Feedback extends Document {
 	@Prop({ type: Number, min: 0, max: 5, required: true })
 	rating: number;
 
-	@Prop({ type: Types.ObjectId, ref: "Conversation" })
+	@Prop({ type: String, ref: "Conversation" })
 	lesson_id?: string;
 
-	@Prop({ type: Types.ObjectId, ref: "Roadmap" })
+	@Prop({ type: String, ref: "Roadmap" })
 	roadmap_id?: string;
 }
 
