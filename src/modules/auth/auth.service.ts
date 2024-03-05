@@ -77,7 +77,9 @@ export class AuthService {
 	}
 
 	async refreshTokens(response: Response, refresh_token: string) {
-		const { sub }: JWTPayload = this.jwtService.verify(refresh_token);
+		const { sub }: JWTPayload = this.jwtService.verify(refresh_token, {
+			secret: process.env.JWT_SECRET,
+		});
 
 		const user = await this.usersService.findById(sub);
 

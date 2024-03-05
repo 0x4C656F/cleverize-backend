@@ -10,7 +10,7 @@ import { SignUpDto } from "./dto/sign-up.dto";
 @Controller("auth")
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
-
+x
 	@Post("sign-up")
 	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
 		return this.authService.registerUser(response, dto);
