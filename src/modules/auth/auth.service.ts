@@ -21,31 +21,36 @@ export class AuthService {
 	) {}
 	async registerUser(response: Response, dto: SignUpDto) {
 		const [name] = dto.email.split("@");
+		console.log("Called with dto", dto, "and name", name);
 		const user = await this.usersService.findByEmail(dto.email);
 		if (user) {
 			throw new ConflictException("User with this email already exists");
 		}
+		console.log("User was not found, creating user...");
 		const newUser = await this.usersService.createUser({ ...dto, name });
 		const payload: JWTPayload = {
 			email: newUser.email,
 			name: newUser.name,
 			sub: newUser._id.toString(),
 		};
+		console.log("Generating tokens");
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
-		response.cookie("access_token", access_token, {
+
+		const reseq = response.cookie("access_token", access_token, {
 			sameSite: "none", // 'Strict', 'Lax', or 'None'
-			secure: true, // Set to true if your site is served over HTTPS
 			httpOnly: false,
+			secure: true,
 			maxAge: 1000 * 60 * 60 * 24 * 3,
 		});
-		response.cookie("refresh_token", refresh_token, {
+		reseq.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
-			secure: true, // Ensure this is set to true if your site is served over HTTPS
+			secure: true,
+
 			sameSite: "none", // Necessary if you're making cross-origin requests and your site is served over HTTPS
 			maxAge: 1000 * 60 * 60 * 24 * 7, // Adjust according to your refresh token's validity
 		});
 
-		return "User created";
+		reseq.json(newUser);
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
