@@ -13,7 +13,7 @@ export class AuthController {
 
 	@Post("sign-up")
 	signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
-		response.json(this.authService.registerUser(response, dto));
+		return this.authService.registerUser(response, dto);
 	}
 
 	@Post("sign-in")
