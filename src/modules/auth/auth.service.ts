@@ -37,7 +37,7 @@ export class AuthService {
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 7,
 		});
-		return newUser;
+		response.send("User created");
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
