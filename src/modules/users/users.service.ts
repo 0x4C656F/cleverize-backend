@@ -30,7 +30,7 @@ export class UsersService {
 		return this.userModel.create({ ...dto, password: hashedPassword });
 	}
 
-	async addRefreshToken(userId: string, token: RefreshToken) {
+	async addRefreshToken(userId: string, token: string) {
 		const user = await this.userModel.findById(userId).exec();
 		user.refresh_tokens.push(token);
 		return user.save();

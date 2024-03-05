@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
 import { SUPPORTED_LANGUAGES } from "src/common/constants";
-import { RefreshToken } from "src/modules/auth/schema/refresh-token.schema";
 import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
 import { Subscription, subscriptionDefaultObject } from "src/modules/subscriptions/subscription";
 
@@ -31,7 +30,7 @@ export class User {
 	metadata: Metadata;
 
 	@Prop({ ref: "RefreshToken", required: true })
-	refresh_tokens: RefreshToken[];
+	refresh_tokens: string[];
 
 	@Prop({ type: [{ type: Types.ObjectId, ref: RoadmapNodesCollectionName }] })
 	roadmaps: Types.ObjectId[];

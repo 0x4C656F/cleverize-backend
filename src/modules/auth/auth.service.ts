@@ -90,11 +90,11 @@ export class AuthService {
 		access_token: string;
 		refresh_token: string;
 	}> {
-		const access_token = await this.jwtService.signAsync(payload, {
+		const access_token = this.jwtService.sign(payload, {
 			expiresIn: "1h",
 			secret: process.env.JWT_SECRET,
 		});
-		const refresh_token = await this.jwtService.signAsync(payload, {
+		const refresh_token = this.jwtService.sign(payload, {
 			expiresIn: "7d",
 			secret: process.env.JWT_SECRET,
 		});
@@ -103,7 +103,7 @@ export class AuthService {
 			user_id: payload.sub,
 			is_revoked: false,
 		});
-		void this.usersService.addRefreshToken(payload.sub, createdToken);
+		void this.usersService.addRefreshToken(payload.sub, createdToken.token);
 		return { access_token, refresh_token };
 	}
 }

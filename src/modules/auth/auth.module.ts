@@ -13,16 +13,9 @@ import { UsersService } from "../users/users.service";
 @Module({
 	controllers: [AuthController],
 	imports: [
-		JwtModule.registerAsync({
-			
-			imports: [ConfigModule],
-			useFactory: async (configService: ConfigService) => ({
-				global: true,
-				secret: configService.get<string>("JWT_SECRET"),
-			}),
+		JwtModule.register({
+			secret: process.env.JWT_SECRET,
 			global: true,
-
-			inject: [ConfigService],
 		}),
 		MongooseModule.forFeature([
 			{ name: RefreshToken.name, schema: RefreshTokenSchema },
