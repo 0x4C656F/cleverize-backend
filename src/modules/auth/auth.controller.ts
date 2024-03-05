@@ -12,8 +12,8 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post("sign-up")
-	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
-		return this.authService.registerUser(response, dto);
+	signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
+		return response.json(this.authService.registerUser(response, dto));
 	}
 
 	@Post("sign-in")
