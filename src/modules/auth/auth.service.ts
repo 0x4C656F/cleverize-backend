@@ -31,7 +31,21 @@ export class AuthService {
 			name: newUser.name,
 			sub: newUser._id.toString(),
 		};
-		return this.generateTokenPair(payload);
+		const { access_token, refresh_token } = await this.generateTokenPair(payload);
+		response.cookie("access_token", access_token, {
+			sameSite: "none", // 'Strict', 'Lax', or 'None'
+			secure: true, // Set to true if your site is served over HTTPS
+			httpOnly: false,
+			maxAge: 1000 * 60 * 60 * 24 * 3,
+		});
+		response.cookie("refresh_token", refresh_token, {
+			httpOnly: true,
+			secure: true, // Ensure this is set to true if your site is served over HTTPS
+			sameSite: "none", // Necessary if you're making cross-origin requests and your site is served over HTTPS
+			maxAge: 1000 * 60 * 60 * 24 * 7, // Adjust according to your refresh token's validity
+		});
+
+		return "User created";
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
