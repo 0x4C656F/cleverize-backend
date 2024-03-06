@@ -19,7 +19,7 @@ export class AuthController {
 	@Post("sign-up")
 	signUp(@Res() response: Response, @Body() dto: SignUpDto, @Cookies() token: string) {
 		Logger.log("Received cookies", token);
-		response.send(this.authService.registerUser(response, dto));
+		response.status(200).send(this.authService.registerUser(response, dto));
 	}
 
 	@Post("sign-in")
