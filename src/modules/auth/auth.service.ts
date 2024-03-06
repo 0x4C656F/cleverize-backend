@@ -19,6 +19,7 @@ export class AuthService {
 		private jwtService: JwtService,
 		@InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshToken>
 	) {}
+
 	async registerUser(response: Response, dto: SignUpDto) {
 		const [name] = dto.email.split("@");
 		const user = await this.usersService.findByEmail(dto.email);

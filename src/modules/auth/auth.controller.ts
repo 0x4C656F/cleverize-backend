@@ -12,15 +12,14 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Header("Access-Control-Allow-Credentials", "true")
-	@Header("Access-Control-Allow-Origin", "https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch")
+	@Header(
+		"Access-Control-Allow-Origin",
+		"https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch"
+	)
 	@Post("sign-up")
-	async signUp(
-		@Res({ passthrough: true }) response: Response,
-		@Body() dto: SignUpDto,
-		@Cookies() token: string
-	) {
+	signUp(@Res() response: Response, @Body() dto: SignUpDto, @Cookies() token: string) {
 		Logger.log("Received cookies", token);
-		return this.authService.registerUser(response, dto);
+		response.send(this.authService.registerUser(response, dto));
 	}
 
 	@Post("sign-in")
