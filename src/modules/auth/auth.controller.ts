@@ -12,7 +12,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Header("Access-Control-Allow-Credentials", "true")
-	@Header("Access-Control-Allow-Origin", "*")
+	@Header("Access-Control-Allow-Origin", "https://localhost:3000")
 	@Post("sign-up")
 	async signUp(
 		@Res({ passthrough: true }) response: Response,
