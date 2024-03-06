@@ -36,17 +36,10 @@ export class AuthService {
 		console.log("Generating tokens");
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
 
-		response.cookie("access_token", access_token, {
-			httpOnly: true,
-			sameSite: false,
-
-			maxAge: 1000 * 60 * 60 * 24 * 3,
-		});
+		response.cookie("access_token", access_token, { maxAge: 1000 * 60 * 60 });
 		response.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
-
-			maxAge: 1000 * 60 * 60 * 24 * 7, // Adjust according to your refresh token's validity
-			sameSite: false,
+			maxAge: 1000 * 60 * 60 * 24 * 7,
 		});
 
 		return "User created";
