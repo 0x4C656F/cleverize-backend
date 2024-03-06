@@ -34,19 +34,8 @@ export class AuthService {
 		};
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
 
-		response.cookie("access_token", access_token, {
-			maxAge: 1000 * 60 * 60,
-			sameSite: "none",
-			secure: true,
-		});
-		response.cookie("refresh_token", refresh_token, {
-			httpOnly: true,
-			maxAge: 1000 * 60 * 60 * 24 * 7,
-			sameSite: "none",
-			secure: true,
-		});
 
-		return "User created";
+		return {access_token,refresh_token}
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {

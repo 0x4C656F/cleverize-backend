@@ -1,4 +1,4 @@
-import { Body, Controller, Header, Logger, Post, Res } from "@nestjs/common";
+import { Body, Controller, Post, Res } from "@nestjs/common";
 import { Response } from "express";
 
 import { Cookies } from "src/common/cookies.decorator";
@@ -11,15 +11,28 @@ import { SignUpDto } from "./dto/sign-up.dto";
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@Header("Access-Control-Allow-Credentials", "true")
-	@Header(
-		"Access-Control-Allow-Origin",
-		"https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch"
-	)
 	@Post("sign-up")
-	signUp(@Res() response: Response, @Body() dto: SignUpDto, @Cookies() token: string) {
-		Logger.log("Received cookies", token);
-		response.status(200).send(this.authService.registerUser(response, dto));
+	async signUp(@Res() response: Response, @Body() dto: SignUpDto, @Cookies() token: string) {
+		console.log("Received cookies", token);
+		const { access_token, refresh_token } = await this.authService.registerUser(response, dto);
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader(
+			"Access-Control-Allow-Origin",
+			"https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch"
+		);
+		response.cookie("access_token", access_token, {
+			maxAge: 1000 * 60 * 60,
+			sameSite: "none",
+			secure: true,
+		});
+		response.cookie("refresh_token", refresh_token, {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24 * 7,
+			sameSite: "none",
+			secure: true,
+		});
+
+		response.status(200).send('OK');
 	}
 
 	@Post("sign-in")
