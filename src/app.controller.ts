@@ -1,4 +1,5 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, Res, UseGuards } from "@nestjs/common";
+import { Response } from "express";
 import Stripe from "stripe";
 
 import getConfig, { Config } from "./config/config";
@@ -34,5 +35,16 @@ export class AppController {
 			message: "ok",
 			statusCode: 200,
 		};
+	}
+
+	@Get("cookie")
+	cookie(@Res({ passthrough: true }) response: Response) {
+		response.cookie("cookie", "cookie", {
+			sameSite: true, // 'Strict', 'Lax', or 'None'
+			httpOnly: false,
+			secure: true,
+			maxAge: 1000 * 60 * 60 * 24 * 3,
+		});
+		return "cookie";
 	}
 }

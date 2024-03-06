@@ -10,9 +10,10 @@ import { SignUpDto } from "./dto/sign-up.dto";
 @Controller("auth")
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
-x
+
 	@Post("sign-up")
-	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
+	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto, @Cookies("refresh_token") token: string){
+		console.log("Called with dto", dto, "and token", token)
 		return this.authService.registerUser(response, dto);
 	}
 

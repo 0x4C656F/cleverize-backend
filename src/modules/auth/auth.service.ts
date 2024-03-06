@@ -36,21 +36,17 @@ export class AuthService {
 		console.log("Generating tokens");
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
 
-		const reseq = response.cookie("access_token", access_token, {
-			sameSite: "none", // 'Strict', 'Lax', or 'None'
-			httpOnly: false,
-			secure: true,
+		response.cookie("access_token", access_token, {
+			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 3,
 		});
-		reseq.cookie("refresh_token", refresh_token, {
+		response.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
-			secure: true,
 
-			sameSite: "none", // Necessary if you're making cross-origin requests and your site is served over HTTPS
 			maxAge: 1000 * 60 * 60 * 24 * 7, // Adjust according to your refresh token's validity
 		});
 
-		reseq.json(newUser);
+		return "User created";
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
