@@ -25,7 +25,6 @@ export class AuthController {
 			maxAge: 1000 * 60 * 60,
 			sameSite: "none",
 			secure: true,
-			signed: true,
 		});
 
 		response.cookie("refresh_token", refresh_token, {
@@ -33,8 +32,6 @@ export class AuthController {
 			maxAge: 1000 * 60 * 60 * 24 * 7,
 			sameSite: "none",
 			secure: true,
-			signed: true,
-
 		});
 
 		response.status(200).send("OK");
