@@ -13,10 +13,13 @@ async function bootstrap() {
 
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		rawBody: true,
+		cors: {
+			credentials: true,
+		},
 	});
 
 	app.setGlobalPrefix("api");
-	app.use(cookieParser())
+	app.use(cookieParser());
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	app.enableCors({

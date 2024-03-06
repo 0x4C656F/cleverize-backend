@@ -12,7 +12,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Header("Access-Control-Allow-Credentials", "true")
-	@Header("Access-Control-Allow-Origin", "https://localhost:3000")
+	@Header("Access-Control-Allow-Origin", "https://cleverize.co")
 	@Post("sign-up")
 	async signUp(
 		@Res({ passthrough: true }) response: Response,
