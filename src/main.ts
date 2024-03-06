@@ -16,7 +16,7 @@ async function bootstrap() {
 	});
 
 	app.setGlobalPrefix("api");
-
+	app.use(cookieParser())
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	app.enableCors({
