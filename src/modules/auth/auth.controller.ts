@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, Header, Logger, Post, Res } from "@nestjs/common";
 import { Response } from "express";
 
 import { Cookies } from "src/common/cookies.decorator";
@@ -11,9 +11,15 @@ import { SignUpDto } from "./dto/sign-up.dto";
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
+	@Header("Access-Control-Allow-Credentials", "true")
+	@Header("Access-Control-Allow-Origin", "*")
 	@Post("sign-up")
-	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto, @Cookies("refresh_token") token: string){
-		console.log("Called with dto", dto, "and token", token)
+	async signUp(
+		@Res({ passthrough: true }) response: Response,
+		@Body() dto: SignUpDto,
+		@Cookies() token: string
+	) {
+		Logger.log("Received cookies", token);
 		return this.authService.registerUser(response, dto);
 	}
 

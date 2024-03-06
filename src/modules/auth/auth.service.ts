@@ -21,25 +21,28 @@ export class AuthService {
 	) {}
 	async registerUser(response: Response, dto: SignUpDto) {
 		const [name] = dto.email.split("@");
-		console.log("Called with dto", dto, "and name", name);
 		const user = await this.usersService.findByEmail(dto.email);
 		if (user) {
 			throw new ConflictException("User with this email already exists");
 		}
-		console.log("User was not found, creating user...");
 		const newUser = await this.usersService.createUser({ ...dto, name });
 		const payload: JWTPayload = {
 			email: newUser.email,
 			name: newUser.name,
 			sub: newUser._id.toString(),
 		};
-		console.log("Generating tokens");
 		const { access_token, refresh_token } = await this.generateTokenPair(payload);
 
-		response.cookie("access_token", access_token, { maxAge: 1000 * 60 * 60 });
+		response.cookie("access_token", access_token, {
+			maxAge: 1000 * 60 * 60,
+			sameSite: "none",
+			secure: true,
+		});
 		response.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 7,
+			sameSite: "none",
+			secure: true,
 		});
 
 		return "User created";
