@@ -20,19 +20,24 @@ export class AuthController {
 			"Access-Control-Allow-Origin",
 			"https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch"
 		);
+
 		response.cookie("access_token", access_token, {
 			maxAge: 1000 * 60 * 60,
 			sameSite: "none",
 			secure: true,
+			signed: true,
 		});
+
 		response.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 7,
 			sameSite: "none",
 			secure: true,
+			signed: true,
+
 		});
 
-		response.status(200).send('OK');
+		response.status(200).send("OK");
 	}
 
 	@Post("sign-in")
