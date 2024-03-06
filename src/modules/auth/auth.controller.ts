@@ -12,7 +12,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Header("Access-Control-Allow-Credentials", "true")
-	@Header("Access-Control-Allow-Origin", "https://cleverize.co")
+	@Header("Access-Control-Allow-Origin", "https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch")
 	@Post("sign-up")
 	async signUp(
 		@Res({ passthrough: true }) response: Response,
