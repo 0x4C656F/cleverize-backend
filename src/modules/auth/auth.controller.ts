@@ -13,21 +13,30 @@ export class AuthController {
 
 	@Header("Access-Control-Allow-Origin", "*")
 	@Post("sign-up")
-	async signUp(@Res({passthrough: true}) response: Response, @Body() dto: SignUpDto, @Cookies() token: string) {
+	async signUp(
+		@Res({ passthrough: true }) response: Response,
+		@Body() dto: SignUpDto,
+		@Cookies() token: string
+	) {
 		console.log("Received cookies", token);
 		const { access_token, refresh_token } = await this.authService.registerUser(response, dto);
 
 		response.cookie("access_token", access_token, {
 			maxAge: 1000 * 60 * 60,
+			secure: false,
+			path: "/",
+			httpOnly: true,
 			sameSite: "strict",
 		});
 		response.cookie("refresh_token", refresh_token, {
+			secure: false,
+			path: "/",
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24 * 7,
 			sameSite: "strict",
 		});
 
-		return 'User created';
+		return "User created";
 	}
 
 	@Post("sign-in")
