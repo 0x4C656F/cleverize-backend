@@ -21,18 +21,31 @@ export class AuthController {
 			"https://vercel.live/link/cleverize-git-auth-rework-lavryniukk.vercel.app?via=deployment-domains-list-branch"
 		);
 		response.setHeader("Access-Control-Expose-Headers", "Set-Cookie");
-		response.cookie("access_token", access_token, {
-			maxAge: 1000 * 60 * 60,
-			sameSite: "none",
-			secure: true,
-		});
+		// response.cookie("access_token", access_token, {
+		// 	maxAge: 1000 * 60 * 60,
+		// 	sameSite: "none",
+		// 	secure: true,
+		// });
+		const maxAge = 3600; // Max-Age in seconds
+		const expires = new Date(Date.now() + maxAge * 1000).toUTCString(); // Convert Max-Age to Expires date
 
-		response.cookie("refresh_token", refresh_token, {
-			httpOnly: true,
-			maxAge: 1000 * 60 * 60 * 24 * 7,
-			sameSite: "none",
-			secure: true,
-		});
+		response.setHeader(
+			"Set-Cookie",
+			`access_token=${access_token}; Max-Age=${maxAge}; Path=/; Expires=${expires}; Secure; SameSite=None`
+		);
+		const maxAge1 = 3600; // Max-Age in seconds
+		const expires1 = new Date(Date.now() + maxAge * 1000).toUTCString(); // Convert Max-Age to Expires date
+
+		response.setHeader(
+			"Set-Cookie",
+			`refresh_token=${refresh_token}; Max-Age=${maxAge}; Path=/; Expires=${expires}; Secure; SameSite=None`
+		);
+		// response.cookie("refresh_token", refresh_token, {
+		// 	httpOnly: true,
+		// 	maxAge: 1000 * 60 * 60 * 24 * 7,
+		// 	sameSite: "none",
+		// 	secure: true,
+		// });
 
 		response.status(200).send("OK");
 	}
