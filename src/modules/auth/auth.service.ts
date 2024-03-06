@@ -38,12 +38,15 @@ export class AuthService {
 
 		response.cookie("access_token", access_token, {
 			httpOnly: true,
+			sameSite: false,
+
 			maxAge: 1000 * 60 * 60 * 24 * 3,
 		});
 		response.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
 
 			maxAge: 1000 * 60 * 60 * 24 * 7, // Adjust according to your refresh token's validity
+			sameSite: false,
 		});
 
 		return "User created";
