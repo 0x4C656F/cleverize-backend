@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import OpenAI from "openai";
 
+import { DeleteRootRoadmapDto } from "./dto/delete-root-roadmap-dto";
 import { GenerateRootRoadmapDto } from "./dto/generate-root-roadmap.dto";
 import {
 	RoadmapSize,
@@ -137,7 +138,8 @@ export class RoadmapNodesService {
 		return await roadmapNode.save();
 	}
 
-	public async deleteRoadmapSubtreeById(id: string, user_id: string) {
+	public async deleteRoadmapSubtreeById(dto: DeleteRootRoadmapDto) {
+		const { id, user_id } = dto;
 		const result = await this.model.aggregate<RoadmapNode & { hierarchy: RoadmapNode[] }>([
 			{ $match: { _id: new Types.ObjectId(id) } },
 			{
@@ -164,7 +166,8 @@ export class RoadmapNodesService {
 		await this.model.deleteOne(result[0]._id);
 	}
 
-	public async getAllUserRoadmaps(owner_id: string) {
+	public async getAllUserRoadmaps(dto: { owner_id: string }) {
+		const { owner_id } = dto;
 		return await this.model.find({ owner_id, size: { $exists: true } });
 	}
 

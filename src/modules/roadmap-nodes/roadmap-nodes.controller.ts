@@ -8,7 +8,7 @@ import { AuthGuard } from "../auth/auth.guard";
 import { CreditsGuard } from "../subscriptions/credits.guard";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 
-@Controller("/roadmaps")
+@Controller("roadmaps")
 export class RoadmapNodesController {
 	constructor(private readonly service: RoadmapNodesService) {}
 
@@ -25,27 +25,23 @@ export class RoadmapNodesController {
 	}
 
 	@UseGuards(AuthGuard, CreditsGuard(GENERATE_ROADMAP_CREDIT_COST))
-	@Post("/")
+	@Post()
 	public async generateRootRoadmap(
-		@Body() body: GenerateRootRoadmapBodyDto,
-		@UserPayload() payload: JWTPayload
+		@Body() dto: GenerateRootRoadmapBodyDto,
+		@UserPayload() { sub: user_id }: JWTPayload
 	) {
-		return await this.service.generateRootRoadmap({
-			title: body.title,
-			user_id: payload.sub,
-			size: body.size,
-		});
+		return await this.service.generateRootRoadmap(Object.assign(dto, { user_id }));
 	}
 
 	@UseGuards(AuthGuard)
 	@Get("/all")
-	public async getAllUserRoadmaps(@UserPayload() payload: JWTPayload) {
-		return await this.service.getAllUserRoadmaps(payload.sub);
+	public async getAllUserRoadmaps(@UserPayload() { sub: owner_id }: JWTPayload) {
+		return await this.service.getAllUserRoadmaps({ owner_id });
 	}
 
 	@UseGuards(AuthGuard)
 	@Delete("/delete/:id")
-	public async deleteNode(@Param("id") id: string, @UserPayload() payload: JWTPayload) {
-		return await this.service.deleteRoadmapSubtreeById(id, payload.sub);
+	public async deleteNode(@Param("id") id: string, @UserPayload() { sub: user_id }: JWTPayload) {
+		return await this.service.deleteRoadmapSubtreeById({ id, user_id });
 	}
 }

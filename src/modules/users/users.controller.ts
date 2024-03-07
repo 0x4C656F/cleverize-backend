@@ -9,6 +9,7 @@ import { AuthGuard } from "../auth/auth.guard";
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
+	@UseGuards(AuthGuard)
 	@Get("all")
 	async getAllUsers() {
 		return await this.usersService.getAll();
@@ -25,4 +26,4 @@ export class UsersController {
 	async updateMe(@UserPayload() payload: JWTPayload, @Body() body: unknown) {
 		return await this.usersService.update(payload.sub, body);
 	}
-}	
+}
