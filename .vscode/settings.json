@@ -13,5 +13,5 @@
 		"onSave": "test-file",
 		"onStartup": ["all-tests"]
 	},
-	"cSpell.words": ["openai", "roadmaps", "Subroadmap"]
+	"cSpell.words": ["dima", "openai", "roadmaps", "Subroadmap"]
 }

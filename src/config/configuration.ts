@@ -1,5 +1,6 @@
-import * as dotenv from "dotenv";
-dotenv.config();
+import { config } from "dotenv";
+config();
+
 export type Config = {
 	port: number;
 	mongodbURI: string;
@@ -12,7 +13,7 @@ export type Config = {
 	};
 };
 
-export default (): Config => {
+export default function getConfiguration(): Config {
 	return {
 		port: Number.parseInt(process.env.PORT, 10) || 80,
 		mongodbURI: process.env.MONGODB_URI,
@@ -24,4 +25,4 @@ export default (): Config => {
 			levApiKey: process.env.LEV_API_KEY,
 		},
 	};
-};
+}

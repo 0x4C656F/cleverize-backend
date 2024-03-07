@@ -4,8 +4,11 @@ import { InjectModel } from "@nestjs/mongoose";
 import { compare } from "bcrypt";
 import { Model } from "mongoose";
 
+import { JwtTokensPair } from "src/common/jwt-tokens-pair";
 import { JWTPayload } from "src/common/user-payload.decorator";
+import getConfiguration, { Config } from "src/config/configuration";
 
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { RefreshToken } from "./schema/refresh-token.schema";
@@ -13,19 +16,21 @@ import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class AuthService {
+	private config: Config;
 	constructor(
 		private usersService: UsersService,
 		private jwtService: JwtService,
 		@InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshToken>
-	) {}
+	) {
+		this.config = getConfiguration();
+	}
 
 	async registerUser(dto: SignUpDto) {
-		const [name] = dto.email.split("@");
 		const user = await this.usersService.findByEmail(dto.email);
 		if (user) {
 			throw new ConflictException("User with this email already exists");
 		}
-		const newUser = await this.usersService.createUser({ ...dto, name });
+		const newUser = await this.usersService.createUser(dto);
 		const payload: JWTPayload = {
 			email: newUser.email,
 			name: newUser.name,
@@ -48,9 +53,10 @@ export class AuthService {
 		return this.generateTokenPair(payload);
 	}
 
-	async refreshTokens(refresh_token: string) {
+	async refreshTokens(dto: RefreshTokenDto) {
+		const { refresh_token } = dto;
 		const { sub }: JWTPayload = this.jwtService.verify(refresh_token, {
-			secret: process.env.JWT_SECRET,
+			secret: this.config.jwtSecret,
 		});
 
 		const user = await this.usersService.findById(sub);
@@ -69,24 +75,21 @@ export class AuthService {
 		return this.generateTokenPair(newPayload);
 	}
 
-	async generateTokenPair(payload: JWTPayload): Promise<{
-		_at: string;
-		_rt: string;
-	}> {
+	async generateTokenPair(payload: JWTPayload): Promise<JwtTokensPair> {
 		const access_token = this.jwtService.sign(payload, {
 			expiresIn: "1h",
-			secret: process.env.JWT_SECRET,
+			secret: this.config.jwtSecret,
 		});
 		const refresh_token = this.jwtService.sign(payload, {
 			expiresIn: "7d",
-			secret: process.env.JWT_SECRET,
+			secret: this.config.jwtSecret,
 		});
-		const createdToken = await this.refreshTokenModel.create({
+		await this.refreshTokenModel.create({
 			token: refresh_token,
 			user_id: payload.sub,
 			is_revoked: false,
 		});
-		void this.usersService.addRefreshToken(payload.sub, createdToken.token);
+		void this.usersService.addRefreshToken(payload.sub, refresh_token);
 		return { _at: access_token, _rt: refresh_token };
 	}
 }

@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-import getConfig, { Config } from "src/config/config";
+import getConfig, { Config } from "src/config/configuration";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitLessonByIdDto } from "./dto/init-lesson.dto";
@@ -29,7 +29,7 @@ export class LessonsService {
 		this.config = getConfig();
 
 		this.openai = new OpenAI({
-			apiKey: this.config.openai.levApiKey,
+			apiKey: this.config.openai.dimaApiKey,
 		});
 	}
 

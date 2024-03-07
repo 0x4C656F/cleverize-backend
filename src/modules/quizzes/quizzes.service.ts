@@ -5,7 +5,7 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 import { StreamService } from "src/common/stream.service";
-import getConfig from "src/config/config";
+import getConfig from "src/config/configuration";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitQuizByIdDto } from "./dto/init-quiz-by-id.dto";
@@ -27,7 +27,7 @@ export class QuizzesService {
 		private readonly streamService: StreamService
 	) {
 		this.openai = new OpenAI({
-			apiKey: getConfig().openai.levApiKey,
+			apiKey: getConfig().openai.dimaApiKey,
 		});
 	}
 
@@ -72,7 +72,7 @@ export class QuizzesService {
 		quiz.messages = quiz.messages.slice(1);
 		await quiz.save();
 	}
-	
+
 	public async initQuiz(dto: InitQuizByIdDto): Promise<void> {
 		const { quizId, language, roadmapId, user_id } = dto;
 

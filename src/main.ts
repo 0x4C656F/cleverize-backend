@@ -6,7 +6,7 @@ import * as cookieParser from "cookie-parser";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module";
-import config from "./config/config";
+import config from "./config/configuration";
 
 async function bootstrap() {
 	const { port } = config();
@@ -23,10 +23,9 @@ async function bootstrap() {
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 	app.enableCors({
-		origin: ['https://localhost:3000', 'https://cleverize.co'], // Add your frontend dev URL here
+		origin: ["https://localhost:3000", "https://cleverize.co"], // Add your frontend dev URL here
 		credentials: true, // Important for cookies to be sent and received
-	  });
-	  
+	});
 
 	// const swaggerConfig = new DocumentBuilder()
 	// 	.setTitle("Veritech backend documentation")

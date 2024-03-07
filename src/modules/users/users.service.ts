@@ -7,7 +7,6 @@ import { SALT_ROUNDS } from "src/common/constants";
 
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./schema/user.schema";
-import { RefreshToken } from "../auth/schema/refresh-token.schema";
 
 @Injectable()
 export class UsersService {
@@ -26,14 +25,17 @@ export class UsersService {
 	}
 
 	async createUser(dto: CreateUserDto): Promise<User> {
-		const hashedPassword = await hash(dto.password, SALT_ROUNDS);
-		return this.userModel.create({ ...dto, password: hashedPassword });
+		const { password, email } = dto;
+		const hashedPassword = await hash(password, SALT_ROUNDS);
+		const [name] = email.split("@");
+		return this.userModel.create({ email, password: hashedPassword, name });
 	}
 
-	async addRefreshToken(userId: string, token: string) {
-		const user = await this.userModel.findById(userId).exec();
+	async addRefreshToken(userId: string, token: string): Promise<User> {
+		const user = await this.userModel.findById(userId);
 		user.refresh_tokens.push(token);
-		return user.save();
+		await user.save();
+		return user;
 	}
 
 	async update(userId: string, body: unknown) {

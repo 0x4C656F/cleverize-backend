@@ -2,7 +2,7 @@ import { Controller, Get, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 import Stripe from "stripe";
 
-import getConfig, { Config } from "./config/config";
+import getConfig, { Config } from "./config/configuration";
 import { AuthGuard } from "./modules/auth/auth.guard";
 
 @Controller()

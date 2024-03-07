@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
+
+import getConfiguration from "src/config/configuration";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { RefreshToken, RefreshTokenSchema } from "./schema/refresh-token.schema";
 import { User, UserSchema } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
-
+const config = getConfiguration();
 @Module({
 	controllers: [AuthController],
 	imports: [
 		JwtModule.register({
-			secret: process.env.JWT_SECRET,
+			secret: config.jwtSecret,
 			global: true,
 		}),
 		MongooseModule.forFeature([

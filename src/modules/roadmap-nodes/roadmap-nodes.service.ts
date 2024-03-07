@@ -11,7 +11,7 @@ import {
 	RoadmapNodesCollectionName,
 } from "./schema/roadmap-nodes.schema";
 import { RawRoadmap } from "./types/raw-roadmap";
-import getConfig from "../../config/config";
+import getConfig from "../../config/configuration";
 import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
 import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
 import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
