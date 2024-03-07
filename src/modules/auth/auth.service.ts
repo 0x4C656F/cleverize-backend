@@ -32,10 +32,7 @@ export class AuthService {
 			name: newUser.name,
 			sub: newUser._id.toString(),
 		};
-		const { access_token, refresh_token } = await this.generateTokenPair(payload);
-
-
-		return {access_token,refresh_token}
+		return this.generateTokenPair(payload);
 	}
 
 	async loginUser(response: Response, dto: SignInDto) {
