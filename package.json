@@ -33,16 +33,12 @@
 		"class-validator": "^0.14.0",
 		"cookie-parser": "^1.4.6",
 		"dotenv": "^16.3.1",
-		"express-jwt": "^8.4.1",
 		"helmet": "^7.0.0",
-		"jwks-rsa": "^3.1.0",
-		"langchain": "^0.0.186",
 		"mongoose": "^7.6.3",
 		"openai": "^4.16.1",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^7.8.1",
-		"stripe": "^14.5.0",
-		"svix": "^1.16.0"
+		"stripe": "^14.5.0"
 	},
 	"devDependencies": {
 		"@nestjs/cli": "^10.2.1",
