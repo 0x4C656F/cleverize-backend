@@ -10,7 +10,7 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post("sign-up")
-	async signUp(@Body() dto: SignUpDto, @Res() response: Response) {
+	async signUp(@Body() dto: SignUpDto, @Res({passthrough: true}) response: Response) {
 		const { _rt, _at } =  await this.authService.registerUser(dto);
 		response.cookie("refresh_token", _rt, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 });
 		response.cookie("access_token", _at, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 });
