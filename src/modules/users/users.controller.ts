@@ -2,6 +2,7 @@ import { Body, Controller, Get, Patch, UseGuards } from "@nestjs/common";
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
+import { User } from "./schema/user.schema";
 import { UsersService } from "./users.service";
 import { AuthGuard } from "../auth/auth.guard";
 
@@ -17,7 +18,8 @@ export class UsersController {
 
 	@UseGuards(AuthGuard)
 	@Get("/me")
-	async getMe(@UserPayload() payload: JWTPayload) {
+	async getMe(@UserPayload() payload: JWTPayload): Promise<User> {
+		console.log("get me", payload.sub);
 		return await this.usersService.findById(payload.sub);
 	}
 
