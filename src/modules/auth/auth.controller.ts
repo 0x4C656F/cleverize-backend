@@ -13,8 +13,8 @@ export class AuthController {
 
 	@Header("Access-Control-Allow-Origin", "*")
 	@Post("sign-up")
-	async signUp(@Res({ passthrough: true }) response: Response, @Body() dto: SignUpDto) {
-		return this.authService.registerUser(response, dto);
+	async signUp( @Body() dto: SignUpDto) {
+		return this.authService.registerUser( dto);
 	}
 
 	@Post("sign-in")

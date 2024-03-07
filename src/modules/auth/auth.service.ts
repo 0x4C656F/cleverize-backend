@@ -20,7 +20,7 @@ export class AuthService {
 		@InjectModel(RefreshToken.name) private readonly refreshTokenModel: Model<RefreshToken>
 	) {}
 
-	async registerUser(response: Response, dto: SignUpDto) {
+	async registerUser(dto: SignUpDto) {
 		const [name] = dto.email.split("@");
 		const user = await this.usersService.findByEmail(dto.email);
 		if (user) {
