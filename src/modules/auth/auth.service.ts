@@ -84,12 +84,12 @@ export class AuthService {
 			expiresIn: "7d",
 			secret: this.config.jwtSecret,
 		});
-		await this.refreshTokenModel.create({
+		const createdRefreshToken = await this.refreshTokenModel.create({
 			token: refresh_token,
 			user_id: payload.sub,
 			is_revoked: false,
 		});
-		void this.usersService.addRefreshToken(payload.sub, refresh_token);
+		void this.usersService.addRefreshToken(payload.sub, createdRefreshToken._id as string);
 		return { _at: access_token, _rt: refresh_token };
 	}
 }

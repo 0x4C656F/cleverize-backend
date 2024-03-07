@@ -19,7 +19,6 @@ export class UsersController {
 	@UseGuards(AuthGuard)
 	@Get("/me")
 	async getMe(@UserPayload() payload: JWTPayload): Promise<User> {
-		console.log("get me", payload.sub);
 		return await this.usersService.findById(payload.sub);
 	}
 
