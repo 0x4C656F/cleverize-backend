@@ -1,26 +1,22 @@
-# Build stage
-FROM node:18-alpine as builder
+FROM node:18-alpine
 
+# Set the working directory in the container
 WORKDIR /usr/src/app
 
+# Copy package.json and yarn.lock to leverage Docker cache
 COPY package.json yarn.lock ./
 
+# Install project dependencies using Yarn
 RUN yarn install --frozen-lockfile
 
+# Bundle app source
 COPY . .
 
 RUN yarn build
 
-# Production stage
-FROM node:18-alpine
 
-WORKDIR /usr/src/app
-
-COPY --from=builder /usr/src/app/dist ./dist
-COPY package.json yarn.lock ./
-
-RUN yarn install --production --frozen-lockfile
-
+# Expose port 3000 for the application
 EXPOSE 8000
 
-CMD ["yarn", "start:prod"] 
+# Define the command to run the app
+CMD ["yarn", "start:prod"]
