@@ -13,16 +13,19 @@ export class AuthController {
 
 	@Post("sign-up")
 	signUp(@Body() dto: SignUpDto): Promise<JwtTokensPair> {
+		console.log("sign up", dto)
 		return this.authService.registerUser(dto);
 	}
 
 	@Post("sign-in")
 	signIn(@Body() dto: SignInDto): Promise<JwtTokensPair> {
+		console.log("sign in", dto)
 		return this.authService.loginUser(dto);
 	}
 
 	@Post("refresh-token")
 	refresh(@Body() dto: RefreshTokenDto): Promise<JwtTokensPair> {
+		console.log("refresh token", dto);
 		return this.authService.refreshTokens(dto);
 	}
 }
