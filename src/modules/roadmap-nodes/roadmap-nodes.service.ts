@@ -35,7 +35,7 @@ export class RoadmapNodesService {
 		try {
 			const { title, user_id, size } = dto;
 
-			const user = await this.userModel.findOne({ user_id });
+			const user = await this.userModel.findById(user_id);
 
 			if (!user) throw new NotFoundException("User not found");
 
@@ -158,7 +158,7 @@ export class RoadmapNodesService {
 		for (const child of result[0].hierarchy) {
 			await this.model.deleteOne({ _id: child._id });
 		}
-		const user = await this.userModel.findOne({ user_id });
+		const user = await this.userModel.findById(user_id);
 		user.roadmaps = user.roadmaps.filter((roadmap) => {
 			if (!roadmap._id.toString().includes(id)) return roadmap;
 		});

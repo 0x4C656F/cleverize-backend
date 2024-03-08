@@ -21,8 +21,7 @@ export class QuizzesService {
 	private openai: OpenAI;
 	constructor(
 		@InjectModel(Quiz.name) private readonly model: Model<QuizDocument>,
-		@InjectModel(RoadmapNode.name)
-		private readonly roadmapModel: Model<RoadmapNodeDocument>,
+		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
 		private readonly streamService: StreamService
 	) {

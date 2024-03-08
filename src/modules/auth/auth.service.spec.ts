@@ -35,6 +35,7 @@ describe("AuthService", () => {
 		password: dto.password,
 		refresh_tokens: [],
 		roadmaps: [],
+		last_signed_in: new Date(),
 		metadata: {
 			language: SUPPORTED_LANGUAGES.ENGLISH,
 		},

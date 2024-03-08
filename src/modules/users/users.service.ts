@@ -20,7 +20,7 @@ export class UsersService {
 		return this.userModel.findById(id).exec();
 	}
 
-	async findByEmail(email: string) {
+	async findByEmail(email: string): Promise<User> {
 		return this.userModel.findOne({ email }).select("+password");
 	}
 

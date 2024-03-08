@@ -48,9 +48,9 @@ export class AuthService {
 
 		if (!isValidPassword) throw new ConflictException("Invalid email or password");
 
-		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id as string };
+		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
-		await this.usersService.update(user._id as string, { last_signed_in: new Date() });
+		await this.usersService.update(user._id.toString(), { last_signed_in: new Date() });
 
 		return this.generateTokenPair(payload);
 	}

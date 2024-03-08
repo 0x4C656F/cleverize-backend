@@ -21,8 +21,7 @@ export class LessonsService {
 	private config: Config;
 	constructor(
 		@InjectModel(Lesson.name) private readonly model: Model<LessonDocument>,
-		@InjectModel(RoadmapNode.name)
-		private readonly roadmapModel: Model<RoadmapNodeDocument>,
+		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
 		private readonly streamService: StreamService
 	) {
