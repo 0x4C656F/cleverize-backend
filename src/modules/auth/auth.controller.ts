@@ -33,6 +33,7 @@ export class AuthController {
 	@UseGuards(AuthGuard)
 	@Get()
 	getHello(): string {
+		console.log("Checked isAuth ")
 		return "Hello World!";
 	}
 }
