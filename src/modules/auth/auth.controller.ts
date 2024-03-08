@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 
 import { JwtTokensPair } from "src/common/jwt-tokens-pair";
 
@@ -6,6 +6,7 @@ import { AuthService } from "./auth.service";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
+import { AuthGuard } from "./auth.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -27,5 +28,11 @@ export class AuthController {
 	refresh(@Body() dto: RefreshTokenDto): Promise<JwtTokensPair> {
 		console.log("refresh token", dto);
 		return this.authService.refreshTokens(dto);
+	}
+	
+	@UseGuards(AuthGuard)
+	@Get()
+	getHello(): string {
+		return "Hello World!";
 	}
 }
