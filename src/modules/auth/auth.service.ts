@@ -48,7 +48,9 @@ export class AuthService {
 
 		if (!isValidPassword) throw new ConflictException("Invalid email or password");
 
-		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
+		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id as string };
+
+		await this.usersService.update(user._id as string, { last_signed_in: new Date() });
 
 		return this.generateTokenPair(payload);
 	}
@@ -56,7 +58,7 @@ export class AuthService {
 	async refreshTokens(dto: RefreshTokenDto) {
 		const { refresh_token } = dto;
 		const { sub }: JWTPayload = this.jwtService.verify(refresh_token, {
-			secret: this.config.jwtSecret,
+			secret: this.config.auth.jwtSecret,
 		});
 
 		const user = await this.usersService.findById(sub);
@@ -77,12 +79,12 @@ export class AuthService {
 
 	async generateTokenPair(payload: JWTPayload): Promise<JwtTokensPair> {
 		const access_token = this.jwtService.sign(payload, {
-			expiresIn: "1h",
-			secret: this.config.jwtSecret,
+			expiresIn: this.config.auth.jwtMaxAge,
+			secret: this.config.auth.jwtSecret,
 		});
 		const refresh_token = this.jwtService.sign(payload, {
-			expiresIn: "7d",
-			secret: this.config.jwtSecret,
+			expiresIn: this.config.auth.jwtRefreshMaxAge,
+			secret: this.config.auth.jwtSecret,
 		});
 		const createdRefreshToken = await this.refreshTokenModel.create({
 			token: refresh_token,

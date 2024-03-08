@@ -37,6 +37,9 @@ export class User {
 
 	@Prop({ type: Subscription, default: subscriptionDefaultObject })
 	subscription: Subscription;
+
+	@Prop({ type: Date, default: Date.now })
+	last_signed_in: Date;
 }
 
 export type UserDocument = User & Document;

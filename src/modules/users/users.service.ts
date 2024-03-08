@@ -6,11 +6,11 @@ import { Model } from "mongoose";
 import { SALT_ROUNDS } from "src/common/constants";
 
 import { CreateUserDto } from "./dto/create-user.dto";
-import { User } from "./schema/user.schema";
+import { User, UserDocument } from "./schema/user.schema";
 
 @Injectable()
 export class UsersService {
-	constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
+	constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
 
 	async getAll(): Promise<User[]> {
 		return this.userModel.find().exec();
@@ -20,8 +20,8 @@ export class UsersService {
 		return this.userModel.findById(id).exec();
 	}
 
-	async findByEmail(email: string): Promise<User> {
-		return this.userModel.findOne({ email }).select("+password").exec();
+	async findByEmail(email: string) {
+		return this.userModel.findOne({ email }).select("+password");
 	}
 
 	async createUser(dto: CreateUserDto): Promise<User> {

@@ -15,7 +15,7 @@ const config = getConfiguration();
 	controllers: [AuthController],
 	imports: [
 		JwtModule.register({
-			secret: config.jwtSecret,
+			secret: config.auth.jwtSecret,
 			global: true,
 		}),
 		MongooseModule.forFeature([
