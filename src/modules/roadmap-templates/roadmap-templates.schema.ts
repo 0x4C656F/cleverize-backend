@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 import { RoadmapSize } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 
+export type TemplateRoadmapNodeDocument = HydratedDocument<TemplateRoadmapNode>;
 export const TemplateRoadmapNodesCollectionName = "template_roadmap_nodes";
 
 @Schema({ collection: TemplateRoadmapNodesCollectionName, timestamps: { createdAt: "created_at" } })
@@ -20,11 +21,7 @@ export class TemplateRoadmapNode {
 
 	@Prop({ required: true, type: [Types.ObjectId], ref: TemplateRoadmapNode.name, index: true })
 	public children: TemplateRoadmapNode[];
-
-	public created_at: Date;
 }
-
-export type TemplateRoadmapNodeDocument = TemplateRoadmapNode & Document;
 
 export const TemplateRoadmapNodeSchema = SchemaFactory.createForClass(TemplateRoadmapNode);
 

@@ -16,6 +16,7 @@ import { Quiz, QuizDocument } from "./schema/quiz.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { UsersService } from "../users/users.service";
 @Injectable()
 export class QuizzesService {
 	private openai: OpenAI;
@@ -23,6 +24,7 @@ export class QuizzesService {
 		@InjectModel(Quiz.name) private readonly model: Model<QuizDocument>,
 		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
+		private readonly userService: UsersService,
 		private readonly streamService: StreamService
 	) {
 		this.openai = new OpenAI({
@@ -73,8 +75,9 @@ export class QuizzesService {
 	}
 
 	public async initQuiz(dto: InitQuizByIdDto): Promise<void> {
-		const { quizId, language, roadmapId, user_id } = dto;
-
+		const { quizId, roadmapId, user_id } = dto;
+		const user = await this.userService.findById(user_id);
+		const language = user.metadata.language
 		const [roadmap] = await this.roadmapModel.find({ _id: roadmapId });
 
 		try {
@@ -86,7 +89,7 @@ export class QuizzesService {
 
 			const arrayOfChildren = getChildrenArray(roadmap);
 
-			const prompt = quizPrompt(arrayOfChildren, language, roadmap.title);
+			const prompt = quizPrompt(arrayOfChildren,language,  roadmap.title);
 
 			let completeAiResponseString: string = "";
 			const completion = await this.openai.chat.completions.create({

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
+import { Model } from "mongoose";
 
 import { SaveTemplateObjectDto, TemplateObjectNode } from "./dto/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
@@ -28,7 +28,7 @@ export class RoadmapTemplatesService {
 		const queue: TemplateObjectNode[] = [root];
 
 		const savedRoot = await new this.model({ title: root.title, size: root.size }).save();
-		root._id = savedRoot._id as string;
+		root._id = savedRoot._id.toString();
 
 		while (queue.length > 0) {
 			const currentNode = queue.shift();
@@ -37,7 +37,7 @@ export class RoadmapTemplatesService {
 			if (currentNode) {
 				for (const child of currentNode.children) {
 					const savedChild = await new this.model({ title: child.title }).save();
-					child._id = savedChild._id as string;
+					child._id = savedChild._id.toString();
 
 					childrenIds.push(child._id);
 
@@ -71,10 +71,10 @@ export class RoadmapTemplatesService {
 					});
 
 					const savedChild = await newRoadmapNode.save();
-					childIds.push(savedChild._id as string); // Add the saved child's ID to the array.
+					childIds.push(savedChild._id.toString()); // Add the saved child's ID to the array.
 
 					// Recursively copy this child's structure, passing savedChild._id as the new parentId.
-					await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id as string);
+					await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id.toString());
 				}
 
 				// Update the current node to include all its children's IDs.
@@ -86,19 +86,19 @@ export class RoadmapTemplatesService {
 				const newTestConversation = await new this.quizModel({
 					title: `Quiz: ${node.title}`,
 					messages: [],
-					node_id: node._id as string,
+					node_id: node._id.toString(),
 					covered_material: childrenTitles,
 				}).save();
 
 				const newConversation = await new this.lessonModel({
 					title: node.title,
-					node_id: node._id as string,
+					node_id: node._id.toString(),
 					messages: [],
 				}).save();
 
 				await this.roadmapsModel.findByIdAndUpdate(parentId, {
 					$set: {
-						lesson_id: newConversation._id as string,
+						lesson_id: newConversation._id.toString(),
 						quiz_id: newTestConversation._id as string,
 					},
 				});
@@ -118,17 +118,17 @@ export class RoadmapTemplatesService {
 				title: child.title,
 				owner_id: userId,
 				is_completed: false,
-				parent_node_id: savedRoot._id as string,
+				parent_node_id: savedRoot._id.toString(),
 				children: child.children,
 			}).save();
-			childIds.push(savedChild._id as string);
-			await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id as string);
+			childIds.push(savedChild._id.toString());
+			await copyAndSaveNode(child as TemplateRoadmapNodeDocument, savedChild._id.toString());
 		}
 		await this.roadmapsModel.findByIdAndUpdate(savedRoot._id, {
 			$set: { children: childIds },
 		});
 		await this.userModel.findByIdAndUpdate(userId, {
-			$push: { roadmaps: savedRoot._id as Types.ObjectId },
+			$push: { roadmaps: savedRoot._id },
 		});
 		return savedRoot;
 	}

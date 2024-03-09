@@ -8,6 +8,7 @@ import { StreamService } from "../../common/stream.service";
 import { RoadmapNode, RoadmapNodeSchema } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserSchema } from "../users/schema/user.schema";
+import { UsersService } from "../users/users.service";
 
 @Module({
 	imports: [
@@ -16,7 +17,7 @@ import { User, UserSchema } from "../users/schema/user.schema";
 		MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
 	],
 	controllers: [QuizzesController],
-	providers: [QuizzesService, StreamService, SubscriptionsService],
+	providers: [QuizzesService, StreamService, SubscriptionsService, UsersService],
 	exports: [],
 })
 export class QuizzesModule {}

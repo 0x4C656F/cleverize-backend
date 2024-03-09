@@ -1,6 +1,8 @@
+import { SUPPORTED_LANGUAGES } from "src/common/constants";
+
 export default function testPrompt(
 	previousLessons: string[],
-	language: "russian" | "english",
+	language: SUPPORTED_LANGUAGES,
 	rootNodeTitle: string
 ): string {
 	return `
