@@ -1,129 +1,128 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { ChatCompletionMessageParam } from "openai/resources";
 
-import getConfig, { Config } from "src/config/configuration";
+import { StreamService } from "src/common/stream.service";
+import getConfiguration from "src/config/configuration";
 
 import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitLessonByIdDto } from "./dto/init-lesson.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import { lessonPrompt } from "./prompts/lesson.prompt";
 import { Lesson, LessonDocument } from "./schema/lesson.schema";
-import { StreamService } from "../../common/stream.service";
-import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
+import { RoadmapNodesService } from "../roadmap-nodes/roadmap-nodes.service";
+import { RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { UsersService } from "../users/users.service";
+
 @Injectable()
 export class LessonsService {
 	private openai: OpenAI;
-	private config: Config;
+
 	constructor(
 		@InjectModel(Lesson.name) private readonly model: Model<LessonDocument>,
-		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>,
+		private readonly userService: UsersService,
 		private readonly subscriptionsService: SubscriptionsService,
-		private readonly streamService: StreamService
+		private readonly streamService: StreamService,
+		private readonly roadmapService: RoadmapNodesService
 	) {
-		this.config = getConfig();
-
 		this.openai = new OpenAI({
-			apiKey: this.config.openai.dimaApiKey,
+			apiKey: getConfiguration().openai.dimaApiKey,
 		});
 	}
 
-	public async addUserMessage(dto: AddUserMessageDto) {
-		const { lessonId, content, role, user_id } = dto;
-		this.streamService.closeStream(lessonId);
+	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
+		const lesson = await this.findLessonAndUpdateMessages(dto.lessonId, dto.content, dto.role);
+		const completeAiResponse = await this.generateAiResponse(
+			lesson.messages as ChatCompletionMessageParam[],
+			"gpt-4"
+		);
+		await this.appendAiResponseAndFinalize(
+			lesson,
+			completeAiResponse,
+			dto.user_id,
+			ADD_MESSAGE_CREDIT_COST
+		);
+	}
+
+	public async initLesson(dto: InitLessonByIdDto): Promise<Lesson> {
+		const user = await this.userService.findById(dto.user_id);
+		const language = user.metadata.language;
+		const lesson = await this.findLesson(dto.lessonId);
+		if (lesson.messages.length > 0) return lesson;
+
+		const [roadmap]: RoadmapNodeDocument[] = await this.roadmapService.getRoadmapSubtreeById(
+			dto.roadmap_id
+		);
+		const roadmapForAi = roadmapParser(roadmap);
+		const prompt = lessonPrompt(language, lesson.title, roadmapForAi, roadmap.title);
+		const aiResponse = await this.generateAiResponse(
+			[{ role: "system", content: prompt }],
+			"gpt-3.5-turbo-1106"
+		);
+
+		await this.appendAiResponseAndFinalize(
+			lesson,
+			aiResponse,
+			dto.user_id,
+			INIT_LESSON_CREDIT_COST,
+			prompt
+		);
+		return lesson;
+	}
+
+	private async findLesson(lessonId: string): Promise<LessonDocument> {
 		const lesson = await this.model.findById(lessonId);
+		if (!lesson) throw new NotFoundException("Lesson not found");
+		return lesson;
+	}
 
-		lesson.messages.push({
-			role: role,
-			content: content,
-		});
+	private async findLessonAndUpdateMessages(
+		lessonId: string,
+		content: string,
+		role: string
+	): Promise<LessonDocument> {
+		const lesson = await this.findLesson(lessonId);
+		lesson.messages.push({ role, content });
+		await lesson.save();
+		return lesson;
+	}
 
-		let completeAiResponse = "";
-
+	private async generateAiResponse(
+		messages: ChatCompletionMessageParam[],
+		model: string
+	): Promise<string> {
+		let aiResponse = "";
 		const completion = await this.openai.chat.completions.create({
-			messages: lesson.messages as ChatCompletionMessageParam[],
-			model: "gpt-4",
+			messages,
+			model,
 			stream: true,
 			max_tokens: 2000,
 		});
-
 		for await (const part of completion) {
-			const textChunk = part.choices[0].delta.content ?? "";
-			completeAiResponse += textChunk;
-			this.streamService.sendData(lessonId, completeAiResponse);
+			aiResponse += part.choices[0].delta.content ?? "";
 		}
-
-		lesson.messages.push({
-			role: "assistant",
-			content: completeAiResponse,
-		});
-
-		await lesson.save();
-		this.streamService.closeStream(lessonId);
-		void this.subscriptionsService.deductCredits(user_id, ADD_MESSAGE_CREDIT_COST);
+		return aiResponse;
 	}
 
-	async initLesson(dto: InitLessonByIdDto): Promise<Lesson> {
-		const { lessonId, language, roadmap_id, user_id } = dto;
-
-		const [roadmap] = await this.roadmapModel.find({ _id: roadmap_id });
-
-		try {
-			const lesson = await this.model.findById(lessonId);
-
-			if (lesson.messages.length > 0) return lesson;
-			const roadmapForAi = roadmapParser(roadmap);
-
-			const prompt: string = lessonPrompt(language, lesson.title, roadmapForAi, roadmap.title);
-
-			let fullAiResponseString: string = "";
-			const completion = await this.openai.chat.completions.create({
-				messages: [
-					{
-						role: "system",
-						content: prompt,
-					},
-				],
-				model: "gpt-3.5-turbo-1106",
-				stream: true,
-				max_tokens: 2000,
-			});
-			for await (const part of completion) {
-				const chunk = part.choices[0].delta.content ?? "";
-				fullAiResponseString += chunk;
-				this.streamService.sendData(lessonId, fullAiResponseString);
-			}
-
-			const message = {
-				role: "system",
-				content: prompt,
-			};
-			await this.model.findByIdAndUpdate(lesson.node_id, {
-				$set: { is_completed: true },
-			});
-
-			lesson.messages.push(message, {
-				role: "assistant",
-				content: fullAiResponseString,
-			});
-
-			this.streamService.closeStream(lessonId);
-
-			void this.subscriptionsService.deductCredits(user_id, INIT_LESSON_CREDIT_COST);
-
-			await lesson.save();
-		} catch (error) {
-			console.error("Error in initLesson:", error);
-			throw error;
+	private async appendAiResponseAndFinalize(
+		lesson: LessonDocument,
+		aiResponse: string,
+		userId: string,
+		creditCost: number,
+		systemMessageContent?: string
+	): Promise<void> {
+		this.streamService.closeStream(lesson._id.toString());
+		if (systemMessageContent) {
+			lesson.messages.push({ role: "system", content: systemMessageContent });
 		}
+		lesson.messages.push({ role: "assistant", content: aiResponse });
+		await lesson.save();
+		this.streamService.sendData(lesson._id.toString(), aiResponse);
+		this.streamService.closeStream(lesson._id.toString());
+		await this.subscriptionsService.deductCredits(userId, creditCost);
 	}
 }
-
-//TODO + Make a test-lesson with each lesson in roadmap-nodes;
-//TODO + Make a prompt for test-lesson;
-//TODO + Add test-lesson generation to template roadmaps;
-//TODO + Make check for test_id on init lesson

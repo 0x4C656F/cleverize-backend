@@ -1,11 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 export enum RoadmapSize {
 	SMALL = "sm",
 	MEDIUM = "md",
 	LARGE = "lg",
 }
+
+export type RoadmapNodeDocument = HydratedDocument<RoadmapNode>;
 
 export const RoadmapNodesCollectionName = "roadmap_nodes";
 
@@ -43,8 +45,6 @@ export class RoadmapNode {
 	@Prop({ required: true, type: [Types.ObjectId], ref: RoadmapNode.name, index: true })
 	public children: RoadmapNode[];
 }
-
-export type RoadmapNodeDocument = RoadmapNode & Document;
 
 export const RoadmapNodeSchema = SchemaFactory.createForClass(RoadmapNode);
 

@@ -41,7 +41,6 @@ export class LessonController {
 	@Get("/:lessonId")
 	public async getConversationById(@Param() parameters: OperateLessonByIdDto) {
 		const lesson = await this.model.findOne({ _id: parameters.lessonId }).exec();
-
 		if (!lesson) throw new NotFoundException();
 		return lesson;
 	}

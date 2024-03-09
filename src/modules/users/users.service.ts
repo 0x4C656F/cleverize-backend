@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { hash } from "bcrypt";
 import { Model } from "mongoose";
@@ -16,22 +16,24 @@ export class UsersService {
 		return this.userModel.find().exec();
 	}
 
-	async findById(id: string): Promise<User> {
-		return this.userModel.findById(id).exec();
+	async findById(id: string): Promise<UserDocument> {
+		const user = await this.userModel.findById(id).exec();
+		if (!user) throw new NotFoundException("User not found");
+		return user;
 	}
 
-	async findByEmail(email: string): Promise<User> {
+	async findByEmail(email: string): Promise<UserDocument> {
 		return this.userModel.findOne({ email }).select("+password");
 	}
 
-	async createUser(dto: CreateUserDto): Promise<User> {
+	async createUser(dto: CreateUserDto): Promise<UserDocument> {
 		const { password, email } = dto;
 		const hashedPassword = await hash(password, SALT_ROUNDS);
 		const [name] = email.split("@");
 		return this.userModel.create({ email, password: hashedPassword, name });
 	}
 
-	async addRefreshToken(userId: string, token: string): Promise<User> {
+	async addRefreshToken(userId: string, token: string): Promise<UserDocument> {
 		const user = await this.userModel.findById(userId);
 		user.refresh_tokens.push(token);
 		await user.save();

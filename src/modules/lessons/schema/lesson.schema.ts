@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
 
@@ -8,10 +8,14 @@ export type Message = {
 	content: string;
 };
 
-@Schema({	timestamps: {
-	createdAt: "created_at", // Use `created_at` to store the created date
-	updatedAt: "updated_at", // and `updated_at` to store the last updated date
-},})
+export type LessonDocument = HydratedDocument<Lesson>;
+
+@Schema({
+	timestamps: {
+		createdAt: "created_at", // Use `created_at` to store the created date
+		updatedAt: "updated_at", // and `updated_at` to store the last updated date
+	},
+})
 export class Lesson {
 	public _id: Types.ObjectId;
 
@@ -25,5 +29,4 @@ export class Lesson {
 	public messages: Message[];
 }
 
-export type LessonDocument = Lesson & Document;
 export const LessonSchema = SchemaFactory.createForClass(Lesson);

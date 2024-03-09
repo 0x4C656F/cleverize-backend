@@ -67,7 +67,7 @@ export class RoadmapNodesService {
 			isRoot: boolean,
 			parent_node_id?: string
 		): Promise<RoadmapNode> {
-			const newNode = new model({
+			const newNode: RoadmapNodeDocument = new model({
 				title: node.title,
 				is_completed: false,
 				children: [],
@@ -78,7 +78,7 @@ export class RoadmapNodesService {
 				node.children?.length > 0
 					? await Promise.all(
 							node.children.map((childNode) =>
-								roadmapNodeSaver(childNode, false, newNode._id as string)
+								roadmapNodeSaver(childNode, false, newNode._id.toString())
 							)
 					  )
 					: [];
@@ -92,16 +92,16 @@ export class RoadmapNodesService {
 					title: `Quiz: ${node.title}`,
 					messages: [],
 					covered_material: childrenTitles,
-					node_id: newNode._id as string,
+					node_id: newNode._id.toString(),
 				}).save();
 
 				const lesson = await new lessonModel({
 					title: node.title,
 					messages: [],
-					node_id: newNode._id as string,
+					node_id: newNode._id.toString(),
 				}).save();
 
-				newNode.lesson_id = lesson._id as string;
+				newNode.lesson_id = lesson._id.toString();
 				newNode.quiz_id = quiz._id as string;
 
 				await newNode.save(); // Save lesson with node_id
@@ -114,7 +114,7 @@ export class RoadmapNodesService {
 		return roadmap;
 	}
 
-	public async getRoadmapNodeById(id: string) {
+	public async getRoadmapNodeById(id: string): Promise<RoadmapNodeDocument> {
 		const roadmapNode = await this.model.findById(id);
 
 		if (!roadmapNode) throw new NotFoundException("Roadmap node not found");
@@ -122,12 +122,12 @@ export class RoadmapNodesService {
 		return roadmapNode;
 	}
 
-	public async getRoadmapSubtreeById(id: string) {
+	public async getRoadmapSubtreeById(id: string): Promise<RoadmapNodeDocument[]> {
 		// recursive population is enabled only on find method
 		const result = await this.model.find({ _id: id });
 		if (result.length === 0) throw new NotFoundException("Roadmap root not found");
 
-		return result[0];
+		return result;
 	}
 
 	public async toggleRoadmapNodeCompetencyById(id: string) {

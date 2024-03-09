@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import {  HydratedDocument, Types } from "mongoose";
 
 import { SUPPORTED_LANGUAGES } from "src/common/constants";
 import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
@@ -12,6 +12,8 @@ export type Metadata = {
 const defaultMetadata: Metadata = {
 	language: SUPPORTED_LANGUAGES.ENGLISH,
 };
+
+export type UserDocument = HydratedDocument<User>;
 
 @Schema({
 	timestamps: {
@@ -46,7 +48,5 @@ export class User {
 	@Prop({ type: Date, default: Date.now })
 	last_signed_in: Date;
 }
-
-export type UserDocument = User & Document;
 
 export const UserSchema = SchemaFactory.createForClass(User);
