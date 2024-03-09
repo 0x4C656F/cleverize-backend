@@ -13,7 +13,12 @@ const defaultMetadata: Metadata = {
 	language: SUPPORTED_LANGUAGES.ENGLISH,
 };
 
-@Schema({ timestamps: true })
+@Schema({
+	timestamps: {
+		createdAt: "created_at", // Use `created_at` to store the created date
+		updatedAt: "updated_at", // and `updated_at` to store the last updated date
+	},
+})
 export class User {
 	_id: Types.ObjectId;
 

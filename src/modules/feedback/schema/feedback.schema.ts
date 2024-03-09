@@ -1,7 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
 
-@Schema({ timestamps: true })
+@Schema({
+	timestamps: {
+		createdAt: "created_at", // Use `created_at` to store the created date
+		updatedAt: "updated_at", // and `updated_at` to store the last updated date
+	},
+})
 export class Feedback extends Document {
 	@Prop({ required: true })
 	user_id: string;

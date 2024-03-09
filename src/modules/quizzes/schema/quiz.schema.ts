@@ -8,7 +8,12 @@ export type Message = {
 	content: string;
 };
 
-@Schema()
+@Schema({
+	timestamps: {
+		createdAt: "created_at", // Use `created_at` to store the created date
+		updatedAt: "updated_at", // and `updated_at` to store the last updated date
+	},
+})
 export class Quiz {
 	public _id: Types.ObjectId;
 
@@ -21,7 +26,7 @@ export class Quiz {
 	@Prop({ type: Types.ObjectId, required: true, ref: RoadmapNodesCollectionName })
 	public node_id: string;
 
-	@Prop({ type: [{ type: Object }], required: true})
+	@Prop({ type: [{ type: Object }], required: true })
 	public messages: Message[];
 }
 

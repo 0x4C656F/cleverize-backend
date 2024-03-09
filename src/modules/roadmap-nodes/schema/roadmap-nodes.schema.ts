@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-
 export enum RoadmapSize {
 	SMALL = "sm",
 	MEDIUM = "md",
@@ -10,11 +9,17 @@ export enum RoadmapSize {
 
 export const RoadmapNodesCollectionName = "roadmap_nodes";
 
-@Schema({ collection: RoadmapNodesCollectionName, timestamps: { createdAt: "created_at" } })
+@Schema({
+	collection: RoadmapNodesCollectionName,
+	timestamps: {
+		createdAt: "created_at", // Use `created_at` to store the created date
+		updatedAt: "updated_at", // and `updated_at` to store the last updated date
+	},
+})
 export class RoadmapNode {
 	public _id: Types.ObjectId;
 
-	@Prop({ type: String, ref: 'User' })
+	@Prop({ type: String, ref: "User" })
 	public owner_id: string;
 
 	@Prop({ type: String, enum: RoadmapSize })
@@ -37,8 +42,6 @@ export class RoadmapNode {
 
 	@Prop({ required: true, type: [Types.ObjectId], ref: RoadmapNode.name, index: true })
 	public children: RoadmapNode[];
-
-	public created_at: Date;
 }
 
 export type RoadmapNodeDocument = RoadmapNode & Document;
