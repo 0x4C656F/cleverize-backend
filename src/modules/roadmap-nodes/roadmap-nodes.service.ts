@@ -1,5 +1,6 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
+import { ApiGatewayTimeoutResponse } from "@nestjs/swagger";
 import { Model, Types } from "mongoose";
 import OpenAI from "openai";
 
@@ -12,7 +13,7 @@ import {
 	RoadmapNodesCollectionName,
 } from "./schema/roadmap-nodes.schema";
 import { RawRoadmap } from "./types/raw-roadmap";
-import getConfig from "../../config/configuration";
+import getConfiguration from "../../config/configuration";
 import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
 import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
 import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
@@ -22,7 +23,7 @@ import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserDocument } from "../users/schema/user.schema";
 @Injectable()
 export class RoadmapNodesService {
-	private openai = new OpenAI({ apiKey: getConfig().openai.dimaApiKey });
+	private openai = new OpenAI({ apiKey: getConfiguration().openai.dimaApiKey });
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
 		@InjectModel(RoadmapNode.name) private readonly model: Model<RoadmapNodeDocument>,
@@ -31,87 +32,78 @@ export class RoadmapNodesService {
 		private readonly subscriptionsService: SubscriptionsService
 	) {}
 
-	public async generateRootRoadmap(dto: GenerateRootRoadmapDto) {
-		try {
-			const { title, user_id, size } = dto;
-
-			const user = await this.userModel.findById(user_id);
-
-			if (!user) throw new NotFoundException("User not found");
-
-			const rootRoadmap = await this.generateRoadmap(title, size);
-
-			await this.saveRoadmap(rootRoadmap, user_id, size, (roadmap) => {
-				user.roadmaps.push(roadmap._id);
-				void user.save();
-			});
-			void this.subscriptionsService.deductCredits(user_id, GENERATE_ROADMAP_CREDIT_COST);
-		} catch (error) {
-			Logger.error(error);
-			throw error;
+	public async generateRootRoadmap(dto: GenerateRootRoadmapDto): Promise<void> {
+		const user = await this.model.findById(dto.user_id).exec();
+		if (!user) {
+			throw new NotFoundException("User not found");
 		}
+
+		const rootRoadmap = await this.generateRoadmap(dto.title, dto.size);
+		await this.saveRoadmap(rootRoadmap, dto.user_id, dto.size);
+		await this.subscriptionsService.deductCredits(dto.user_id, GENERATE_ROADMAP_CREDIT_COST);
+	}
+
+	private async generateRoadmap(title: string, size: RoadmapSize): Promise<RawRoadmap> {
+		const template = size === RoadmapSize.SMALL ? smallTemplate(title) : mediumTemplate(title);
+		const completion = await this.openai.chat.completions.create({
+			messages: [{ role: "system", content: template }],
+			model: "gpt-3.5-turbo-1106",
+			max_tokens: 1500,
+		});
+
+		return JSON.parse(completion.choices[0].message.content) as RawRoadmap;
 	}
 
 	private async saveRoadmap(
 		firstNode: RawRoadmap,
 		userId: string,
-		size: RoadmapSize,
-		callback: (roadmap: RoadmapNode) => void
-	): Promise<RoadmapNode> {
-		const model = this.model;
-		const lessonModel = this.lessonModel;
-		const quizModel = this.quizModel;
-		const childrenTitles: string[] = [];
-		async function roadmapNodeSaver(
+		size: RoadmapSize
+	): Promise<RoadmapNodeDocument> {
+		const saveNodeRecursively = async (
 			node: RawRoadmap,
-			isRoot: boolean,
-			parent_node_id?: string
-		): Promise<RoadmapNode> {
-			const newNode: RoadmapNodeDocument = new model({
+			parentId?: string
+		): Promise<RoadmapNodeDocument> => {
+			const newNode = await this.model.create({
 				title: node.title,
 				is_completed: false,
+				parent_node_id: parentId || undefined,
+				...(parentId ? {} : { owner_id: userId, size }),
 				children: [],
-				...(!isRoot && parent_node_id && { parent_node_id }),
-				...(isRoot && { owner_id: userId, size }), // Conditionally add owner_id and size
 			});
-			const children =
-				node.children?.length > 0
-					? await Promise.all(
-							node.children.map((childNode) =>
-								roadmapNodeSaver(childNode, false, newNode._id.toString())
-							)
-					  )
-					: [];
 
-			if (children.length > 0) {
-				newNode.children = children;
+			if (node.children && node.children.length > 0) {
+				for (const childNode of node.children) {
+					const childDocument = await saveNodeRecursively(childNode, newNode._id.toString());
+					newNode.children.push(childDocument);
+				}
 				await newNode.save();
 			} else {
-				childrenTitles.push(node.title);
-				const quiz = await new quizModel({
-					title: `Quiz: ${node.title}`,
-					messages: [],
-					covered_material: childrenTitles,
-					node_id: newNode._id.toString(),
-				}).save();
-
-				const lesson = await new lessonModel({
-					title: node.title,
-					messages: [],
-					node_id: newNode._id.toString(),
-				}).save();
-
-				newNode.lesson_id = lesson._id.toString();
-				newNode.quiz_id = quiz._id as string;
-
-				await newNode.save(); // Save lesson with node_id
+				await this.createAndBindQuizAndLesson(newNode);
 			}
 
 			return newNode;
-		}
-		const roadmap = await roadmapNodeSaver(firstNode, true);
-		callback(roadmap);
-		return roadmap;
+		};
+
+		return saveNodeRecursively(firstNode);
+	}
+
+	private async createAndBindQuizAndLesson(node: RoadmapNodeDocument): Promise<void> {
+		const quiz = await this.quizModel.create({
+			title: `Quiz: ${node.title}`,
+			messages: [],
+			covered_material: [],
+			node_id: node._id.toString(),
+		});
+
+		const lesson = await this.lessonModel.create({
+			title: node.title,
+			messages: [],
+			node_id: node._id.toString(),
+		});
+
+		node.lesson_id = lesson._id.toString();
+		node.quiz_id = quiz._id.toString();
+		await node.save();
 	}
 
 	public async getRoadmapNodeById(id: string): Promise<RoadmapNodeDocument> {
@@ -169,31 +161,5 @@ export class RoadmapNodesService {
 	public async getAllUserRoadmaps(dto: { owner_id: string }) {
 		const { owner_id } = dto;
 		return await this.model.find({ owner_id, size: { $exists: true } });
-	}
-
-	private async generateRoadmap(title: string, size: RoadmapSize) {
-		let template: string;
-		switch (size) {
-			case "sm": {
-				template = smallTemplate(title);
-				break;
-			}
-			case "md": {
-				template = mediumTemplate(title);
-				break;
-			}
-		}
-		const completion = await this.openai.chat.completions.create({
-			messages: [
-				{
-					role: "system",
-					content: template,
-				},
-			],
-			model: "gpt-3.5-turbo-1106",
-			response_format: { type: "json_object" },
-			max_tokens: 1500,
-		});
-		return JSON.parse(completion.choices[0].message.content) as RawRoadmap;
 	}
 }

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
 
@@ -7,6 +7,8 @@ export type Message = {
 	role: string;
 	content: string;
 };
+
+export type QuizDocument = HydratedDocument<Quiz>;
 
 @Schema({
 	timestamps: {
@@ -30,5 +32,4 @@ export class Quiz {
 	public messages: Message[];
 }
 
-export type QuizDocument = Quiz & Document;
 export const QuizSchema = SchemaFactory.createForClass(Quiz);

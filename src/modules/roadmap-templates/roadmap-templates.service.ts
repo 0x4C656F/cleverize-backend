@@ -99,7 +99,7 @@ export class RoadmapTemplatesService {
 				await this.roadmapsModel.findByIdAndUpdate(parentId, {
 					$set: {
 						lesson_id: newConversation._id.toString(),
-						quiz_id: newTestConversation._id as string,
+						quiz_id: newTestConversation._id.toString()
 					},
 				});
 			}

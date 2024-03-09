@@ -18,6 +18,5 @@ import { UsersService } from "../users/users.service";
 	],
 	controllers: [QuizzesController],
 	providers: [QuizzesService, StreamService, SubscriptionsService, UsersService],
-	exports: [],
 })
 export class QuizzesModule {}
