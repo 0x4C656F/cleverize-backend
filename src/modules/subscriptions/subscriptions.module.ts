@@ -9,6 +9,6 @@ import { User, UserSchema } from "../users/schema/user.schema";
 	imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
 	controllers: [SubscriptionsController],
 	providers: [SubscriptionsService],
-	exports: [],
+	exports: [SubscriptionsService],
 })
 export class SubscriptionsModule {}

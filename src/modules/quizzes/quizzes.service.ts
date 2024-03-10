@@ -107,4 +107,8 @@ export class QuizzesService {
 		if (!roadmap) throw new NotFoundException("Roadmap not found");
 		return roadmap;
 	}
+
+	public async createQuiz(quiz: Quiz): Promise<QuizDocument> {
+		return await this.quizModel.create(quiz);
+	}
 }

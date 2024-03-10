@@ -13,7 +13,7 @@ import roadmapParser from "./helpers/roadmap-parser";
 import { lessonPrompt } from "./prompts/lesson.prompt";
 import { Lesson, LessonDocument } from "./schema/lesson.schema";
 import { RoadmapNodesService } from "../roadmap-nodes/roadmap-nodes.service";
-import { RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
+import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { UsersService } from "../users/users.service";
@@ -27,7 +27,7 @@ export class LessonsService {
 		private readonly userService: UsersService,
 		private readonly subscriptionsService: SubscriptionsService,
 		private readonly streamService: StreamService,
-		private readonly roadmapService: RoadmapNodesService
+		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>
 	) {
 		this.openai = new OpenAI({
 			apiKey: getConfiguration().openai.dimaApiKey,
@@ -54,9 +54,7 @@ export class LessonsService {
 		const lesson = await this.findLesson(dto.lessonId);
 		if (lesson.messages.length > 0) return lesson;
 
-		const [roadmap]: RoadmapNodeDocument[] = await this.roadmapService.getRoadmapSubtreeById(
-			dto.roadmap_id
-		);
+		const [roadmap]: RoadmapNodeDocument[] = await this.roadmapModel.find({ _id: dto.roadmap_id });
 		const roadmapForAi = roadmapParser(roadmap);
 		const prompt = lessonPrompt(language, lesson.title, roadmapForAi, roadmap.title);
 		const aiResponse = await this.generateAiResponse(
@@ -124,5 +122,9 @@ export class LessonsService {
 		this.streamService.sendData(lesson._id.toString(), aiResponse);
 		this.streamService.closeStream(lesson._id.toString());
 		await this.subscriptionsService.deductCredits(userId, creditCost);
+	}
+
+	public async createLesson(lesson: Lesson): Promise<LessonDocument> {
+		return await this.model.create(lesson);
 	}
 }

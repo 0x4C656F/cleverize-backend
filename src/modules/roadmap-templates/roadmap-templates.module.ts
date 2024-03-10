@@ -21,6 +21,6 @@ import { User, UserSchema } from "../users/schema/user.schema";
 	],
 	controllers: [RoadmapTemplatesController],
 	providers: [RoadmapTemplatesService],
-	exports: [],
+	exports: [RoadmapTemplatesService],
 })
 export class RoadmapTemplatesModule {}

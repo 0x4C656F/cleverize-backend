@@ -42,7 +42,7 @@ export class RoadmapTemplatesService {
 					childrenIds.push(child._id);
 
 					queue.push(child);
-				}
+				} 	
 			}
 
 			await this.model.findByIdAndUpdate(currentNode._id, { $set: { children: childrenIds } });

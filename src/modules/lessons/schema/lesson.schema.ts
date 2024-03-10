@@ -17,8 +17,6 @@ export type LessonDocument = HydratedDocument<Lesson>;
 	},
 })
 export class Lesson {
-	public _id: Types.ObjectId;
-
 	@Prop({ required: true })
 	public title: string;
 

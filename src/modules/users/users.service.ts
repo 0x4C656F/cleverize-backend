@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { hash } from "bcrypt";
+import * as bcrypt from "bcrypt";
 import { Model } from "mongoose";
 
 import { SALT_ROUNDS } from "src/common/constants";
@@ -28,7 +28,7 @@ export class UsersService {
 
 	async createUser(dto: CreateUserDto): Promise<UserDocument> {
 		const { password, email } = dto;
-		const hashedPassword = await hash(password, SALT_ROUNDS);
+		const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 		const [name] = email.split("@");
 		return this.userModel.create({ email, password: hashedPassword, name });
 	}

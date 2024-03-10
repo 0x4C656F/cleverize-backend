@@ -17,13 +17,12 @@ export type QuizDocument = HydratedDocument<Quiz>;
 	},
 })
 export class Quiz {
-	public _id: Types.ObjectId;
 
 	@Prop({ required: true })
 	public title: string;
 
 	@Prop({ required: true })
-	public covered_material: [string];
+	public covered_material: string[];
 
 	@Prop({ type: Types.ObjectId, required: true, ref: RoadmapNodesCollectionName })
 	public node_id: string;
