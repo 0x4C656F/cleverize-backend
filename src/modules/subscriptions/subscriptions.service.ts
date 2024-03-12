@@ -47,7 +47,7 @@ export class SubscriptionsService {
 	}
 
 	public async deductCredits(id: string, credits: number) {
-		const user = await this.userModel.findOne({ user_id: id });
+		const user = await this.userModel.findById(id);
 		if (!user) throw new NotFoundException();
 
 		user.subscription.credits -= credits;
