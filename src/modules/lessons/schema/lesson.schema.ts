@@ -23,6 +23,9 @@ export class Lesson {
 	@Prop({ type: Types.ObjectId, required: true, ref: RoadmapNodesCollectionName })
 	public node_id: string;
 
+	@Prop({ required: true, type: Types.ObjectId, ref: "User" })
+	public owner_id: string;
+
 	@Prop({ type: [{ type: Object }] })
 	public messages: Message[];
 }

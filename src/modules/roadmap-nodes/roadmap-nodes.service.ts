@@ -105,6 +105,7 @@ export class RoadmapNodesService {
 		const lesson = await this.lessonsService.createLesson({
 			title: node.title,
 			messages: [],
+			owner_id: node.owner_id,
 			node_id: node._id.toString(),
 		});
 

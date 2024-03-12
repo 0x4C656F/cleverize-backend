@@ -24,7 +24,7 @@ export class Quiz {
 	@Prop({ required: true })
 	public covered_material: string[];
 
-	@Prop({ required: true })
+	@Prop({ required: true, type: Types.ObjectId, ref: "User" })
 	public owner_id: string;
 
 	@Prop({ type: Types.ObjectId, required: true, ref: RoadmapNodesCollectionName })
