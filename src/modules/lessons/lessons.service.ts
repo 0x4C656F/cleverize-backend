@@ -11,8 +11,7 @@ import { AddUserMessageDto } from "./dto/add-user-message.dto";
 import { InitLessonByIdDto } from "./dto/init-lesson.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import { lessonPrompt } from "./prompts/lesson.prompt";
-import { Lesson, LessonDocument } from "./schema/lesson.schema";
-import { RoadmapNodesService } from "../roadmap-nodes/roadmap-nodes.service";
+import { Lesson, LessonDocument, Message } from "./schema/lesson.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
@@ -35,15 +34,19 @@ export class LessonsService {
 	}
 
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
-		const lesson = await this.findLessonAndUpdateMessages(dto.lessonId, dto.content, dto.role);
+		const { lessonId, content, role, user_id } = dto;
+		console.log("lessonId", lessonId, "content", content, "role", role, "user_id", user_id);
+		const lesson = await this.findLessonAndUpdateMessages(lessonId, { role, content });
+		console.log("lesson", lesson);
 		const completeAiResponse = await this.generateAiResponse(
 			lesson.messages as ChatCompletionMessageParam[],
 			"gpt-4"
 		);
+		console.log("completeAiResponse", completeAiResponse);
 		await this.appendAiResponseAndFinalize(
 			lesson,
 			completeAiResponse,
-			dto.user_id,
+			user_id,
 			ADD_MESSAGE_CREDIT_COST
 		);
 	}
@@ -80,13 +83,13 @@ export class LessonsService {
 
 	private async findLessonAndUpdateMessages(
 		lessonId: string,
-		content: string,
-		role: string
+		message: Message
 	): Promise<LessonDocument> {
-		const lesson = await this.findLesson(lessonId);
-		lesson.messages.push({ role, content });
-		await lesson.save();
-		return lesson;
+		return this.model
+			.findByIdAndUpdate(lessonId, {
+				$push: { messages: message },
+			})
+			.exec();
 	}
 
 	private async generateAiResponse(

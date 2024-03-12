@@ -35,18 +35,19 @@ export class QuizzesService {
 	}
 
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
-		const quiz = await this.getQuizById(dto.quizId);
-		quiz.messages.push({ role: dto.role, content: dto.content });
+		const { role, user_id, content, quizId } = dto;
+		const quiz = await this.getQuizById(quizId);
+		quiz.messages.push({ role, content });
 
 		const aiResponse = await this.getAiResponse(quiz.messages as ChatCompletionMessageParam[]);
 		quiz.messages.push({ role: "assistant", content: aiResponse });
 
-		await this.finalizeQuizInteraction(quiz, dto.user_id, ADD_MESSAGE_CREDIT_COST);
+		await this.finalizeQuizInteraction(quiz, user_id, ADD_MESSAGE_CREDIT_COST);
 	}
 
 	public async restartQuiz(dto: RestartQuizByIdDto): Promise<void> {
 		const quiz = await this.getQuizById(dto.quizId);
-		quiz.messages = []; // Clear messages or set to initial state as required
+		quiz.messages = [];
 		await quiz.save();
 	}
 
