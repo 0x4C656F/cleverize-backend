@@ -41,9 +41,10 @@ export class QuizzesController {
 	@UseGuards(AuthGuard)
 	@Get("/:quizId")
 	async getQuizById(@Param() parameters: OperateQuizByIdDto, @UserPayload() payload: JWTPayload) {
-		const quiz = await this.model.findOne({ _id: parameters.quizId, owner_id: payload.sub }).exec();
-
-		if (!quiz) throw new NotFoundException("Could not find quiz with given id");
+		const quiz = await this.service.getQuizById(parameters.quizId);
+		if (quiz.owner_id !== payload.sub) {
+			throw new NotFoundException("Quiz not found");
+		}
 		return quiz;
 	}
 

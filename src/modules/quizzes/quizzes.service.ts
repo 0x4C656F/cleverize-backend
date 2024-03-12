@@ -96,7 +96,7 @@ export class QuizzesService {
 		this.streamService.closeStream(quiz._id.toString()); // Verify if needed twice
 	}
 
-	private async getQuizById(quizId: string): Promise<QuizDocument> {
+	public async getQuizById(quizId: string): Promise<QuizDocument> {
 		const quiz = await this.quizModel.findById(quizId);
 		if (!quiz) throw new NotFoundException("Quiz not found");
 		return quiz;

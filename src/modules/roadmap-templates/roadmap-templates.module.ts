@@ -10,7 +10,6 @@ import { LessonsService } from "../lessons/lessons.service";
 import { Lesson, LessonSchema } from "../lessons/schema/lesson.schema";
 import { QuizzesService } from "../quizzes/quizzes.service";
 import { Quiz, QuizSchema } from "../quizzes/schema/quiz.schema";
-import { RoadmapNodesModule } from "../roadmap-nodes/roadmap-nodes.module";
 import { RoadmapNodesService } from "../roadmap-nodes/roadmap-nodes.service";
 import { RoadmapNode, RoadmapNodeSchema } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
