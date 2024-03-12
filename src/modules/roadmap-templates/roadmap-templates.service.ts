@@ -6,7 +6,9 @@ import { SaveTemplateObjectDto, TemplateObjectNode } from "./dto/save-template-o
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
 import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
 import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
+import { RoadmapNodesService } from "../roadmap-nodes/roadmap-nodes.service";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
+import { RawRoadmap } from "../roadmap-nodes/types/raw-roadmap";
 import { User, UserDocument } from "../users/schema/user.schema";
 
 @Injectable()
@@ -21,7 +23,8 @@ export class RoadmapTemplatesService {
 		@InjectModel(User.name)
 		private readonly userModel: Model<UserDocument>,
 		@InjectModel(Quiz.name)
-		private readonly quizModel: Model<QuizDocument>
+		private readonly quizModel: Model<QuizDocument>,
+		private readonly roadmapNodesService: RoadmapNodesService
 	) {}
 
 	public async saveTemplateObject(root: SaveTemplateObjectDto) {
@@ -42,7 +45,7 @@ export class RoadmapTemplatesService {
 					childrenIds.push(child._id);
 
 					queue.push(child);
-				} 	
+				}
 			}
 
 			await this.model.findByIdAndUpdate(currentNode._id, { $set: { children: childrenIds } });
@@ -99,7 +102,7 @@ export class RoadmapTemplatesService {
 				await this.roadmapsModel.findByIdAndUpdate(parentId, {
 					$set: {
 						lesson_id: newConversation._id.toString(),
-						quiz_id: newTestConversation._id.toString()
+						quiz_id: newTestConversation._id.toString(),
 					},
 				});
 			}
@@ -131,5 +134,22 @@ export class RoadmapTemplatesService {
 			$push: { roadmaps: savedRoot._id },
 		});
 		return savedRoot;
+	}
+
+	public async copyTemplateToUserV2(
+		templateRoadmapId: string,
+		userId: string
+	): Promise<RoadmapNodeDocument> {
+		const template: TemplateRoadmapNodeDocument = await this.model
+			.findById(templateRoadmapId)
+			.populate({ path: "children", populate: { path: "children" } });
+		if (!template) {
+			throw new NotFoundException("Template not found");
+		}
+		return await this.roadmapNodesService.saveRoadmap(
+			template as RawRoadmap,
+			userId,
+			template.size
+		);
 	}
 }

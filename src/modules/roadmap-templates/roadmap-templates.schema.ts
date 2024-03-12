@@ -16,9 +16,6 @@ export class TemplateRoadmapNode {
 	@Prop({ required: true })
 	public title: string;
 
-	@Prop({ ref: "TemplateConversation" })
-	public lesson_id?: string;
-
 	@Prop({ required: true, type: [Types.ObjectId], ref: TemplateRoadmapNode.name, index: true })
 	public children: TemplateRoadmapNode[];
 }

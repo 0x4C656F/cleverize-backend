@@ -54,7 +54,7 @@ export class RoadmapNodesService {
 		return JSON.parse(completion.choices[0].message.content) as RawRoadmap;
 	}
 
-	private async saveRoadmap(
+	public async saveRoadmap(
 		firstNode: RawRoadmap,
 		userId: string,
 		size: RoadmapSize
