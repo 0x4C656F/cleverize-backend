@@ -81,7 +81,7 @@ export class RoadmapNodesService {
 				}
 				await newNode.save();
 			} else {
-				await this.createAndBindQuizAndLesson(newNode, coveredMaterial);
+				await this.createAndBindQuizAndLesson(newNode, coveredMaterial, userId);
 			}
 
 			return newNode;
@@ -92,20 +92,21 @@ export class RoadmapNodesService {
 
 	private async createAndBindQuizAndLesson(
 		node: RoadmapNodeDocument,
-		covered_material: string[]
+		covered_material: string[],
+		owner_id: string
 	): Promise<void> {
 		const quiz = await this.quizzesService.createQuiz({
 			title: `Quiz: ${node.title}`,
 			messages: [],
 			covered_material,
 			node_id: node._id.toString(),
-			owner_id: node.owner_id,
+			owner_id,
 		});
 
 		const lesson = await this.lessonsService.createLesson({
 			title: node.title,
 			messages: [],
-			owner_id: node.owner_id,
+			owner_id,
 			node_id: node._id.toString(),
 		});
 
