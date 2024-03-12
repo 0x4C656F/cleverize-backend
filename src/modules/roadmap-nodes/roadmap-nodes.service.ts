@@ -120,12 +120,12 @@ export class RoadmapNodesService {
 		return roadmapNode;
 	}
 
-	public async getRoadmapSubtreeById(id: string): Promise<RoadmapNodeDocument[]> {
+	public async getRoadmapSubtreeById(id: string): Promise<RoadmapNodeDocument> {
 		// recursive population is enabled only on find method
-		const result = await this.model.find({ _id: id });
-		if (result.length === 0) throw new NotFoundException("Roadmap root not found");
+		const [roadmap] = await this.model.find({ _id: id });
+		if (!roadmap) throw new NotFoundException("Roadmap root not found");
 
-		return result;
+		return roadmap;
 	}
 
 	public async toggleRoadmapNodeCompetencyById(id: string) {
