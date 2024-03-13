@@ -11,7 +11,7 @@ import getConfiguration, { Config } from "src/config/configuration";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
-import { RefreshToken } from "./schema/refresh-token.schema";
+import { RefreshToken, RefreshTokenDocument } from "./schema/refresh-token.schema";
 import { UsersService } from "../users/users.service";
 
 @Injectable()
@@ -86,12 +86,12 @@ export class AuthService {
 			expiresIn: this.config.auth.jwtRefreshMaxAge,
 			secret: this.config.auth.jwtSecret,
 		});
-		const createdRefreshToken = await this.refreshTokenModel.create({
+		const createdRefreshToken: RefreshTokenDocument = await this.refreshTokenModel.create({
 			token: refresh_token,
 			user_id: payload.sub,
 			is_revoked: false,
 		});
-		void this.usersService.addRefreshToken(payload.sub, createdRefreshToken._id as string);
+		await this.usersService.addRefreshToken(payload.sub, createdRefreshToken._id.toString());
 		return { _at: access_token, _rt: refresh_token };
 	}
 }

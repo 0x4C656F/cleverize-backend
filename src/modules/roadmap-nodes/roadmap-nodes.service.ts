@@ -172,6 +172,9 @@ export class RoadmapNodesService {
 
 	public async getAllUserRoadmaps(dto: { owner_id: string }) {
 		const { owner_id } = dto;
-		return await this.model.find({ owner_id, size: { $exists: true } });
+		const user: UserDocument = await this.usersService.findById(owner_id);
+		if(!user) throw new NotFoundException("User not found");
+		const roadmaps: Types.ObjectId[] = user.roadmaps
+		return await this.model.find({ _id: { $in: roadmaps } });			
 	}
 }

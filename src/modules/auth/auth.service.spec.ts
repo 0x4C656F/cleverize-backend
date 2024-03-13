@@ -9,8 +9,9 @@ import { JWTPayload } from "src/common/user-payload.decorator";
 
 import { AuthService } from "./auth.service";
 import { SignUpDto } from "./dto/sign-up.dto";
+import { RefreshTokenDocument } from "./schema/refresh-token.schema";
 import { DEFAULT_CREDITS } from "../subscriptions/subscription";
-import { User } from "../users/schema/user.schema";
+import { User, UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 
 describe("AuthService", () => {
@@ -66,7 +67,7 @@ describe("AuthService", () => {
 					useValue: {
 						findByEmail: jest.fn(),
 						createUser: jest.fn(),
-						generateTokenPair: jest.fn(),
+						
 						addRefreshToken: jest.fn(),
 					},
 				},
@@ -95,7 +96,7 @@ describe("AuthService", () => {
 		it("should create user and return pair of tokens typeof JwtTokensPair", async () => {
 			// eslint-disable-next-line unicorn/no-null
 			jest.spyOn(usersService, "findByEmail").mockReturnValue(null);
-			jest.spyOn(usersService, "createUser").mockResolvedValue(mockUser);
+			jest.spyOn(usersService, "createUser").mockResolvedValue(mockUser as UserDocument);
 			jest.spyOn(authService, "generateTokenPair").mockReturnValue(Promise.resolve(mockTokens));
 
 			const result = await authService.registerUser(dto);
@@ -108,7 +109,7 @@ describe("AuthService", () => {
 		});
 
 		it("should throw error if user with given email already exists", async () => {
-			jest.spyOn(usersService, "findByEmail").mockResolvedValue(mockUser);
+			jest.spyOn(usersService, "findByEmail").mockResolvedValue(mockUser as UserDocument);
 
 			await expect(authService.registerUser(dto)).rejects.toThrowError(
 				"User with this email already exists"
@@ -122,12 +123,16 @@ describe("AuthService", () => {
 				.spyOn(jwtService, "sign")
 				.mockReturnValueOnce(mockTokens._at)
 				.mockReturnValueOnce(mockTokens._rt);
-
-			jest.spyOn(usersService, "addRefreshToken").mockResolvedValue(Promise.resolve(mockUser));
+			jest
+				.spyOn(mockRefreshTokenModel, "create")
+				.mockResolvedValue(Promise.resolve({ _id: "some_id" } as RefreshTokenDocument));
+			jest
+				.spyOn(usersService, "addRefreshToken")
+				.mockResolvedValue(Promise.resolve(mockUser as UserDocument));
 			const result = await authService.generateTokenPair(mockPayload);
 
 			expect(result).toEqual(mockTokens);
-			expect(usersService.addRefreshToken).toHaveBeenCalledWith(mockUser._id, mockTokens._rt);
+			expect(usersService.addRefreshToken).toHaveBeenCalledWith(mockUser._id, "some_id");
 			expect(jwtService.sign).toHaveBeenCalledTimes(2);
 		});
 	});
