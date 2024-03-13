@@ -19,6 +19,7 @@ import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
 import smallTemplate from "../roadmap-nodes/prompts/sm-roadmap.prompt";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 @Injectable()
 export class RoadmapNodesService {
@@ -32,14 +33,16 @@ export class RoadmapNodesService {
 	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto): Promise<void> {
-		const user = await this.model.findById(dto.user_id).exec();
+		const user: UserDocument = await this.model.findById(dto.user_id);
 
 		if (!user) {
 			throw new NotFoundException("User not found");
 		}
 
 		const rootRoadmap = await this.generateRoadmap(dto.title, dto.size);
-		await this.saveRoadmap(rootRoadmap, dto.user_id, dto.size);
+		const roadmap: RoadmapNodeDocument = await this.saveRoadmap(rootRoadmap, dto.user_id, dto.size);
+		user.roadmaps.push(roadmap._id);
+		await user.save();
 		await this.subscriptionsService.deductCredits(dto.user_id, GENERATE_ROADMAP_CREDIT_COST);
 	}
 

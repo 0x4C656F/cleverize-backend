@@ -146,10 +146,14 @@ export class RoadmapTemplatesService {
 		if (!template) {
 			throw new NotFoundException("Template not found");
 		}
-		return await this.roadmapNodesService.saveRoadmap(
+		const roadmap: RoadmapNodeDocument = await this.roadmapNodesService.saveRoadmap(
 			template as RawRoadmap,
 			userId,
 			template.size
 		);
+		await this.userModel.findByIdAndUpdate(userId, {
+			$push: { roadmaps: roadmap._id },
+		});
+		return roadmap;
 	}
 }

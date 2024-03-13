@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from "@nestjs/swagger";
-import { IsEnum, IsMongoId, IsString } from "class-validator";
+import {  IsMongoId, IsString } from "class-validator";
 
 export enum MessageRole {
 	USER = "user", // TODO
@@ -18,16 +18,9 @@ export class AddUserMessageDto {
 	@ApiProperty({ example: "507f191e810c19729de860ea" })
 	public roadmapId: string;
 
-	@IsEnum(MessageRole)
-	@ApiProperty({ enum: MessageRole, example: "user" })
-	public role: MessageRole;
-
 	@IsString()
 	@ApiProperty({ example: "message" })
 	public content: string;
 }
 
-export class AddUserMessageBodyDto extends OmitType(AddUserMessageDto, [
-	"lessonId",
-	"user_id",
-]) {}
+export class AddUserMessageBodyDto extends OmitType(AddUserMessageDto, ["lessonId", "user_id"]) {}

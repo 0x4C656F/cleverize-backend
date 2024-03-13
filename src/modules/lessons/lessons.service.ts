@@ -7,7 +7,7 @@ import { ChatCompletionMessageParam } from "openai/resources";
 import { StreamService } from "src/common/stream.service";
 import getConfiguration from "src/config/configuration";
 
-import { AddUserMessageDto } from "./dto/add-user-message.dto";
+import { AddUserMessageDto, MessageRole } from "./dto/add-user-message.dto";
 import { InitLessonByIdDto } from "./dto/init-lesson.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import { lessonPrompt } from "./prompts/lesson.prompt";
@@ -34,9 +34,9 @@ export class LessonsService {
 	}
 
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
-		const { lessonId, content, role, user_id } = dto;
-		console.log("lessonId", lessonId, "content", content, "role", role, "user_id", user_id);
-		const lesson = await this.findLessonAndUpdateMessages(lessonId, { role, content });
+		const { lessonId, content, user_id } = dto;
+		console.log("lessonId", lessonId, "content", content, "role", "user_id", user_id);
+		const lesson = await this.findLessonAndUpdateMessages(lessonId, { role: MessageRole.USER, content });
 		console.log("lesson", lesson);
 		const completeAiResponse = await this.generateAiResponse(
 			lesson.messages as ChatCompletionMessageParam[],
