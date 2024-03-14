@@ -19,7 +19,7 @@ export type Config = {
 
 export default function getConfiguration(): Config {
 	return {
-		port: Number.parseInt(process.env.PORT, 10) || 80,
+		port: Number.parseInt(process.env.PORT, 10) || 8000,
 		mongodbURI: process.env.MONGODB_URI,
 		stripe: process.env.STRIPE_SECRET,
 		auth: {

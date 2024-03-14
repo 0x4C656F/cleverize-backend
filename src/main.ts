@@ -22,10 +22,7 @@ async function bootstrap() {
 	app.use(cookieParser());
 	app.use(helmet());
 	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-	app.enableCors({
-		origin: ["https://localhost:3000", "https://cleverize.co"], // Add your frontend dev URL here
-		credentials: true, // Important for cookies to be sent and received
-	});
+	app.enableCors();
 
 	// const swaggerConfig = new DocumentBuilder()
 	// 	.setTitle("Veritech backend documentation")

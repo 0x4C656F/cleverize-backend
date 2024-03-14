@@ -56,23 +56,23 @@ export class LessonController {
 		void this.service.initLesson(Object.assign(dto, parameters, { user_id: payload.sub }));
 	}
 
+	@ApiBearerAuth()
+	@UseGuards(AuthGuard, CreditsGuard(ADD_MESSAGE_CREDIT_COST))
+	@Put("/:lessonId/messages")
+	addMessage(
+		@Body() dto: AddUserMessageBodyDto,
+		@Param() parameters: OperateLessonByIdDto,
+		@UserPayload() payload: JWTPayload
+	): void {
+		void this.service.addUserMessage(Object.assign(dto, parameters, { user_id: payload.sub }));
+	}
+
 	@Sse("/:lessonId/stream")
 	stream(@Param("lessonId") lessonId: string): Observable<MessageEvent> {
 		return new Observable((subscriber) => {
 			this.streamService.addSubscriber(lessonId, subscriber);
 			return () => this.streamService.closeStream(lessonId);
 		});
-	}
-
-	@ApiBearerAuth()
-	@UseGuards(AuthGuard, CreditsGuard(ADD_MESSAGE_CREDIT_COST))
-	@Put("/:lessonId/messages")
-	addMessage(
-		@Param("lessonId") lessonId: OperateLessonByIdDto,
-		@Body() dto: AddUserMessageBodyDto,
-		@UserPayload() payload: JWTPayload
-	) {
-		void this.service.addUserMessage(Object.assign(dto, lessonId, { user_id: payload.sub }));
 	}
 
 	@ApiBearerAuth()

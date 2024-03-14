@@ -23,10 +23,10 @@ export class LessonsService {
 
 	constructor(
 		@InjectModel(Lesson.name) private readonly model: Model<LessonDocument>,
+		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>,
 		private readonly userService: UsersService,
 		private readonly subscriptionsService: SubscriptionsService,
-		private readonly streamService: StreamService,
-		@InjectModel(RoadmapNode.name) private readonly roadmapModel: Model<RoadmapNodeDocument>
+		private readonly streamService: StreamService
 	) {
 		this.openai = new OpenAI({
 			apiKey: getConfiguration().openai.dimaApiKey,
@@ -36,7 +36,10 @@ export class LessonsService {
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
 		const { lessonId, content, user_id } = dto;
 		console.log("lessonId", lessonId, "content", content, "role", "user_id", user_id);
-		const lesson = await this.findLessonAndUpdateMessages(lessonId, { role: MessageRole.USER, content });
+		const lesson = await this.findLessonAndUpdateMessages(lessonId, {
+			role: MessageRole.USER,
+			content,
+		});
 		console.log("lesson", lesson);
 		const completeAiResponse = await this.generateAiResponse(
 			lesson.messages as ChatCompletionMessageParam[],
