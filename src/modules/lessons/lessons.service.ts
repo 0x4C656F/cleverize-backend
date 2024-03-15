@@ -35,17 +35,14 @@ export class LessonsService {
 
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
 		const { lessonId, content, user_id } = dto;
-		console.log("lessonId", lessonId, "content", content, "role", "user_id", user_id);
 		const lesson = await this.findLessonAndUpdateMessages(lessonId, {
 			role: MessageRole.USER,
 			content,
 		});
-		console.log("lesson", lesson);
 		const completeAiResponse = await this.generateAiResponse(
 			lesson.messages as ChatCompletionMessageParam[],
 			"gpt-4"
 		);
-		console.log("completeAiResponse", completeAiResponse);
 		await this.appendAiResponseAndFinalize(
 			lesson,
 			completeAiResponse,

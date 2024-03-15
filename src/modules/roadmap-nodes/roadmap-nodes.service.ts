@@ -75,7 +75,6 @@ export class RoadmapNodesService {
 				...(parentId ? {} : { owner_id: userId, size }),
 				children: [],
 			});
-			coveredMaterial.push(newNode.title);
 
 			if (node.children && node.children.length > 0) {
 				for (const childNode of node.children) {
@@ -84,6 +83,7 @@ export class RoadmapNodesService {
 				}
 				await newNode.save();
 			} else {
+				coveredMaterial.push(newNode.title);
 				await this.createAndBindQuizAndLesson(newNode, coveredMaterial, userId);
 			}
 
@@ -173,8 +173,8 @@ export class RoadmapNodesService {
 	public async getAllUserRoadmaps(dto: { owner_id: string }) {
 		const { owner_id } = dto;
 		const user: UserDocument = await this.usersService.findById(owner_id);
-		if(!user) throw new NotFoundException("User not found");
-		const roadmaps: Types.ObjectId[] = user.roadmaps
-		return await this.model.find({ _id: { $in: roadmaps } });			
+		if (!user) throw new NotFoundException("User not found");
+		const roadmaps: Types.ObjectId[] = user.roadmaps;
+		return await this.model.find({ _id: { $in: roadmaps } });
 	}
 }
