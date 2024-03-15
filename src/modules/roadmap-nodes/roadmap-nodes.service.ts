@@ -33,7 +33,7 @@ export class RoadmapNodesService {
 	) {}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto): Promise<void> {
-		const user: UserDocument = await this.model.findById(dto.user_id);
+		const user: UserDocument = await this.usersService.findById(dto.user_id);
 
 		if (!user) {
 			throw new NotFoundException("User not found");
