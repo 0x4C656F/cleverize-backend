@@ -64,6 +64,7 @@ export const lessonPrompt = (
 
 	End the lesson by inviting user questions.
 	
+	When user asks questions, provide clear and concise answers. If the question is out of scope, politely redirect the user to the relevant lesson or topic.
 	
 	Your overall response should be under 1000 tokens.
 	`;
