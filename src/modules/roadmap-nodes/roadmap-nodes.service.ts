@@ -44,6 +44,7 @@ export class RoadmapNodesService {
 		user.roadmaps.push(roadmap._id);
 		await user.save();
 		await this.subscriptionsService.deductCredits(dto.user_id, GENERATE_ROADMAP_CREDIT_COST);
+		return roadmap;
 	}
 
 	private async generateRoadmap(title: string, size: RoadmapSize): Promise<RawRoadmap> {
