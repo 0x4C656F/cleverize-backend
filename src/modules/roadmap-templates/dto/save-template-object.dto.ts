@@ -11,8 +11,7 @@ export class TemplateObjectNode {
 	@Type(() => TemplateObjectNode)
 	public children?: TemplateObjectNode[];
 	public _id?: string;
-	// @ValidateNested({ each: true })
-	// public lesson_id?: string;
+	
 }
 
 export class SaveTemplateObjectDto extends TemplateObjectNode {

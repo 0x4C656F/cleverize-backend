@@ -32,7 +32,7 @@ export class RoadmapTemplatesController {
 
 		return template;
 	}
-	@UseGuards(AuthGuard)
+	
 	@Post("/")
 	public async createTemplateRoadmap(@Body() dto: SaveTemplateObjectDto) {
 		return await this.service.saveTemplateObject(dto);
