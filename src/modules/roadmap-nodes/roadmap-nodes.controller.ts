@@ -13,14 +13,14 @@ import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 export class RoadmapNodesController {
 	constructor(private readonly service: RoadmapNodesService) {}
 
-	//this route populates the children field*
+	//info this route populates the children field*
 	@UseGuards(AuthGuard)
 	@Get("subtree/:id")
 	public async getSubtree(@Param("id") id: string): Promise<RoadmapNode> {
 		return await this.service.getRoadmapSubtreeById(id);
 	}
 
-	//this route does not populate the children field*
+	//info this route does not populate the children field*
 	@UseGuards(AuthGuard)
 	@Get("node/:id")
 	public async getNode(@Param("id") id: string) {
@@ -32,7 +32,7 @@ export class RoadmapNodesController {
 	public async generateRootRoadmap(
 		@Body() dto: GenerateRootRoadmapBodyDto,
 		@UserPayload() { sub: user_id }: JWTPayload
-	) {
+	): Promise<void> { //info this route must not return anything, otherwise connection will timeout.
 		return await this.service.generateRootRoadmap(Object.assign(dto, { user_id }));
 	}
 
