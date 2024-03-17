@@ -58,6 +58,7 @@ export class QuizzesController {
 	) {
 		void this.service.initQuiz(Object.assign(dto, parameters, { user_id: payload.sub }));
 	}
+
 	@Sse(":quizId/stream")
 	stream(@Param("quizId") quizId: string): Observable<MessageEvent> {
 		return new Observable((subscriber) => {
@@ -65,9 +66,10 @@ export class QuizzesController {
 			return () => this.streamService.closeStream(quizId);
 		});
 	}
+
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard, CreditsGuard(ADD_MESSAGE_CREDIT_COST))
-	@Put("/:lessonId/messages")
+	@Put("/:quizId/messages")
 	addMessage(
 		@Param() parameters: OperateQuizByIdDto,
 		@Body() dto: AddUserMessageBodyDto,
@@ -76,15 +78,15 @@ export class QuizzesController {
 		void this.service.addUserMessage(Object.assign(dto, parameters, { user_id: payload.sub }));
 	}
 
-	@Patch(":lessonId")
+	@Patch(":quizId")
 	@UseGuards(AuthGuard, CreditsGuard(1))
-	restartQuizById(@Param("lessonId") id: string) {
+	restartQuizById(@Param("quizId") id: string) {
 		void this.service.restartQuiz({ quizId: id });
 	}
 
 	@ApiBearerAuth()
 	@UseGuards(AuthGuard)
-	@Delete("/:lessonId")
+	@Delete("/:quizId")
 	async deleteConversationById(
 		@Param() parameters: OperateQuizByIdDto,
 		@UserPayload() payload: JWTPayload

@@ -7,10 +7,9 @@ import { ChatCompletionMessageParam } from "openai/resources";
 import { StreamService } from "src/common/stream.service";
 import getConfiguration from "src/config/configuration";
 
-import { AddUserMessageDto } from "./dto/add-user-message.dto";
+import { AddUserMessageDto, MessageRole } from "./dto/add-user-message.dto";
 import { InitQuizByIdDto } from "./dto/init-quiz-by-id.dto";
 import RestartQuizByIdDto from "./dto/restart-quiz-by-id.dto";
-import getChildrenArray from "./helpers/get-children-array";
 import quizPrompt from "./prompts/quiz.prompt";
 import { Quiz, QuizDocument } from "./schema/quiz.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
@@ -35,14 +34,19 @@ export class QuizzesService {
 	}
 
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
-		const { role, user_id, content, quizId } = dto;
+		const { user_id, content, quizId } = dto;
+		const role = MessageRole.USER;
 		const quiz = await this.getQuizById(quizId);
 		quiz.messages.push({ role, content });
 
-		const aiResponse = await this.getAiResponse(quiz.messages as ChatCompletionMessageParam[]);
+		const aiResponse = await this.getAiResponse(
+			quiz.messages as ChatCompletionMessageParam[],
+			quiz._id.toString()
+		);
 		quiz.messages.push({ role: "assistant", content: aiResponse });
 
 		await this.finalizeQuizInteraction(quiz, user_id, ADD_MESSAGE_CREDIT_COST);
+		await quiz.save();
 	}
 
 	public async restartQuiz(dto: RestartQuizByIdDto): Promise<void> {
@@ -54,23 +58,30 @@ export class QuizzesService {
 	public async initQuiz(dto: InitQuizByIdDto): Promise<void> {
 		const user = await this.userService.findById(dto.user_id);
 		const language = user.metadata.language;
-		const roadmap = await this.getRoadmapById(dto.roadmapId);
+		const sectionRoadmap = await this.getRoadmapById(dto.roadmapId);
+		const roadmap = await this.roadmapModel.findById(sectionRoadmap.parent_node_id);
 		const quiz: QuizDocument = await this.getQuizById(dto.quizId);
 
 		if (quiz.messages.length > 0) return;
 
-		const children = getChildrenArray(roadmap);
-		const prompt = quizPrompt(children, language, roadmap.title);
-		const aiResponse = await this.getAiResponse([{ role: "system", content: prompt }]);
+		const prompt = quizPrompt(quiz.covered_material, language, roadmap.title);
+		const aiResponse = await this.getAiResponse(
+			[{ role: "system", content: prompt }],
+			quiz._id.toString()
+		);
 
 		quiz.messages.push(
 			{ role: "system", content: prompt },
 			{ role: "assistant", content: aiResponse }
 		);
 		await this.finalizeQuizInteraction(quiz, dto.user_id, INIT_LESSON_CREDIT_COST);
+		await quiz.save();
 	}
 
-	private async getAiResponse(messages: ChatCompletionMessageParam[]): Promise<string> {
+	private async getAiResponse(
+		messages: ChatCompletionMessageParam[],
+		quizId: string
+	): Promise<string> {
 		let response = "";
 		const completion = await this.openai.chat.completions.create({
 			messages,
@@ -81,6 +92,7 @@ export class QuizzesService {
 
 		for await (const part of completion) {
 			response += part.choices[0].delta.content ?? "";
+			this.streamService.sendData(quizId, response);
 		}
 		return response;
 	}
@@ -91,9 +103,8 @@ export class QuizzesService {
 		creditCost: number
 	): Promise<void> {
 		this.streamService.closeStream(quiz._id.toString());
-		await quiz.save();
+
 		await this.subscriptionsService.deductCredits(userId, creditCost);
-		this.streamService.sendData(quiz._id.toString(), JSON.stringify(quiz.messages));
 		this.streamService.closeStream(quiz._id.toString()); // Verify if needed twice
 	}
 

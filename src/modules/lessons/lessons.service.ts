@@ -11,7 +11,7 @@ import { AddUserMessageDto, MessageRole } from "./dto/add-user-message.dto";
 import { InitLessonByIdDto } from "./dto/init-lesson.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import { lessonPrompt } from "./prompts/lesson.prompt";
-import { Lesson, LessonDocument, Message } from "./schema/lesson.schema";
+import { Lesson, LessonDocument } from "./schema/lesson.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
@@ -35,12 +35,23 @@ export class LessonsService {
 
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
 		const { lessonId, content, user_id } = dto;
-		const lesson = await this.findLessonAndUpdateMessages(lessonId, {
-			role: MessageRole.USER,
-			content,
-		});
+		const lesson = await this.model
+			.findByIdAndUpdate(
+				lessonId,
+				{
+					$push: {
+						messages: {
+							content,
+							role: MessageRole.USER,
+						},
+					},
+				},
+				{ new: true }
+			)
+			.exec();
 		const completeAiResponse = await this.generateAiResponse(
 			lesson.messages as ChatCompletionMessageParam[],
+			lesson._id.toString(),
 			"gpt-4"
 		);
 		await this.appendAiResponseAndFinalize(
@@ -62,6 +73,7 @@ export class LessonsService {
 		const prompt = lessonPrompt(language, lesson.title, roadmapForAi, roadmap.title);
 		const aiResponse = await this.generateAiResponse(
 			[{ role: "system", content: prompt }],
+			lesson._id.toString(),
 			"gpt-3.5-turbo-1106"
 		);
 
@@ -81,19 +93,9 @@ export class LessonsService {
 		return lesson;
 	}
 
-	private async findLessonAndUpdateMessages(
-		lessonId: string,
-		message: Message
-	): Promise<LessonDocument> {
-		return this.model
-			.findByIdAndUpdate(lessonId, {
-				$push: { messages: message },
-			})
-			.exec();
-	}
-
 	private async generateAiResponse(
 		messages: ChatCompletionMessageParam[],
+		lessonId: string,
 		model: string
 	): Promise<string> {
 		let aiResponse = "";
@@ -105,6 +107,7 @@ export class LessonsService {
 		});
 		for await (const part of completion) {
 			aiResponse += part.choices[0].delta.content ?? "";
+			this.streamService.sendData(lessonId, aiResponse);
 		}
 		return aiResponse;
 	}
@@ -122,8 +125,6 @@ export class LessonsService {
 		}
 		lesson.messages.push({ role: "assistant", content: aiResponse });
 		await lesson.save();
-		this.streamService.sendData(lesson._id.toString(), aiResponse);
-		this.streamService.closeStream(lesson._id.toString());
 		await this.subscriptionsService.deductCredits(userId, creditCost);
 	}
 
