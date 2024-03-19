@@ -52,7 +52,7 @@ export class LessonsService {
 		const completeAiResponse = await this.generateAiResponse(
 			lesson.messages as ChatCompletionMessageParam[],
 			lesson._id.toString(),
-			"gpt-4"
+			"gpt-3.5-turbo-1106"
 		);
 		await this.appendAiResponseAndFinalize(
 			lesson,

@@ -39,7 +39,9 @@ export class UsersService {
 		await user.save();
 		return user;
 	}
-
+	async findOne(query: unknown): Promise<UserDocument> {
+		return this.userModel.findOne(query).exec();
+	}
 	async update(userId: string, body: unknown) {
 		return this.userModel
 			.findByIdAndUpdate(userId, {

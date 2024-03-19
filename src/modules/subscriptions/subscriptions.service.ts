@@ -4,10 +4,11 @@ import { Model } from "mongoose";
 
 import { Subscription } from "./subscription";
 import { User, UserDocument } from "../users/schema/user.schema";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class SubscriptionsService {
-	constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
+	constructor(private userService: UsersService) {}
 
 	// public async activateTrial(id: string) {
 	// 	const user = await this.userModel.findOne({ user_id: id });
@@ -30,12 +31,12 @@ export class SubscriptionsService {
 	// }
 
 	public async getSubscriptionData(id: string): Promise<Subscription> {
-		const user = await this.userModel.findById(id);
+		const user = await this.userService.findById(id);
 		return user.subscription;
 	}
 
 	public async topUpCredits(id: string, credits: number) {
-		const user = await this.userModel.findOne({ "subscription.stripe_customer_id": id });
+		const user = await this.userService.findOne({ "subscription.stripe_customer_id": id });
 		if (!user) throw new NotFoundException();
 
 		user.subscription.credits += Number(credits);
@@ -47,7 +48,7 @@ export class SubscriptionsService {
 	}
 
 	public async deductCredits(id: string, credits: number) {
-		const user = await this.userModel.findById(id);
+		const user = await this.userService.findById(id);
 		if (!user) throw new NotFoundException();
 
 		user.subscription.credits -= credits;

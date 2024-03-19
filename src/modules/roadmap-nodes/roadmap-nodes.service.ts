@@ -23,7 +23,7 @@ import { UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 @Injectable()
 export class RoadmapNodesService {
-	private openai = new OpenAI({ apiKey: getConfiguration().openai.dimaApiKey });
+	 openai = new OpenAI({ apiKey: getConfiguration().openai.dimaApiKey });
 	constructor(
 		@InjectModel(RoadmapNode.name) private readonly model: Model<RoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
@@ -39,7 +39,7 @@ export class RoadmapNodesService {
 			throw new NotFoundException("User not found");
 		}
 
-		const rootRoadmap = await this.generateRoadmap(dto.title, dto.size);
+		const rootRoadmap: RawRoadmap = await this.generateRoadmap(dto.title, dto.size);
 		const roadmap: RoadmapNodeDocument = await this.saveRoadmap(rootRoadmap, dto.user_id, dto.size);
 		user.roadmaps.push(roadmap._id);
 		await user.save();
@@ -47,7 +47,7 @@ export class RoadmapNodesService {
 	
 	}
 
-	private async generateRoadmap(title: string, size: RoadmapSize): Promise<RawRoadmap> {
+	public async generateRoadmap(title: string, size: RoadmapSize): Promise<RawRoadmap> {
 		const template = size === RoadmapSize.SMALL ? smallTemplate(title) : mediumTemplate(title);
 		const completion = await this.openai.chat.completions.create({
 			messages: [{ role: "system", content: template }],
