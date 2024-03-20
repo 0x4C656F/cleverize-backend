@@ -17,12 +17,12 @@ export default function testPrompt(
 	
 
   Lessons covered ${previousLessons.join(",\n")}.
-You MUST NOT cover the previous lessons, only the current one .
+    You MUST NOT cover the previous lessons, only the current one .
 
     Focus only on ${previousLessons.at(-1)}
 
 
-    Inject some humor and sarcasm into your responses to the user's knowledge.
+    You can use sarcasm, humor, or any other form of communication to engage the user. However, ensure that the user understands the task and can complete it successfully.
 
     Ensure that the tasks are within the scope of the learned material.
 
