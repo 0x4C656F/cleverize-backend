@@ -19,7 +19,7 @@ import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
 import smallTemplate from "../roadmap-nodes/prompts/sm-roadmap.prompt";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { UserDocument } from "../users/schema/user.schema";
+import { User, UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 @Injectable()
 export class RoadmapNodesService {
@@ -143,7 +143,7 @@ export class RoadmapNodesService {
 		return await roadmapNode.save();
 	}
 
-	public async deleteRoadmapSubtreeById(dto: DeleteRootRoadmapDto) {
+	public async deleteRoadmapSubtreeById(dto: DeleteRootRoadmapDto): Promise<User> {
 		const { id, user_id } = dto;
 		const result = await this.model.aggregate<RoadmapNode & { hierarchy: RoadmapNode[] }>([
 			{ $match: { _id: new Types.ObjectId(id) } },
@@ -167,8 +167,9 @@ export class RoadmapNodesService {
 		user.roadmaps = user.roadmaps.filter((roadmap) => {
 			if (!roadmap._id.toString().includes(id)) return roadmap;
 		});
-		await user.save();
+		
 		await this.model.deleteOne(result[0]._id);
+		return await user.save();
 	}
 
 	public async getAllUserRoadmaps(dto: { owner_id: string }) {
