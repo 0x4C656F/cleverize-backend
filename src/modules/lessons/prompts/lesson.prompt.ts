@@ -63,7 +63,7 @@ export const lessonPrompt = (
 	- Use lists and emphasis (bold/italics) where appropriate.
 
 
-	End the lesson by inviting user questions.
+	End the lesson by giving user a small practical task on the current topic and inviting user questions.
 
 	!IMPORTANT! Don't give the lesson twice. If the user asks the same question twice, politely redirect them to the relevant lesson or topic.
 	
