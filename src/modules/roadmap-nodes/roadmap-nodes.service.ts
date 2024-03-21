@@ -5,6 +5,8 @@ import OpenAI from "openai";
 
 import { DeleteRootRoadmapDto } from "./dto/delete-root-roadmap-dto";
 import { GenerateRootRoadmapDto } from "./dto/generate-root-roadmap.dto";
+import GenerateSectionNodeDto from "./dto/generate-section-node.dto";
+import sectionPromptTemplate from "./prompts/section-node.promp";
 import {
 	RoadmapSize,
 	RoadmapNode,
@@ -23,7 +25,7 @@ import { User, UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 @Injectable()
 export class RoadmapNodesService {
-	 openai = new OpenAI({ apiKey: getConfiguration().openai.dimaApiKey });
+	openai = new OpenAI({ apiKey: getConfiguration().openai.dimaApiKey });
 	constructor(
 		@InjectModel(RoadmapNode.name) private readonly model: Model<RoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
@@ -44,7 +46,6 @@ export class RoadmapNodesService {
 		user.roadmaps.push(roadmap._id);
 		await user.save();
 		await this.subscriptionsService.deductCredits(dto.user_id, GENERATE_ROADMAP_CREDIT_COST);
-	
 	}
 
 	public async generateRoadmap(title: string, size: RoadmapSize): Promise<RawRoadmap> {
@@ -61,7 +62,8 @@ export class RoadmapNodesService {
 	public async saveRoadmap(
 		firstNode: RawRoadmap,
 		userId: string,
-		size: RoadmapSize
+		size: RoadmapSize,
+		parentId?: string
 	): Promise<RoadmapNodeDocument> {
 		const coveredMaterial: string[] = [];
 
@@ -91,7 +93,7 @@ export class RoadmapNodesService {
 			return newNode;
 		};
 
-		return saveNodeRecursively(firstNode);
+		return saveNodeRecursively(firstNode, parentId);
 	}
 
 	private async createAndBindQuizAndLesson(
@@ -167,7 +169,7 @@ export class RoadmapNodesService {
 		user.roadmaps = user.roadmaps.filter((roadmap) => {
 			if (!roadmap._id.toString().includes(id)) return roadmap;
 		});
-		
+
 		await this.model.deleteOne(result[0]._id);
 		return await user.save();
 	}
@@ -178,5 +180,39 @@ export class RoadmapNodesService {
 		if (!user) throw new NotFoundException("User not found");
 		const roadmaps: Types.ObjectId[] = user.roadmaps;
 		return await this.model.find({ _id: { $in: roadmaps } });
+	}
+
+	public async generateSectionNode(dto: GenerateSectionNodeDto) {
+		const { title, roadmap_id, owner_id, section_id } = dto;
+		const [roadmap]: RoadmapNodeDocument[] = await this.model.find({ owner_id, _id: roadmap_id });
+		if (!roadmap) {
+			throw new NotFoundException("Roadmap not found");
+		}
+		const rawSectionNode = await this.openai.chat.completions.create({
+			messages: [{ role: "system", content: sectionPromptTemplate(title, roadmap) }],
+			model: "gpt-3.5-turbo-1106",
+			max_tokens: 1500,
+		});
+		const sectionNode = JSON.parse(rawSectionNode.choices[0].message.content) as RawRoadmap;
+
+		const sectionNodeDocument: RoadmapNodeDocument = await this.model.create({
+			...sectionNode,
+			is_completed: false,
+			owner_id,
+			parent_node_id: roadmap_id,
+		});
+		const sectionToInsertAfter = roadmap.children.find((child) => {
+			return child._id.toString() === section_id;
+		});
+		const quiz = await this.quizzesService.getQuizById(sectionToInsertAfter.children[0].quiz_id);
+		const covered_material = quiz.covered_material;
+		await this.createAndBindQuizAndLesson(sectionNodeDocument, covered_material, owner_id);
+		roadmap.children = [
+			...roadmap.children.slice(0, roadmap.children.indexOf(sectionToInsertAfter) + 1),
+			sectionNodeDocument,
+			...roadmap.children.slice(roadmap.children.indexOf(sectionToInsertAfter) + 1),
+		];
+
+		await roadmap.save();
 	}
 }
