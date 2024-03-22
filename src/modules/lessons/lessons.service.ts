@@ -68,7 +68,12 @@ export class LessonsService {
 		const lesson = await this.findLesson(dto.lessonId);
 		if (lesson.messages.length > 0) return lesson;
 
-		const [roadmap]: RoadmapNodeDocument[] = await this.roadmapModel.find({ _id: dto.roadmap_id });
+		const [sectionRoadmap]: RoadmapNodeDocument[] = await this.roadmapModel.find({
+			_id: dto.roadmap_id,
+		});
+		const roadmap: RoadmapNodeDocument = await this.roadmapModel.findById(
+			sectionRoadmap.parent_node_id
+		);
 		const roadmapForAi = roadmapParser(roadmap);
 		const prompt = lessonPrompt(language, lesson.title, roadmapForAi, roadmap.title);
 		const aiResponse = await this.generateAiResponse(

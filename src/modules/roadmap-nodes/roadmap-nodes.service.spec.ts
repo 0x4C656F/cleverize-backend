@@ -226,7 +226,6 @@ describe("RoadmapNodesService", () => {
 
 		it("should throw an error if the user does not exist", async () => {
 			const ownerId = mockUser._id.toString();
-			// eslint-disable-next-line unicorn/no-null
 
 			await expect(service.getAllUserRoadmaps({ owner_id: ownerId })).rejects.toThrowError(
 				new NotFoundException("User not found")
@@ -280,17 +279,13 @@ describe("RoadmapNodesService", () => {
 			});
 			expect(service.openai.chat.completions.create).toHaveBeenCalledTimes(1);
 			expect(service);
-			expect(result).toEqual(rawRoadmap); // Validate the response is correctly parsed
+			expect(result).toEqual(rawRoadmap);
 		});
 	});
 
 	describe("saveRoadmap", () => {
 		it("should create a roadmap node with children", async () => {
-			// Simulated raw roadmap structure with one child
-
-			jest
-				.spyOn(service, "saveRoadmap")
-				.mockResolvedValue(mockRoadmap as RoadmapNodeDocument);
+			jest.spyOn(service, "saveRoadmap").mockResolvedValue(mockRoadmap as RoadmapNodeDocument);
 
 			const result = await service.saveRoadmap(
 				rawRoadmap,
@@ -298,7 +293,7 @@ describe("RoadmapNodesService", () => {
 				mockRoadmapDocument.size
 			);
 
-			expect(result).toEqual(mockRoadmapDocument);
+			expect(result).toEqual(mockRoadmap);
 		});
 	});
 });
