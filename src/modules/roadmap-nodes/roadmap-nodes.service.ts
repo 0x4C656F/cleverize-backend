@@ -194,25 +194,37 @@ export class RoadmapNodesService {
 			max_tokens: 1500,
 		});
 		const sectionNode = JSON.parse(rawSectionNode.choices[0].message.content) as RawRoadmap;
-
 		const sectionNodeDocument: RoadmapNodeDocument = await this.model.create({
 			...sectionNode,
 			is_completed: false,
 			owner_id,
 			parent_node_id: roadmap_id,
 		});
+
 		const sectionToInsertAfter = roadmap.children.find((child) => {
 			return child._id.toString() === section_id;
 		});
 		const quiz = await this.quizzesService.getQuizById(sectionToInsertAfter.children[0].quiz_id);
 		const covered_material = quiz.covered_material;
-		await this.createAndBindQuizAndLesson(sectionNodeDocument, covered_material, owner_id);
+
+		for await (const node of sectionNode.children) {
+			const newNode = await this.model.create({
+				...node,
+				is_completed: false,
+				owner_id,
+				parent_node_id: sectionNodeDocument._id,
+			});
+			sectionNodeDocument.children.push(newNode);
+			await this.createAndBindQuizAndLesson(newNode, covered_material, owner_id);
+			await newNode.save();
+		}
+
 		roadmap.children = [
 			...roadmap.children.slice(0, roadmap.children.indexOf(sectionToInsertAfter) + 1),
 			sectionNodeDocument,
 			...roadmap.children.slice(roadmap.children.indexOf(sectionToInsertAfter) + 1),
 		];
-
+		await sectionNodeDocument.save();
 		await roadmap.save();
 	}
 }
