@@ -54,6 +54,7 @@ export class RoadmapNodesService {
 			messages: [{ role: "system", content: template }],
 			model: "gpt-3.5-turbo-1106",
 			max_tokens: 1500,
+			response_format: { type: "json_object" },
 		});
 
 		return JSON.parse(completion.choices[0].message.content) as RawRoadmap;
@@ -192,6 +193,7 @@ export class RoadmapNodesService {
 			messages: [{ role: "system", content: sectionPromptTemplate(title, roadmap) }],
 			model: "gpt-3.5-turbo-1106",
 			max_tokens: 1500,
+			response_format: { type: "json_object" },
 		});
 		const sectionNode = JSON.parse(rawSectionNode.choices[0].message.content) as RawRoadmap;
 		const sectionNodeDocument: RoadmapNodeDocument = await this.model.create({
