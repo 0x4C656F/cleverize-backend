@@ -64,7 +64,7 @@ export class QuizzesService {
 
 		if (quiz.messages.length > 0) return;
 
-		const prompt = quizPrompt(quiz.covered_material, language, roadmap.title);
+		const prompt = quizPrompt(quiz.covered_material, language, roadmap.title, sectionRoadmap.title);
 		const aiResponse = await this.getAiResponse(
 			[{ role: "system", content: prompt }],
 			quiz._id.toString()
