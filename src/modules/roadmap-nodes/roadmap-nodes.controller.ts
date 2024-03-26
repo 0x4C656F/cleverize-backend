@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards } from "@nestjs/c
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { GenerateRootRoadmapBodyDto } from "./dto/generate-root-roadmap.dto";
-import GenerateSectionNodeDto from "./dto/generate-section-node.dto";
+import { GenerateSectionNodeBodyDto } from "./dto/generate-section-node.dto";
 import { RoadmapNodesService } from "./roadmap-nodes.service";
 import { RoadmapNode } from "./schema/roadmap-nodes.schema";
 import { AuthGuard } from "../auth/auth.guard";
@@ -37,11 +37,14 @@ export class RoadmapNodesController {
 		//info this route must not return anything, otherwise connection will timeout.
 		return await this.service.generateRootRoadmap(Object.assign(dto, { user_id }));
 	}
-
+	@UseGuards(AuthGuard)
 	@Post("section")
-	public async generateSectionNode(@Body() dto: GenerateSectionNodeDto) {
+	public async generateSectionNode(
+		@UserPayload() { sub: owner_id }: JWTPayload,
+		@Body() dto: GenerateSectionNodeBodyDto
+	) {
 		//info this route must not return anything, otherwise connection will timeout.
-		return await this.service.generateSectionNode(dto);
+		return await this.service.generateSectionNode({ ...dto, owner_id });
 	}
 
 	@UseGuards(AuthGuard)

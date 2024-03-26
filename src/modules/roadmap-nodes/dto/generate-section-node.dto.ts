@@ -1,3 +1,4 @@
+import { OmitType } from "@nestjs/swagger";
 import { IsMongoId, IsNotEmpty, IsString } from "class-validator";
 
 export default class GenerateSectionNodeDto {
@@ -17,3 +18,5 @@ export default class GenerateSectionNodeDto {
 	@IsNotEmpty()
 	readonly owner_id: string;
 }
+
+export class GenerateSectionNodeBodyDto extends OmitType(GenerateSectionNodeDto, ["owner_id"]) {}
