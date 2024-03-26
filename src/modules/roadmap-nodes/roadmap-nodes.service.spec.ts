@@ -276,6 +276,7 @@ describe("RoadmapNodesService", () => {
 				messages: [{ role: "system", content: mediumTemplate(rawRoadmap.title) }],
 				model: "gpt-3.5-turbo-1106",
 				max_tokens: 1500,
+				response_format: { type: "json_object" },
 			});
 			expect(service.openai.chat.completions.create).toHaveBeenCalledTimes(1);
 			expect(service);
