@@ -24,17 +24,12 @@ function sectionPromptTemplate(title: string, roadmap: RoadmapNode) {
 
 	Children array may vary in length from ~4 to ~8 depending on the complexity of the roadmap.
 	You must output a JSON object with the following structure:
-	{
-		"title": "Section title",
-		"children": [
-			{
-				"title": "Node title"
-			},
-			{
-				"title": "Node title"
-			}...
-		]
-	}
+	{"title": "Section title","children": [{"title": "Node title"},{"title": "Node title"},...]}
+
+
+	<example name="Example Numpy roadmap">
+	{"title": "Numpy", "children": [{"title": "Setup and Introduction"}, {"title": "Array Fundamentals"}, {"title": "Data Types and Attributes"}, {"title": "Shape Manipulation and Resizing"}, {"title": "Mathematical and Statistical Operations"}, {"title": "Boolean Indexing and Masking"}, {"title": "Advanced Broadcasting"}, {"title": "Handling Missing Values"}, {"title": "Optimization and Performance"}, {"title": "Real-world Applications"}]}
+	</example>
 	`;
 }
 export default sectionPromptTemplate;
