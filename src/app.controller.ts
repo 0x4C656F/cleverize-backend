@@ -1,4 +1,4 @@
-import { Controller, Get, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 import Stripe from "stripe";
 
@@ -18,13 +18,12 @@ export class AppController {
 		return "OK";
 	}
 	@UseGuards(AuthGuard)
-	@Get("/pay")
-	async pay() {
+	@Post("/pay")
+	async pay(@Body("price") price: number) {
 		const stripe = new Stripe(this.envvars.stripe);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
 			line_items: [{ price: "price_1OGjr6CCMdYQSDIPdpIm2LSR", quantity: 1 }],
-			mode: "subscription",
 		});
 	}
 

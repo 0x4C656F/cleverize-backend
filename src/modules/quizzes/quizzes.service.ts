@@ -13,7 +13,11 @@ import RestartQuizByIdDto from "./dto/restart-quiz-by-id.dto";
 import quizPrompt from "./prompts/quiz.prompt";
 import { Quiz, QuizDocument } from "./schema/quiz.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
-import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
+import {
+	ADD_MESSAGE_CREDIT_COST,
+	INIT_LESSON_CREDIT_COST,
+	INIT_QUIZ_CREDIT_COST,
+} from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { UsersService } from "../users/users.service";
 
@@ -74,7 +78,7 @@ export class QuizzesService {
 			{ role: "system", content: prompt },
 			{ role: "assistant", content: aiResponse }
 		);
-		await this.finalizeQuizInteraction(quiz, dto.user_id, INIT_LESSON_CREDIT_COST);
+		await this.finalizeQuizInteraction(quiz, dto.user_id, INIT_QUIZ_CREDIT_COST);
 		await quiz.save();
 	}
 

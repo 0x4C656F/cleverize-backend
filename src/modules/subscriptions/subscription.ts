@@ -2,10 +2,12 @@ export enum SubscriptionTypeEnum {
 	PRO = "pro",
 }
 
-export const DEFAULT_CREDITS = 250;
-export const GENERATE_ROADMAP_CREDIT_COST = 20;
-export const INIT_LESSON_CREDIT_COST = 3;
-export const ADD_MESSAGE_CREDIT_COST = 4;
+export const DEFAULT_CREDITS = 50;
+export const GENERATE_ROADMAP_CREDIT_COST = 30;
+export const INIT_LESSON_CREDIT_COST = 2;
+export const ADD_MESSAGE_CREDIT_COST = 2;
+export const INIT_QUIZ_CREDIT_COST = 1;
+export const LOAD_TEMPLATE_CREDIT_COST = 10;
 
 export class Subscription {
 	public is_trial_activated: boolean;
