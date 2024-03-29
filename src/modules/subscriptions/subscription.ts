@@ -10,17 +10,13 @@ export const INIT_QUIZ_CREDIT_COST = 1;
 export const LOAD_TEMPLATE_CREDIT_COST = 10;
 
 export class Subscription {
-	public is_trial_activated: boolean;
 	public credits: number;
-	public subscription_type: SubscriptionTypeEnum | undefined;
 	public last_credits_update: Date;
 	public stripe_customer_id: string;
 }
 
 export const subscriptionDefaultObject: Subscription = {
-	is_trial_activated: false,
 	credits: DEFAULT_CREDITS,
-	subscription_type: undefined,
 	last_credits_update: new Date(),
 	stripe_customer_id: undefined,
 };

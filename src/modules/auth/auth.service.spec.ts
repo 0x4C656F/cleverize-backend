@@ -41,9 +41,7 @@ describe("AuthService", () => {
 			language: SUPPORTED_LANGUAGES.ENGLISH,
 		},
 		subscription: {
-			is_trial_activated: false,
 			credits: DEFAULT_CREDITS,
-			subscription_type: undefined,
 			last_credits_update: new Date(),
 			stripe_customer_id: undefined,
 		},
@@ -67,7 +65,7 @@ describe("AuthService", () => {
 					useValue: {
 						findByEmail: jest.fn(),
 						createUser: jest.fn(),
-						
+
 						addRefreshToken: jest.fn(),
 					},
 				},

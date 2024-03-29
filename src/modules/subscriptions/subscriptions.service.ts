@@ -1,34 +1,45 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { BadRequestException, Injectable, NotFoundException, RawBodyRequest } from "@nestjs/common";
+import { config } from "dotenv";
+import { Request } from "express";
+import Stripe from "stripe";
+
+import getConfiguration, { Config } from "src/config/configuration";
 
 import { Subscription } from "./subscription";
-import { User, UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 
+config();
+const stripe = new Stripe(process.env.STRIPE_SECRET, {
+	apiVersion: "2023-10-16",
+});
+const CREDITS_COEFFICIENT = 10;
 @Injectable()
 export class SubscriptionsService {
-	constructor(private userService: UsersService) {}
+	config: Config;
+	constructor(private userService: UsersService) {
+		this.config = getConfiguration();
+	}
 
-	// public async activateTrial(id: string) {
-	// 	const user = await this.userModel.findOne({ user_id: id });
-	// 	if (!user) throw new NotFoundException();
-	// 	if (user.subscription.is_trial_activated) {
-	// 		console.log("trial not activated");
-
-	// 		throw new ConflictException("trial was already activated");
-	// 	}
-
-	// 	user.subscription.is_trial_activated = true;
-	// 	console.log("trial activated");
-
-	// 	user.subscription.credits = TRIAL_CREDITS;
-	// 	user.subscription.last_credits_update = new Date();
-
-	// 	user.markModified("subscription");
-
-	// 	return await user.save();
-	// }
+	public async handleWebhook(request: RawBodyRequest<Request>) {
+		try {
+			const hook = stripe.webhooks.constructEvent(
+				request.rawBody,
+				request.headers["stripe-signature"],
+				this.config.stripeWebhook
+			);
+			const { amount: amountInCents, customer } = hook.data.object as {
+				amount: number;
+				customer: string;
+			};
+			const amountInDollars = amountInCents / 100;
+			const credits = amountInDollars * CREDITS_COEFFICIENT;
+			const user = await this.userService.findOne({ "subscription.stripe_customer_id": customer });
+			return await this.topUpCredits(user._id.toString(), credits);
+		} catch (error) {
+			console.error(`⚠️ Webhook signature verification failed: ${error}`);
+			throw new BadRequestException("Invalid webhook signature");
+		}
+	}
 
 	public async getSubscriptionData(id: string): Promise<Subscription> {
 		const user = await this.userService.findById(id);
