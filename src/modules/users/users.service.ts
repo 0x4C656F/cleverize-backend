@@ -58,7 +58,7 @@ export class UsersService {
 		return this.userModel.findOne(query).exec();
 	}
 	async findByCustomerId(stripe_customer_id: string): Promise<UserDocument> {
-		const user = await this.userModel.findOne({ subscription: { stripe_customer_id } }).exec();
+		const user = await this.userModel.findOne({ subscription: { stripe_customer_id } });
 		if (!user) throw new NotFoundException("No user with customer id: " + stripe_customer_id);
 		return user;
 	}
