@@ -53,7 +53,7 @@ export class AuthService {
 
 		if (!isValidPassword) throw new ConflictException("Invalid email or password");
 
-		if (user.subscription.stripe_customer_id === null) {
+		if (!user.subscription.stripe_customer_id) {
 			const customer = await stripe.customers.create({ email: email, name: user.name });
 			await this.usersService.update(user._id.toString(), {
 				subscription: { ...user.subscription, stripe_customer_id: customer.id },
@@ -76,7 +76,12 @@ export class AuthService {
 		const user = await this.usersService.findById(sub);
 
 		if (!user) throw new ConflictException("User not found");
-
+		if (!user.subscription.stripe_customer_id) {
+			const customer = await stripe.customers.create({ email: user.email, name: user.name });
+			await this.usersService.update(user._id.toString(), {
+				subscription: { ...user.subscription, stripe_customer_id: customer.id },
+			});
+		}
 		const newPayload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
 		void this.refreshTokenModel.findOneAndUpdate(
