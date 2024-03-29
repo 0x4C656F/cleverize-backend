@@ -35,16 +35,12 @@ export class SubscriptionsService {
 
 			const credits = amountInDollars * CREDITS_COEFFICIENT;
 
-			const user = await this.userService.findOne({
-				subscription: { stripe_customer_id: customer },
-			});
-			
-			if (!user) throw new NotFoundException("User not found");
+			const user = await this.userService.findByCustomerId(customer);
+
 			user.subscription.credits += credits;
 			user.subscription.last_credits_update = new Date();
 			user.markModified("subscription");
 			await user.save();
-			
 		} catch (error) {
 			console.error(`⚠️ Webhook signature verification failed: ${error}`);
 			throw new BadRequestException("Invalid webhook signature");
