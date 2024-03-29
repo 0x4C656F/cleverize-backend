@@ -47,7 +47,7 @@ export class SubscriptionsController {
 	// }
 
 	@Post("/stripe-webhook")
-	public async handleStripeWebhook(@Req() request: RawBodyRequest<Request>): Promise<any> {
+	public handleStripeWebhook(@Req() request: RawBodyRequest<Request>) {
 		console.log("Received webhook");
 		try {
 			const hook = stripe.webhooks.constructEvent(
@@ -56,8 +56,7 @@ export class SubscriptionsController {
 				this.config.stripeWebhook
 			);
 
-			console.log(hook.data);
-
+			console.log(hook.data.object);
 			return { received: true };
 		} catch (error) {
 			console.error(`⚠️ Webhook signature verification failed: ${error}`);
