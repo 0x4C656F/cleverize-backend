@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
 import { Response } from "express";
 import Stripe from "stripe";
 
+import { JWTPayload, UserPayload } from "./common/user-payload.decorator";
 import getConfig, { Config } from "./config/configuration";
 import { AuthGuard } from "./modules/auth/auth.guard";
 
@@ -19,11 +20,14 @@ export class AppController {
 	}
 	@UseGuards(AuthGuard)
 	@Post("/pay")
-	async pay() {
+	async pay(@UserPayload() { sub }: JWTPayload) {
 		const stripe = new Stripe(this.envvars.stripe);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
 			mode: "payment",
+			metadata: {
+				userId: sub,
+			},
 			line_items: [{ price: "price_1OzehcCCMdYQSDIPGnGJBXsp", quantity: 1 }],
 		});
 	}
