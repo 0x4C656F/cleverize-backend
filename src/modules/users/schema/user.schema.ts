@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import {  HydratedDocument, Types } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 import { SUPPORTED_LANGUAGES } from "src/common/constants";
 import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
