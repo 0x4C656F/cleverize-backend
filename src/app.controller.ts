@@ -19,11 +19,12 @@ export class AppController {
 	}
 	@UseGuards(AuthGuard)
 	@Post("/pay")
-	async pay(@Body("price") price: number) {
+	async pay() {
 		const stripe = new Stripe(this.envvars.stripe);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
-			line_items: [{ price: "price_1OGjr6CCMdYQSDIPdpIm2LSR", quantity: 1 }],
+			mode: "payment",
+			line_items: [{ price: "price_1OzehcCCMdYQSDIPGnGJBXsp", quantity: 1 }],
 		});
 	}
 

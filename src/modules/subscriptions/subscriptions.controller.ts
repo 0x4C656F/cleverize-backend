@@ -51,10 +51,7 @@ export class SubscriptionsController {
 				process.env.STRIPE_WEBHOOK_SECRET
 			);
 
-			const userId = (hook.data.object as { userId?: string })?.userId;
-			if (userId) {
-				await this.service.topUpCredits(userId, 50);
-			}
+			console.log(hook.data);
 
 			return { received: true };
 		} catch (error) {
