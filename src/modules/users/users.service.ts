@@ -1,12 +1,19 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import * as bcrypt from "bcrypt";
+import { config } from "dotenv";
 import { Model } from "mongoose";
+import Stripe from "stripe";
 
 import { SALT_ROUNDS } from "src/common/constants";
 
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User, UserDocument } from "./schema/user.schema";
+import { subscriptionDefaultObject } from "../subscriptions/subscription";
+config();
+const stripe = new Stripe(process.env.STRIPE_SECRET, {
+	apiVersion: "2023-10-16",
+});
 
 @Injectable()
 export class UsersService {
@@ -30,7 +37,15 @@ export class UsersService {
 		const { password, email } = dto;
 		const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 		const [name] = email.split("@");
-		return this.userModel.create({ email, password: hashedPassword, name });
+
+		const customer = await stripe.customers.create({ email: email, name: name });
+
+		return this.userModel.create({
+			email,
+			password: hashedPassword,
+			name,
+			subscription: { ...subscriptionDefaultObject, stripe_customer_id: customer.id },
+		});
 	}
 
 	async addRefreshToken(userId: string, token: string): Promise<UserDocument> {

@@ -2,7 +2,9 @@ import { Injectable, ConflictException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/mongoose";
 import { compare } from "bcrypt";
+import { config } from "dotenv";
 import { Model } from "mongoose";
+import Stripe from "stripe";
 
 import { JwtTokensPair } from "src/common/jwt-tokens-pair";
 import { JWTPayload } from "src/common/user-payload.decorator";
@@ -13,7 +15,10 @@ import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 import { RefreshToken, RefreshTokenDocument } from "./schema/refresh-token.schema";
 import { UsersService } from "../users/users.service";
-
+config();
+const stripe = new Stripe(process.env.STRIPE_SECRET, {
+	apiVersion: "2023-10-16",
+});
 @Injectable()
 export class AuthService {
 	private config: Config;
@@ -47,6 +52,13 @@ export class AuthService {
 		const isValidPassword = await compare(password, user.password);
 
 		if (!isValidPassword) throw new ConflictException("Invalid email or password");
+
+		if (user.subscription.stripe_customer_id === null) {
+			const customer = await stripe.customers.create({ email: email, name: user.name });
+			await this.usersService.update(user._id.toString(), {
+				subscription: { ...user.subscription, stripe_customer_id: customer.id },
+			});
+		}
 
 		const payload: JWTPayload = { email: user.email, name: user.name, sub: user._id.toString() };
 
