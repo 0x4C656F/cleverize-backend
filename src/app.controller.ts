@@ -1,4 +1,4 @@
-import {  Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Response } from "express";
 import { Model } from "mongoose";
@@ -30,9 +30,8 @@ export class AppController {
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
 			mode: "payment",
-
 			customer: user.subscription.stripe_customer_id,
-			line_items: [{ price: "price_1OzehcCCMdYQSDIPGnGJBXsp", quantity: 1 }],
+			line_items: [{ price: this.envvars.stripePrice, quantity: 1 }],
 		});
 	}
 

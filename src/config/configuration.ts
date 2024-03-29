@@ -11,6 +11,7 @@ export type Config = {
 	};
 	stripe: string;
 	stripeWebhook: string;
+	stripePrice: string;
 	openai: {
 		dimaApiKey: string;
 		levApiKey: string;
@@ -21,13 +22,14 @@ export default function getConfiguration(): Config {
 	return {
 		port: Number.parseInt(process.env.PORT, 10) || 8000,
 		mongodbURI: process.env.MONGODB_URI,
-		stripe: process.env.STRIPE_SECRET,
 		auth: {
 			jwtSecret: process.env.JWT_SECRET,
 			jwtMaxAge: process.env.JWT_MAX_AGE,
 			jwtRefreshMaxAge: process.env.JWT_REFRESH_MAX_AGE,
 		},
+		stripe: process.env.STRIPE_SECRET,
 		stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET,
+		stripePrice: process.env.STRIPE_PRICE,
 		openai: {
 			dimaApiKey: process.env.DIMA_API_KEY,
 			levApiKey: process.env.LEV_API_KEY,
