@@ -55,7 +55,7 @@ export class SubscriptionsController {
 				request.headers["stripe-signature"],
 				this.config.stripeWebhook
 			);
-			console.log((hook.data.object as {customer: string}).customer);
+			console.log(hook);
 			const { amount } = hook.data.object as { amount: number };
 			return { received: true };
 		} catch (error) {

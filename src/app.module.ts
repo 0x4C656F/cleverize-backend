@@ -11,6 +11,7 @@ import { QuizzesModule } from "./modules/quizzes/quizzes.module";
 import { RoadmapNodesModule } from "./modules/roadmap-nodes/roadmap-nodes.module";
 import { RoadmapTemplatesModule } from "./modules/roadmap-templates/roadmap-templates.module";
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
+import { UserSchema } from "./modules/users/schema/user.schema";
 import { UsersModule } from "./modules/users/users.module";
 
 @Module({
@@ -20,6 +21,7 @@ import { UsersModule } from "./modules/users/users.module";
 			isGlobal: true,
 		}),
 		MongooseModule.forRoot(process.env.MONGODB_URI),
+		MongooseModule.forFeature([{ name: "User", schema: UserSchema }]),
 		LessonModule,
 		UsersModule,
 		RoadmapNodesModule,

@@ -1,16 +1,19 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
+import {  Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
 import { Response } from "express";
+import { Model } from "mongoose";
 import Stripe from "stripe";
 
 import { JWTPayload, UserPayload } from "./common/user-payload.decorator";
 import getConfig, { Config } from "./config/configuration";
 import { AuthGuard } from "./modules/auth/auth.guard";
+import { User, UserDocument } from "./modules/users/schema/user.schema";
 
 @Controller()
 export class AppController {
 	private readonly envvars: Config;
 
-	constructor() {
+	constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
 		this.envvars = getConfig();
 	}
 	@Get("/health")
@@ -21,13 +24,14 @@ export class AppController {
 	@UseGuards(AuthGuard)
 	@Post("/pay")
 	async pay(@UserPayload() { sub }: JWTPayload) {
+		const user = await this.userModel.findById(sub);
+
 		const stripe = new Stripe(this.envvars.stripe);
 		return await stripe.checkout.sessions.create({
 			success_url: "https://www.cleverize.co/",
 			mode: "payment",
-			metadata: {
-				userId: sub,
-			},
+
+			customer: user.subscription.stripe_customer_id,
 			line_items: [{ price: "price_1OzehcCCMdYQSDIPGnGJBXsp", quantity: 1 }],
 		});
 	}
