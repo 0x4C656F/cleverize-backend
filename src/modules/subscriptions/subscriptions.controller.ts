@@ -55,8 +55,8 @@ export class SubscriptionsController {
 				request.headers["stripe-signature"],
 				this.config.stripeWebhook
 			);
-
-			console.log(hook.data.object);
+			const data = hook.data.object as { amount: number };
+			console.log(data.amount);
 			return { received: true };
 		} catch (error) {
 			console.error(`⚠️ Webhook signature verification failed: ${error}`);
