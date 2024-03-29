@@ -54,15 +54,15 @@ export const lessonPrompt = (
 	- Length: Under 1000 tokens
 
 	Lesson Structure:
-	- (Introduction): Very shortly introduce the topic and its relevance.
-	- (Main Content): Explain the topic in detail with code examples.
+	- 1 Very shortly introduce the topic and its relevance.
+	- 2 Explain the topic in detail with code examples.
 
 	Markdown Guidelines:
 	- Use clear, well-structured markdown formatting.
 	- Split text into concise paragraphs.
 	- Use lists and emphasis (bold/italics) where appropriate.
 
-
+	Do not include conclusions or summary in the end of the lesson.
 	End the lesson by giving user a small practical task on the current topic and inviting user questions.
 
 	!IMPORTANT! Don't give the lesson twice. If the user asks the same question twice, politely redirect them to the relevant lesson or topic.
