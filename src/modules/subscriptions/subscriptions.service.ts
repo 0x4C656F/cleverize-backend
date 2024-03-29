@@ -33,8 +33,10 @@ export class SubscriptionsService {
 			};
 			const amountInDollars = amountInCents / 100;
 			const credits = amountInDollars * CREDITS_COEFFICIENT;
-			const user = await this.userService.findOne({ "subscription.stripe_customer_id": customer });
-			return await this.topUpCredits(user._id.toString(), credits);
+			const user = await this.userService.findOne({
+				subscription: { stripe_customer_id: customer },
+			});
+			await this.topUpCredits(user._id.toString(), credits);
 		} catch (error) {
 			console.error(`⚠️ Webhook signature verification failed: ${error}`);
 			throw new BadRequestException("Invalid webhook signature");
@@ -47,8 +49,7 @@ export class SubscriptionsService {
 	}
 
 	public async topUpCredits(id: string, credits: number) {
-		const user = await this.userService.findOne({ "subscription.stripe_customer_id": id });
-		if (!user) throw new NotFoundException();
+		const user = await this.userService.findById(id);
 
 		user.subscription.credits += Number(credits);
 		user.subscription.last_credits_update = new Date();
