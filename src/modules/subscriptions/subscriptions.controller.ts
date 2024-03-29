@@ -17,6 +17,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET, {
 });
 
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
+import getConfiguration, { Config } from "src/config/configuration";
 
 import { Subscription } from "./subscription";
 import { SubscriptionsService } from "./subscriptions.service";
@@ -25,7 +26,10 @@ import { AuthGuard } from "../auth/auth.guard";
 @ApiTags("Subscriptions")
 @Controller("subscriptions")
 export class SubscriptionsController {
-	constructor(private readonly service: SubscriptionsService) {}
+	config: Config;
+	constructor(private readonly service: SubscriptionsService) {
+		this.config = getConfiguration();
+	}
 
 	@UseGuards(AuthGuard)
 	@Get("/subscription-data")
@@ -43,16 +47,15 @@ export class SubscriptionsController {
 	// }
 
 	@Post("/stripe-webhook")
-
 	public async handleStripeWebhook(@Req() request: RawBodyRequest<Request>): Promise<any> {
-		console.log("Received webhook")
+		console.log("Received webhook");
 		try {
 			const hook = stripe.webhooks.constructEvent(
 				request.rawBody,
 				request.headers["stripe-signature"],
-				process.env.STRIPE_WEBHOOK_SECRET
+				this.config.stripeWebhook
 			);
-				
+
 			console.log(hook.data);
 
 			return { received: true };
