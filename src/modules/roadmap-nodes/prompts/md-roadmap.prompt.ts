@@ -10,6 +10,7 @@ export default function mediumTemplate(languageTitle: string) {
 	- Tailor the roadmap to the specific features and concepts of ${languageTitle}.
 	- Each item should be a clear, standalone topic relevant to ${languageTitle}, without additional explanations.
 	- Ensure the roadmap covers a logical progression from basic to advanced topics in ${languageTitle}.
+       - Do not include libraries or frameworks to roadmap
 	
 	Restrictions:
 	- List only the names of the topics without any parenthetical information or descriptions.

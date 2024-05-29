@@ -32,7 +32,7 @@ export class RoadmapTemplatesController {
 
 		return template;
 	}
-	
+
 	@Post("/")
 	public async createTemplateRoadmap(@Body() dto: SaveTemplateObjectDto) {
 		return await this.service.saveTemplateObject(dto);
@@ -44,6 +44,6 @@ export class RoadmapTemplatesController {
 		@Param("id") id: string,
 		@UserPayload() payload: JWTPayload
 	) {
-		return await this.service.copyTemplateToUserV2(id, payload.sub);
+		return await this.service.copyTemplateToUser(id, payload.sub);
 	}
 }

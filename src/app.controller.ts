@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { Controller, Get, Post, Res, UseGuards } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Response } from "express";
@@ -5,16 +6,19 @@ import { Model } from "mongoose";
 import Stripe from "stripe";
 
 import { JWTPayload, UserPayload } from "./common/user-payload.decorator";
-import getConfig, { Config } from "./config/configuration";
+import getConfiguration, { Config } from "./config/configuration";
 import { AuthGuard } from "./modules/auth/auth.guard";
+import mediumTemplate from "./modules/roadmap-nodes/prompts/md-roadmap.prompt";
 import { User, UserDocument } from "./modules/users/schema/user.schema";
 
 @Controller()
 export class AppController {
 	private readonly envvars: Config;
-
+	gga = new GoogleGenerativeAI(getConfiguration().geminiApiKey);
+	gemini: GenerativeModel;
 	constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
-		this.envvars = getConfig();
+		this.envvars = getConfiguration();
+		this.gemini = this.gga.getGenerativeModel({ model: "gemini-1.5-pro" });
 	}
 	@Get("/health")
 	healthCheck() {

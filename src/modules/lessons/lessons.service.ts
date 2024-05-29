@@ -1,8 +1,7 @@
+import { Content, GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources";
 
 import { StreamService } from "src/common/stream.service";
 import getConfiguration from "src/config/configuration";
@@ -11,15 +10,15 @@ import { AddUserMessageDto, MessageRole } from "./dto/add-user-message.dto";
 import { InitLessonByIdDto } from "./dto/init-lesson.dto";
 import roadmapParser from "./helpers/roadmap-parser";
 import { lessonPrompt } from "./prompts/lesson.prompt";
-import { Lesson, LessonDocument } from "./schema/lesson.schema";
+import { Lesson, LessonDocument, Message } from "./schema/lesson.schema";
 import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { ADD_MESSAGE_CREDIT_COST, INIT_LESSON_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { UsersService } from "../users/users.service";
-
 @Injectable()
 export class LessonsService {
-	private openai: OpenAI;
+	private gga: GoogleGenerativeAI = new GoogleGenerativeAI(getConfiguration().geminiApiKey);
+	private gemini: GenerativeModel;
 
 	constructor(
 		@InjectModel(Lesson.name) private readonly model: Model<LessonDocument>,
@@ -28,11 +27,9 @@ export class LessonsService {
 		private readonly subscriptionsService: SubscriptionsService,
 		private readonly streamService: StreamService
 	) {
-		this.openai = new OpenAI({
-			apiKey: getConfiguration().openai.dimaApiKey,
-		});
+		this.gemini = this.gga.getGenerativeModel({ model: "gemini-1.5-pro" });
 	}
-
+	//TODO - Implement the following methods
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
 		const { lessonId, content, user_id } = dto;
 		const lesson = await this.model
@@ -49,17 +46,16 @@ export class LessonsService {
 				{ new: true }
 			)
 			.exec();
-		const completeAiResponse = await this.generateAiResponse(
-			lesson.messages as ChatCompletionMessageParam[],
-			lesson._id.toString(),
-			"gpt-3.5-turbo-1106"
-		);
-		await this.appendAiResponseAndFinalize(
-			lesson,
-			completeAiResponse,
-			user_id,
-			ADD_MESSAGE_CREDIT_COST
-		);
+		// const completeAiResponse = await this.generateAiResponse(
+		// 	lesson.messages,
+		// 	lesson._id.toString()
+		// );
+		// await this.appendAiResponseAndFinalize(
+		// 	lesson,
+		// 	completeAiResponse,
+		// 	user_id,
+		// 	ADD_MESSAGE_CREDIT_COST
+		// );
 	}
 
 	public async initLesson(dto: InitLessonByIdDto): Promise<Lesson> {
@@ -68,20 +64,16 @@ export class LessonsService {
 		const lesson = await this.findLesson(dto.lessonId);
 		if (lesson.messages.length > 0) return lesson;
 
-		const sectionRoadmap: RoadmapNodeDocument = await this.roadmapModel.findById(
-			dto.roadmap_id
-		);
-		console.log(sectionRoadmap);
+		const sectionRoadmap: RoadmapNodeDocument = await this.roadmapModel.findById(dto.roadmap_id);
 		const [roadmap]: RoadmapNodeDocument[] = await this.roadmapModel.find({
 			_id: sectionRoadmap.parent_node_id,
 		});
-		console.log(roadmap);
 		const roadmapForAi = roadmapParser(roadmap);
 		const prompt = lessonPrompt(language, lesson.title, roadmapForAi, roadmap.title);
+
 		const aiResponse = await this.generateAiResponse(
-			[{ role: "system", content: prompt }],
-			lesson._id.toString(),
-			"gpt-3.5-turbo-1106"
+			[{ role: "user", content: prompt }],
+			lesson._id.toString()
 		);
 
 		await this.appendAiResponseAndFinalize(
@@ -100,20 +92,21 @@ export class LessonsService {
 		return lesson;
 	}
 
-	private async generateAiResponse(
-		messages: ChatCompletionMessageParam[],
-		lessonId: string,
-		model: string
-	): Promise<string> {
+	private messageToContext(messages: Message[]): Content[] {
+		return messages.map((message) => ({
+			role: message.role,
+			parts: [{ text: message.content }],
+		}));
+	}
+
+	private async generateAiResponse(messages: Message[], lessonId: string): Promise<string> {
 		let aiResponse = "";
-		const completion = await this.openai.chat.completions.create({
-			messages,
-			model,
-			stream: true,
-			max_tokens: 2000,
+		const contents = this.messageToContext(messages);
+		const response = await this.gemini.generateContentStream({
+			contents,
 		});
-		for await (const part of completion) {
-			aiResponse += part.choices[0].delta.content ?? "";
+		for await (const chunk of response.stream) {
+			aiResponse += chunk.text();
 			this.streamService.sendData(lessonId, aiResponse);
 		}
 		return aiResponse;
@@ -130,7 +123,7 @@ export class LessonsService {
 		if (systemMessageContent) {
 			lesson.messages.push({ role: "system", content: systemMessageContent });
 		}
-		lesson.messages.push({ role: "assistant", content: aiResponse });
+		lesson.messages.push({ role: "model", content: aiResponse });
 		await lesson.save();
 		await this.subscriptionsService.deductCredits(userId, creditCost);
 	}

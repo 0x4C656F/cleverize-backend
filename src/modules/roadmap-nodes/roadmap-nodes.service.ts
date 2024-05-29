@@ -1,11 +1,14 @@
+import { PassThrough } from "node:stream";
+
+import { GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
-import OpenAI from "openai";
 
 import { DeleteRootRoadmapDto } from "./dto/delete-root-roadmap-dto";
 import { GenerateRootRoadmapDto } from "./dto/generate-root-roadmap.dto";
 import GenerateSectionNodeDto from "./dto/generate-section-node.dto";
+import getTemplate from "./helpers/get-template";
 import sectionPromptTemplate from "./prompts/section-node.promp";
 import {
 	RoadmapSize,
@@ -17,51 +20,46 @@ import { RawRoadmap } from "./types/raw-roadmap";
 import getConfiguration from "../../config/configuration";
 import { LessonsService } from "../lessons/lessons.service";
 import { QuizzesService } from "../quizzes/quizzes.service";
-import mediumTemplate from "../roadmap-nodes/prompts/md-roadmap.prompt";
-import smallTemplate from "../roadmap-nodes/prompts/sm-roadmap.prompt";
 import { GENERATE_ROADMAP_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { User, UserDocument } from "../users/schema/user.schema";
 import { UsersService } from "../users/users.service";
 @Injectable()
 export class RoadmapNodesService {
-	openai = new OpenAI({ apiKey: getConfiguration().openai.dimaApiKey });
+	gga = new GoogleGenerativeAI(getConfiguration().geminiApiKey);
+	gemini: GenerativeModel;
 	constructor(
 		@InjectModel(RoadmapNode.name) private readonly model: Model<RoadmapNodeDocument>,
 		private readonly subscriptionsService: SubscriptionsService,
 		private readonly usersService: UsersService,
 		private readonly lessonsService: LessonsService,
 		private readonly quizzesService: QuizzesService
-	) {}
+	) {
+		this.gemini = this.gga.getGenerativeModel({
+			model: "gemini-1.5-pro",
+			generationConfig: { responseMimeType: "application/json" },
+		});
+	}
 
 	public async generateRootRoadmap(dto: GenerateRootRoadmapDto): Promise<void> {
-		const user: UserDocument = await this.usersService.findById(dto.user_id);
-
-		if (!user) {
-			throw new NotFoundException("User not found");
-		}
-
+		const exists = await this.usersService.checkExistance(dto.user_id);
+		if (!exists) throw new NotFoundException("User not found");
 		const rootRoadmap: RawRoadmap = await this.generateRoadmap(dto.title, dto.size);
 		const roadmap: RoadmapNodeDocument = await this.saveRoadmap(rootRoadmap, dto.user_id, dto.size);
-		user.roadmaps.push(roadmap._id);
-		await user.save();
 		await this.subscriptionsService.deductCredits(dto.user_id, GENERATE_ROADMAP_CREDIT_COST);
+		await this.usersService.addRoadmapId(dto.user_id, roadmap._id);
 	}
 
 	public async generateRoadmap(title: string, size: RoadmapSize): Promise<RawRoadmap> {
-		const template = size === RoadmapSize.SMALL ? smallTemplate(title) : mediumTemplate(title);
-		const completion = await this.openai.chat.completions.create({
-			messages: [{ role: "system", content: template }],
-			model: "gpt-3.5-turbo-1106",
-			max_tokens: 1500,
-			response_format: { type: "json_object" },
-		});
-
-		return JSON.parse(completion.choices[0].message.content) as RawRoadmap;
+		const template = getTemplate(size, title);
+		const completion = await this.gemini.generateContent(template);
+		const jsonData: string = completion.response.text();
+		const parsedData: RawRoadmap = JSON.parse(jsonData) as RawRoadmap;
+		return parsedData;
 	}
 
 	public async saveRoadmap(
-		firstNode: RawRoadmap,
+		rawRoadmap: RawRoadmap,
 		userId: string,
 		size: RoadmapSize,
 		parentId?: string
@@ -69,35 +67,40 @@ export class RoadmapNodesService {
 		const coveredMaterial: string[] = [];
 
 		const saveNodeRecursively = async (
-			node: RawRoadmap,
+			rawNode: RawRoadmap,
 			parentId?: string
 		): Promise<RoadmapNodeDocument> => {
+			const isRootNode = !parentId;
+			const hasChildren = "children" in rawNode && rawNode.children.length > 0;
 			const newNode = await this.model.create({
-				title: node.title,
-				is_completed: false,
-				parent_node_id: parentId || undefined,
-				...(parentId ? {} : { owner_id: userId, size }),
-				children: [],
+				title: rawNode.title,
+				parent_node_id: parentId,
 			});
-
-			if (node.children && node.children.length > 0) {
-				for (const childNode of node.children) {
+			if (isRootNode) {
+				newNode.owner_id = userId;
+				newNode.size = size;
+			}
+			if (hasChildren) {
+				// in this case, iterate over children
+				for (const childNode of rawNode.children) {
 					const childDocument = await saveNodeRecursively(childNode, newNode._id.toString());
-					newNode.children.push(childDocument);
+					newNode.children.push(childDocument._id as unknown as RoadmapNodeDocument);
 				}
+
 				await newNode.save();
 			} else {
-				coveredMaterial.push(node.title);
+				// no children, means this is lesson node
+				coveredMaterial.push(rawNode.title);
 				await this.createAndBindQuizAndLesson(newNode, coveredMaterial, userId);
 			}
 
 			return newNode;
 		};
 
-		return saveNodeRecursively(firstNode, parentId);
+		return saveNodeRecursively(rawRoadmap, parentId);
 	}
 
-	private async createAndBindQuizAndLesson(
+	async createAndBindQuizAndLesson(
 		node: RoadmapNodeDocument,
 		covered_material: string[],
 		owner_id: string
@@ -130,9 +133,9 @@ export class RoadmapNodesService {
 		return roadmapNode;
 	}
 
-	public async getRoadmapSubtreeById(id: string): Promise<RoadmapNodeDocument> {
+	public async getRoadmapSubtreeById(_id: string): Promise<RoadmapNodeDocument> {
 		// recursive population is enabled only on find method
-		const [roadmap] = await this.model.find({ _id: id });
+		const [roadmap] = await this.model.find({ _id });
 		if (!roadmap) throw new NotFoundException("Roadmap root not found");
 
 		return roadmap;
@@ -189,15 +192,9 @@ export class RoadmapNodesService {
 		if (!roadmap) {
 			throw new NotFoundException("Roadmap not found");
 		}
-		const rawSectionNode = await this.openai.chat.completions.create({
-			messages: [{ role: "system", content: sectionPromptTemplate(title, roadmap) }],
-			model: "gpt-3.5-turbo-1106",
-			max_tokens: 1500,
-			response_format: { type: "json_object" },
-		});
+		const rawSectionNode = await this.gemini.generateContent(sectionPromptTemplate(title, roadmap));
 
-		const sectionNode = JSON.parse(rawSectionNode.choices[0].message.content) as RawRoadmap;
-		console.log("Parsed sectionNode:", sectionNode);
+		const sectionNode = JSON.parse(rawSectionNode.response.text()) as RawRoadmap;
 
 		const sectionNodeDocument: RoadmapNodeDocument = await this.model.create({
 			title: sectionNode.title,

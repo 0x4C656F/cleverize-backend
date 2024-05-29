@@ -4,33 +4,25 @@ import { Model } from "mongoose";
 
 import { SaveTemplateObjectDto, TemplateObjectNode } from "./dto/save-template-object.dto";
 import { TemplateRoadmapNode, TemplateRoadmapNodeDocument } from "./roadmap-templates.schema";
-import { Lesson, LessonDocument } from "../lessons/schema/lesson.schema";
-import { Quiz, QuizDocument } from "../quizzes/schema/quiz.schema";
 import { RoadmapNodesService } from "../roadmap-nodes/roadmap-nodes.service";
-import { RoadmapNode, RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
+import { RoadmapNodeDocument } from "../roadmap-nodes/schema/roadmap-nodes.schema";
 import { RawRoadmap } from "../roadmap-nodes/types/raw-roadmap";
 import { LOAD_TEMPLATE_CREDIT_COST } from "../subscriptions/subscription";
 import { SubscriptionsService } from "../subscriptions/subscriptions.service";
-import { User, UserDocument } from "../users/schema/user.schema";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class RoadmapTemplatesService {
 	constructor(
 		@InjectModel(TemplateRoadmapNode.name)
 		private readonly model: Model<TemplateRoadmapNodeDocument>,
-		@InjectModel(RoadmapNode.name)
-		private readonly roadmapsModel: Model<RoadmapNodeDocument>,
-		@InjectModel(Lesson.name)
-		private readonly lessonModel: Model<LessonDocument>,
-		@InjectModel(User.name)
-		private readonly userModel: Model<UserDocument>,
-		@InjectModel(Quiz.name)
-		private readonly quizModel: Model<QuizDocument>,
 		private readonly roadmapNodesService: RoadmapNodesService,
+		private readonly usersService: UsersService,
 		private readonly subscriptionsService: SubscriptionsService
 	) {}
 
 	public async saveTemplateObject(root: SaveTemplateObjectDto) {
+		//note - it's a system function, not for public use.
 		const queue: TemplateObjectNode[] = [root];
 
 		const savedRoot = await new this.model({ title: root.title, size: root.size }).save();
@@ -56,7 +48,7 @@ export class RoadmapTemplatesService {
 		return savedRoot;
 	}
 
-	public async copyTemplateToUserV2(
+	public async copyTemplateToUser(
 		templateRoadmapId: string,
 		userId: string
 	): Promise<RoadmapNodeDocument> {
@@ -71,9 +63,7 @@ export class RoadmapTemplatesService {
 			userId,
 			template.size
 		);
-		await this.userModel.findByIdAndUpdate(userId, {
-			$push: { roadmaps: roadmap._id },
-		});
+		await this.usersService.addRoadmapId(userId, roadmap._id);
 		await this.subscriptionsService.deductCredits(userId, LOAD_TEMPLATE_CREDIT_COST);
 		return roadmap;
 	}

@@ -54,7 +54,7 @@ export class AuthService {
 		if (!isValidPassword) throw new ConflictException("Invalid email or password");
 
 		if (!user.subscription.stripe_customer_id) {
-			const customer = await stripe.customers.create({ email: user.email, name: user.name});
+			const customer = await stripe.customers.create({ email: user.email, name: user.name });
 			await this.usersService.update(user._id.toString(), {
 				subscription: { ...user.subscription, stripe_customer_id: customer.id },
 			});

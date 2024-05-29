@@ -19,6 +19,12 @@ export class SubscriptionsController {
 		return await this.service.getSubscriptionData(payload.sub);
 	}
 
+	@UseGuards(AuthGuard)
+	@Get("/credits")
+	public async getCredits(@UserPayload() payload: JWTPayload): Promise<number> {
+		return await this.service.getCredits(payload.sub);
+	}
+
 	// @UseGuards(AuthGuard)
 	// @Get("/top-up/:id/:credits")
 	// public async topUpCredits(

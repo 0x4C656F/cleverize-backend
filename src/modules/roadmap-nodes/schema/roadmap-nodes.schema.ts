@@ -39,10 +39,10 @@ export class RoadmapNode {
 	@Prop()
 	public parent_node_id?: string;
 
-	@Prop({ required: true })
+	@Prop({ required: true, default: false })
 	public is_completed: boolean;
 
-	@Prop({ required: true, type: [Types.ObjectId], ref: RoadmapNode.name, index: true })
+	@Prop({ required: true, type: [Types.ObjectId], ref: RoadmapNode.name, index: true, default: [] })
 	public children: RoadmapNode[];
 }
 

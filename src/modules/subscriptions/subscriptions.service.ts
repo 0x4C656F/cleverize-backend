@@ -52,6 +52,11 @@ export class SubscriptionsService {
 		return user.subscription;
 	}
 
+	public async getCredits(id: string): Promise<number> {
+		const user = await this.userService.findById(id);
+		return user.subscription.credits;
+	}
+
 	public async topUpCredits(id: string, credits: number) {
 		const user = await this.userService.findById(id);
 

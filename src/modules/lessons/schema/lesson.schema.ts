@@ -4,7 +4,7 @@ import { HydratedDocument, Types } from "mongoose";
 import { RoadmapNodesCollectionName } from "src/modules/roadmap-nodes/schema/roadmap-nodes.schema";
 
 export type Message = {
-	role: string;
+	role: "model" | "user" | "system";
 	content: string;
 };
 

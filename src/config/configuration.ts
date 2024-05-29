@@ -4,6 +4,7 @@ config();
 export type Config = {
 	port: number;
 	mongodbURI: string;
+	geminiApiKey: string;
 	auth: {
 		jwtSecret: string;
 		jwtMaxAge: string;
@@ -22,6 +23,7 @@ export default function getConfiguration(): Config {
 	return {
 		port: Number.parseInt(process.env.PORT, 10) || 8000,
 		mongodbURI: process.env.MONGODB_URI,
+		geminiApiKey: process.env.GEMINI_API_KEY,
 		auth: {
 			jwtSecret: process.env.JWT_SECRET,
 			jwtMaxAge: process.env.JWT_MAX_AGE,

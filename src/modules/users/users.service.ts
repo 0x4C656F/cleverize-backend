@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import * as bcrypt from "bcrypt";
 import { config } from "dotenv";
-import { Model } from "mongoose";
+import { Model, ObjectId, Types } from "mongoose";
 import Stripe from "stripe";
 
 import { SALT_ROUNDS } from "src/common/constants";
@@ -24,9 +24,7 @@ export class UsersService {
 	}
 
 	async findById(id: string): Promise<UserDocument> {
-		const user = await this.userModel.findById(id);
-		if (!user) throw new NotFoundException("User not found");
-		return user;
+		return await this.userModel.findById(id);
 	}
 
 	async findByEmail(email: string): Promise<UserDocument> {
@@ -46,6 +44,19 @@ export class UsersService {
 			name,
 			subscription: { ...subscriptionDefaultObject, stripe_customer_id: customer.id },
 		});
+	}
+
+	async addRoadmapId(userId: string, roadmapId: Types.ObjectId): Promise<UserDocument> {
+		const user = await this.userModel.findById(userId);
+		if (!user) throw new NotFoundException("User not found");
+		user.roadmaps.push(roadmapId);
+		await user.save();
+		return user;
+	}
+
+	async checkExistance(id: string): Promise<boolean> {
+		const user = await this.userModel.findById(id);
+		return !!user;
 	}
 
 	async addRefreshToken(userId: string, token: string): Promise<UserDocument> {

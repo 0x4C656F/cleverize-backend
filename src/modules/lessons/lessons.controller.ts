@@ -19,7 +19,7 @@ import { Observable } from "rxjs";
 import { JWTPayload, UserPayload } from "src/common/user-payload.decorator";
 
 import { AddUserMessageBodyDto } from "./dto/add-user-message.dto";
-import { InitLessonByIdBodyDto } from "./dto/init-lesson.dto";
+import { InitLessonByIdBodyDto, InitLessonByIdDto } from "./dto/init-lesson.dto";
 import { OperateLessonByIdDto } from "./dto/operate-lesson.dto";
 import { LessonsService } from "./lessons.service";
 import { Lesson, LessonDocument } from "./schema/lesson.schema";
@@ -43,6 +43,16 @@ export class LessonController {
 		const lesson = await this.model.findOne({ _id: parameters.lessonId }).exec();
 		if (!lesson) throw new NotFoundException();
 		return lesson;
+	}
+
+	@Get("/try/try")
+	async gen() {
+		const dto: InitLessonByIdDto = {
+			lessonId: "66577b33fdbc5d18cc23f16b",
+			user_id: "66577b21fdbc5d18cc23f0de",
+			roadmap_id: "66577b33fdbc5d18cc23f0f6",
+		};
+		return await this.service.initLesson(dto);
 	}
 
 	@ApiBearerAuth()
