@@ -2,7 +2,7 @@ import { ApiProperty, OmitType } from "@nestjs/swagger";
 import { IsMongoId, IsString } from "class-validator";
 
 export enum MessageRole {
-	USER = "user", // TODO
+	USER = "user",
 }
 
 export class AddUserMessageDto {

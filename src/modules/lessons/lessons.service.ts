@@ -29,33 +29,26 @@ export class LessonsService {
 	) {
 		this.gemini = this.gga.getGenerativeModel({ model: "gemini-1.5-pro" });
 	}
-	//TODO - Implement the following methods
 	public async addUserMessage(dto: AddUserMessageDto): Promise<void> {
 		const { lessonId, content, user_id } = dto;
-		const lesson = await this.model
-			.findByIdAndUpdate(
-				lessonId,
-				{
-					$push: {
-						messages: {
-							content,
-							role: MessageRole.USER,
-						},
-					},
-				},
-				{ new: true }
-			)
-			.exec();
-		// const completeAiResponse = await this.generateAiResponse(
-		// 	lesson.messages,
-		// 	lesson._id.toString()
-		// );
-		// await this.appendAiResponseAndFinalize(
-		// 	lesson,
-		// 	completeAiResponse,
-		// 	user_id,
-		// 	ADD_MESSAGE_CREDIT_COST
-		// );
+		const less: LessonDocument = await this.findLesson(lessonId);
+		if (!less) throw new NotFoundException("Lesson not found");
+		less.messages.push({ role: MessageRole.USER, content });
+		await less.save();
+		const generatedResponse = await this.generateAiResponse(less.messages, lessonId);
+		await this.appendAiResponseAndFinalize(
+			less,
+			generatedResponse,
+			user_id,
+			ADD_MESSAGE_CREDIT_COST
+		);
+
+		await this.appendAiResponseAndFinalize(
+			less,
+			generatedResponse,
+			user_id,
+			ADD_MESSAGE_CREDIT_COST
+		);
 	}
 
 	public async initLesson(dto: InitLessonByIdDto): Promise<Lesson> {
@@ -86,19 +79,6 @@ export class LessonsService {
 		return lesson;
 	}
 
-	private async findLesson(lessonId: string): Promise<LessonDocument> {
-		const lesson = await this.model.findById(lessonId);
-		if (!lesson) throw new NotFoundException("Lesson not found");
-		return lesson;
-	}
-
-	private messageToContext(messages: Message[]): Content[] {
-		return messages.map((message) => ({
-			role: message.role,
-			parts: [{ text: message.content }],
-		}));
-	}
-
 	private async generateAiResponse(messages: Message[], lessonId: string): Promise<string> {
 		let aiResponse = "";
 		const contents = this.messageToContext(messages);
@@ -110,6 +90,21 @@ export class LessonsService {
 			this.streamService.sendData(lessonId, aiResponse);
 		}
 		return aiResponse;
+	}
+	private messageToContext(messages: Message[]): Content[] {
+		return messages.map((message) => {
+			if (message.role === "system") {
+				return {
+					role: "user",
+					parts: [{ text: message.content }],
+				};
+			} else {
+				return {
+					role: message.role,
+					parts: [{ text: message.content }],
+				};
+			}
+		});
 	}
 
 	private async appendAiResponseAndFinalize(
@@ -130,5 +125,9 @@ export class LessonsService {
 
 	public async createLesson(lesson: Lesson): Promise<LessonDocument> {
 		return await this.model.create(lesson);
+	}
+
+	private async findLesson(lessonId: string): Promise<LessonDocument> {
+		return await this.model.findById(lessonId);
 	}
 }
